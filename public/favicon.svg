@@ -1,4 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <rect width="32" height="32" rx="8" fill="#818cf8"/>
-  <text x="16" y="22" font-family="system-ui,-apple-system,sans-serif" font-size="18" font-weight="800" fill="#fff" text-anchor="middle">PM</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <radialGradient id="g" cx="50%" cy="35%" r="50%">
+      <stop offset="0%" stop-color="#7c3aed" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#000" stop-opacity="1"/>
+    </radialGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="#000"/>
+  <circle cx="32" cy="28" r="22" fill="url(#g)"/>
+  <path d="M16 44 C16 24 24 12 32 10 C40 12 48 24 48 44 C44 40 38 38 32 38 C26 38 20 40 16 44Z" fill="#000" stroke="#7c3aed" stroke-width="1.2" stroke-opacity="0.8"/>
+  <path d="M22 44 C22 36 26 32 32 32 C38 32 42 36 42 44" fill="#000"/>
 </svg>
