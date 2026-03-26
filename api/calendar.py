@@ -15,7 +15,19 @@ from google.oauth2 import service_account
 from googleapiclient.discovery import build
 
 SCOPES = ["https://www.googleapis.com/auth/calendar"]
-CALENDAR_ID = os.environ.get("GOOGLE_CALENDAR_ID", "partner@shadowoperator.ai")
+DEFAULT_CALENDAR_ID = "partner@shadowoperator.ai"
+
+# Map team member emails to their Google Calendar IDs
+CALENDAR_MAP = {
+    "partner@shadowoperator.ai": "partner@shadowoperator.ai",
+    "harry@maudegroup.co.uk": "harry@maudegroup.co.uk",
+}
+
+def _get_calendar_id(assignee_email):
+    """Return the calendar ID for a given assignee, or default."""
+    if assignee_email and assignee_email.lower() in CALENDAR_MAP:
+        return CALENDAR_MAP[assignee_email.lower()]
+    return DEFAULT_CALENDAR_ID
 
 
 def _get_calendar_service():
@@ -63,26 +75,35 @@ class handler(BaseHTTPRequestHandler):
             time_min = start + "T00:00:00Z"
             time_max = end + "T23:59:59Z"
 
-            events_result = service.events().list(
-                calendarId=CALENDAR_ID,
-                timeMin=time_min,
-                timeMax=time_max,
-                maxResults=100,
-                singleEvents=True,
-                orderBy="startTime"
-            ).execute()
-
-            events = events_result.get("items", [])
+            # Fetch events from all team calendars
             simplified = []
-            for ev in events:
-                start_date = ev.get("start", {}).get("date") or ev.get("start", {}).get("dateTime", "")[:10]
-                simplified.append({
-                    "event_id": ev.get("id", ""),
-                    "title": ev.get("summary", ""),
-                    "date": start_date,
-                    "description": ev.get("description", ""),
-                    "task_id": ev.get("extendedProperties", {}).get("private", {}).get("task_id", ""),
-                })
+            seen_ids = set()
+            for cal_id in set(CALENDAR_MAP.values()):
+                try:
+                    events_result = service.events().list(
+                        calendarId=cal_id,
+                        timeMin=time_min,
+                        timeMax=time_max,
+                        maxResults=100,
+                        singleEvents=True,
+                        orderBy="startTime"
+                    ).execute()
+
+                    for ev in events_result.get("items", []):
+                        eid = ev.get("id", "")
+                        if eid in seen_ids:
+                            continue
+                        seen_ids.add(eid)
+                        start_date = ev.get("start", {}).get("date") or ev.get("start", {}).get("dateTime", "")[:10]
+                        simplified.append({
+                            "event_id": eid,
+                            "title": ev.get("summary", ""),
+                            "date": start_date,
+                            "description": ev.get("description", ""),
+                            "task_id": ev.get("extendedProperties", {}).get("private", {}).get("task_id", ""),
+                        })
+                except Exception as e:
+                    print(f"[Calendar] Failed to fetch from {cal_id}: {e}")
 
             json_response(self, 200, {"ok": True, "events": simplified})
         except Exception as e:
@@ -120,7 +141,8 @@ class handler(BaseHTTPRequestHandler):
                     }
                 }
 
-                event = service.events().insert(calendarId=CALENDAR_ID, body=event_body).execute()
+                target_calendar = _get_calendar_id(assignee)
+                event = service.events().insert(calendarId=target_calendar, body=event_body).execute()
                 event_id = event.get("id", "")
 
                 json_response(self, 200, {"ok": True, "event_id": event_id})
@@ -131,7 +153,17 @@ class handler(BaseHTTPRequestHandler):
                     json_response(self, 400, {"ok": False, "error": "event_id is required"})
                     return
 
-                service.events().delete(calendarId=CALENDAR_ID, eventId=event_id).execute()
+                # Try deleting from all calendars
+                deleted = False
+                for cal_id in set(CALENDAR_MAP.values()):
+                    try:
+                        service.events().delete(calendarId=cal_id, eventId=event_id).execute()
+                        deleted = True
+                        break
+                    except Exception:
+                        continue
+                if not deleted:
+                    service.events().delete(calendarId=DEFAULT_CALENDAR_ID, eventId=event_id).execute()
                 json_response(self, 200, {"ok": True, "deleted": True})
 
             else:
