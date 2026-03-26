@@ -123,7 +123,80 @@ body { background: var(--bg); color: var(--text); }
 }
 .login-card-content {
     padding: 20px 24px 24px;
+    display: flex; flex-direction: column; gap: 20px;
 }
+
+/* Form fields */
+.login-field { display: flex; flex-direction: column; gap: 6px; }
+.login-field label { font-size: 0.875rem; font-weight: 500; color: #d4d4d8; }
+.login-input-wrap {
+    position: relative; display: flex; align-items: center;
+}
+.login-input-wrap svg.field-icon {
+    position: absolute; left: 12px; width: 16px; height: 16px; color: #71717a; pointer-events: none;
+}
+.login-input-wrap input {
+    width: 100%; height: 40px; padding: 0 12px 0 38px;
+    background: #09090b; border: 1px solid #27272a; border-radius: 8px;
+    color: #fafafa; font-size: 0.875rem; outline: none;
+    transition: border-color 0.2s;
+}
+.login-input-wrap input::placeholder { color: #52525b; }
+.login-input-wrap input:focus { border-color: #3f3f46; box-shadow: 0 0 0 3px rgba(63,63,70,0.2); }
+.login-input-wrap input[type="password"] { padding-right: 42px; }
+
+.login-eye-btn {
+    position: absolute; right: 4px; padding: 8px;
+    background: none; border: none; color: #71717a; cursor: pointer;
+    border-radius: 6px; display: flex; align-items: center; justify-content: center;
+}
+.login-eye-btn:hover { color: #d4d4d8; }
+
+/* Remember me row */
+.login-remember-row {
+    display: flex; align-items: center; justify-content: space-between;
+}
+.login-remember-row label {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 0.875rem; color: #a1a1aa; cursor: pointer;
+}
+.login-remember-row input[type="checkbox"] {
+    width: 16px; height: 16px; accent-color: #fafafa;
+    border-radius: 4px; cursor: pointer;
+}
+.login-forgot {
+    font-size: 0.875rem; color: #d4d4d8; text-decoration: none;
+    cursor: pointer; background: none; border: none;
+}
+.login-forgot:hover { color: #fafafa; }
+
+/* Continue button */
+.login-continue-btn {
+    width: 100%; height: 40px; padding: 0 16px;
+    background: #fafafa; color: #18181b;
+    border: none; border-radius: 8px;
+    font-size: 0.875rem; font-weight: 500;
+    cursor: pointer; transition: background 0.2s;
+}
+.login-continue-btn:hover { background: #e4e4e7; }
+
+/* OR divider */
+.login-divider {
+    position: relative; display: flex; align-items: center;
+}
+.login-divider::before {
+    content: ''; flex: 1; height: 1px; background: #27272a;
+}
+.login-divider span {
+    padding: 0 12px; font-size: 0.7rem; color: #71717a;
+    text-transform: uppercase; letter-spacing: 0.15em;
+    background: rgba(24,24,27,0.70);
+}
+.login-divider::after {
+    content: ''; flex: 1; height: 1px; background: #27272a;
+}
+
+/* Google button */
 .login-google-btn {
     width: 100%; padding: 10px 16px; height: 40px;
     background: #09090b;
@@ -140,7 +213,18 @@ body { background: var(--bg); color: var(--text); }
     background: rgba(24,24,27,0.80);
 }
 .login-google-btn svg { flex-shrink: 0; }
-.login-error { color: #ef4444; font-size: 0.85rem; margin-top: 16px; text-align: center; min-height: 20px; }
+
+.login-error { color: #ef4444; font-size: 0.85rem; margin-top: 4px; text-align: center; min-height: 20px; }
+
+/* Footer */
+.login-card-footer {
+    padding: 0 24px 24px;
+    text-align: center; font-size: 0.875rem; color: #a1a1aa;
+}
+.login-card-footer a {
+    color: #e4e4e7; text-decoration: none; margin-left: 4px;
+}
+.login-card-footer a:hover { text-decoration: underline; }
 
 /* ── Header ───────────────────────────────────────────────────── */
 .header {
@@ -578,13 +662,41 @@ body { background: var(--bg); color: var(--text); }
             <h2>Welcome back</h2>
             <div class="login-subtitle">Sign in to your account</div>
         </div>
-        <div class="login-card-content">
-            <button class="login-google-btn" onclick="handleGoogleLogin()">
+        <form class="login-card-content" onsubmit="handleEmailLogin(event)">
+            <div class="login-field">
+                <label for="loginEmail">Email</label>
+                <div class="login-input-wrap">
+                    <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                    <input id="loginEmail" type="email" placeholder="you@example.com" required autocomplete="email">
+                </div>
+            </div>
+            <div class="login-field">
+                <label for="loginPass">Password</label>
+                <div class="login-input-wrap">
+                    <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    <input id="loginPass" type="password" placeholder="&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;" required autocomplete="current-password">
+                    <button type="button" class="login-eye-btn" onclick="togglePasswordVisibility()" aria-label="Toggle password visibility">
+                        <svg id="eyeIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                    </button>
+                </div>
+            </div>
+            <div class="login-remember-row">
+                <label>
+                    <input type="checkbox" id="rememberMe">
+                    Remember me
+                </label>
+                <button type="button" class="login-forgot" onclick="handleForgotPassword()">Forgot password?</button>
+            </div>
+            <button type="submit" class="login-continue-btn">Continue</button>
+
+            <div class="login-divider"><span>or</span></div>
+
+            <button type="button" class="login-google-btn" onclick="handleGoogleLogin()">
                 <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
-                Continue with Google
+                Google
             </button>
             <div id="loginError" class="login-error"></div>
-        </div>
+        </form>
     </div>
 </div>
 
@@ -912,6 +1024,69 @@ const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     raf = requestAnimationFrame(draw);
 })();
 
+/* ── Email/Password Login ─────────────────────────────────────── */
+function handleEmailLogin(e) {
+    e.preventDefault();
+    const email = document.getElementById('loginEmail').value.trim();
+    const pass = document.getElementById('loginPass').value;
+    const remember = document.getElementById('rememberMe').checked;
+
+    document.querySelector('.login-continue-btn').disabled = true;
+    document.querySelector('.login-continue-btn').textContent = 'Signing in...';
+    document.getElementById('loginError').textContent = '';
+
+    _supabase.auth.signInWithPassword({ email, password: pass })
+        .then(({ data, error }) => {
+            document.querySelector('.login-continue-btn').disabled = false;
+            document.querySelector('.login-continue-btn').textContent = 'Continue';
+            if (error) { showLoginError(error.message); return; }
+
+            const u = data.user;
+            const meta = u.user_metadata || {};
+            const name = meta.full_name || meta.name || u.email.split('@')[0];
+            const authData = {
+                token: data.session.access_token,
+                username: u.email,
+                name: name,
+                initials: name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2),
+                color: meta.color || '#2563eb',
+                avatar: meta.avatar_url || '',
+            };
+
+            // Remember me: use localStorage (persists) vs sessionStorage (tab only)
+            if (remember) {
+                localStorage.setItem('app_auth', JSON.stringify(authData));
+            } else {
+                sessionStorage.setItem('app_auth', JSON.stringify(authData));
+            }
+            localStorage.setItem('app_user_id', u.email);
+            enterDashboard(u.email, name);
+        });
+}
+
+function togglePasswordVisibility() {
+    const input = document.getElementById('loginPass');
+    const icon = document.getElementById('eyeIcon');
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>';
+    } else {
+        input.type = 'password';
+        icon.innerHTML = '<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>';
+    }
+}
+
+function handleForgotPassword() {
+    const email = document.getElementById('loginEmail').value.trim();
+    if (!email) { showLoginError('Enter your email first'); return; }
+    _supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin
+    }).then(({ error }) => {
+        if (error) showLoginError(error.message);
+        else showToast('Password reset email sent', 'success');
+    });
+}
+
 function handleGoogleLogin() {
     _supabase.auth.signInWithOAuth({
         provider: 'google',
@@ -966,13 +1141,14 @@ async function checkSession() {
         return;
     }
 
-    // Fallback: check sessionStorage
-    const auth = JSON.parse(sessionStorage.getItem('app_auth') || '{}');
+    // Fallback: check sessionStorage or localStorage (remember me)
+    const auth = JSON.parse(sessionStorage.getItem('app_auth') || localStorage.getItem('app_auth') || '{}');
     if (auth.token && auth.username) {
         localStorage.setItem('app_user_id', auth.username);
         enterDashboard(auth.username, auth.name);
     } else {
         sessionStorage.removeItem('app_auth');
+        localStorage.removeItem('app_auth');
         document.getElementById('dashboardWrap').classList.add('hidden');
         document.getElementById('loginScreen').classList.remove('hidden');
     }
@@ -1003,6 +1179,7 @@ function handleLogout(msg) {
     clearTimeout(_sessionTimer);
     _supabase.auth.signOut();
     sessionStorage.removeItem('app_auth');
+    localStorage.removeItem('app_auth');
     localStorage.removeItem('app_user_id');
     currentUserId = '';
     DATA = []; TREE = [];
