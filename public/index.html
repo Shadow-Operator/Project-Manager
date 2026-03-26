@@ -1547,36 +1547,39 @@ function enterDashboard(email, name) {
 }
 
 async function checkSession() {
-    // First check if Supabase has an active session (handles OAuth redirect)
-    const { data: { session } } = await _supabase.auth.getSession();
-    if (session && session.user) {
-        const u = session.user;
-        const meta = u.user_metadata || {};
-        const name = meta.full_name || meta.name || u.email.split('@')[0];
-        sessionStorage.setItem('app_auth', JSON.stringify({
-            token: session.access_token,
-            username: u.email,
-            name: name,
-            initials: name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2),
-            color: meta.color || '#2563eb',
-            avatar: meta.avatar_url || '',
-        }));
-        localStorage.setItem('app_user_id', u.email);
-        enterDashboard(u.email, name);
-        return;
+    // Check if this is an OAuth redirect (URL has access_token or code)
+    const isOAuthRedirect = window.location.hash.includes('access_token') ||
+        new URLSearchParams(window.location.search).has('code');
+
+    if (isOAuthRedirect) {
+        // Wait for Supabase to process the OAuth callback
+        const { data: { session } } = await _supabase.auth.getSession();
+        if (session && session.user) {
+            const u = session.user;
+            const meta = u.user_metadata || {};
+            const name = meta.full_name || meta.name || u.email.split('@')[0];
+            sessionStorage.setItem('app_auth', JSON.stringify({
+                token: session.access_token,
+                username: u.email,
+                name: name,
+                initials: name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2),
+                color: meta.color || '#7c3aed',
+                avatar: meta.avatar_url || '',
+            }));
+            localStorage.setItem('app_user_id', u.email);
+            // Clean URL
+            window.history.replaceState({}, '', window.location.pathname);
+            enterDashboard(u.email, name);
+            return;
+        }
     }
 
-    // Fallback: check sessionStorage or localStorage (remember me)
-    const auth = JSON.parse(sessionStorage.getItem('app_auth') || localStorage.getItem('app_auth') || '{}');
-    if (auth.token && auth.username) {
-        localStorage.setItem('app_user_id', auth.username);
-        enterDashboard(auth.username, auth.name);
-    } else {
-        sessionStorage.removeItem('app_auth');
-        localStorage.removeItem('app_auth');
-        document.getElementById('dashboardWrap').classList.add('hidden');
-        document.getElementById('loginScreen').classList.remove('hidden');
-    }
+    // Always show login screen on fresh page load (no auto-login)
+    await _supabase.auth.signOut();
+    sessionStorage.removeItem('app_auth');
+    localStorage.removeItem('app_auth');
+    document.getElementById('dashboardWrap').classList.add('hidden');
+    document.getElementById('loginScreen').classList.remove('hidden');
 
     // Listen for auth state changes (e.g., OAuth redirect completing)
     _supabase.auth.onAuthStateChange((event, session) => {
@@ -1589,7 +1592,7 @@ async function checkSession() {
                 username: u.email,
                 name: name,
                 initials: name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2),
-                color: meta.color || '#2563eb',
+                color: meta.color || '#7c3aed',
                 avatar: meta.avatar_url || '',
             }));
             localStorage.setItem('app_user_id', u.email);
