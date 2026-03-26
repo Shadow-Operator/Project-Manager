@@ -745,7 +745,7 @@ body { background: var(--bg); color: var(--text); }
     display: grid; grid-template-columns: repeat(7, 1fr);
     background: #000; border: 1px solid #1a1a1f; border-radius: 14px;
     overflow: hidden; position: relative; z-index: 1;
-    transition: opacity 0.25s ease, transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: opacity 0.15s ease, transform 0.18s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .calendar-grid.slide-left {
     opacity: 0; transform: translateX(-40px);
@@ -1141,9 +1141,9 @@ body { background: var(--bg); color: var(--text); }
                 <div class="calendar-view">
                     <div class="calendar-nav">
                         <button class="btn-icon" onclick="calNavMonth(-1)">&larr;</button>
-                        <h2 id="calMonthLabel"></h2>
+                        <h2 id="calMonthLabel" style="flex:1; text-align:center"></h2>
                         <button class="btn-icon" onclick="calNavMonth(1)">&rarr;</button>
-                        <button class="btn-sm btn-outline" onclick="calGoToday()">Today</button>
+                        <button class="btn-sm btn-outline" onclick="calGoToday()" style="margin-left:8px">Today</button>
                     </div>
                     <div class="calendar-grid" id="calendarGrid"></div>
                 </div>
@@ -2319,7 +2319,7 @@ function calNavMonth(dir) {
             grid.classList.remove('slide-left', 'slide-right');
             label.style.opacity = '1';
         });
-    }, 250);
+    }, 150);
 }
 
 function calGoToday() {
