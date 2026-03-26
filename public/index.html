@@ -226,7 +226,7 @@ body { background: var(--bg); color: var(--text); }
 
 .sidebar {
     width: 240px; min-width: 240px; height: 100vh;
-    background: #09090b; border-right: 1px solid #1a1a1f;
+    background: #000; border-right: 1px solid #1a1a1f;
     display: flex; flex-direction: column;
     transition: width 0.2s ease, min-width 0.2s ease;
     overflow: hidden; z-index: 50;
@@ -323,7 +323,7 @@ body { background: var(--bg); color: var(--text); }
 .topbar {
     display: flex; align-items: center; gap: 12px;
     padding: 10px 20px; border-bottom: 1px solid #27272a;
-    background: rgba(9,9,11,0.8); backdrop-filter: blur(8px);
+    background: #000; backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     min-height: 48px;
 }
@@ -349,7 +349,7 @@ body { background: var(--bg); color: var(--text); }
     width: 28px; height: 28px; border-radius: 50%; display: flex;
     align-items: center; justify-content: center; font-size: 0.6rem;
     font-weight: 700; color: #fff; position: relative; cursor: default;
-    border: 2px solid #09090b; margin-left: -6px;
+    border: 2px solid #000; margin-left: -6px;
     transition: transform 0.15s;
 }
 .team-avatar:first-child { margin-left: 0; }
@@ -399,6 +399,14 @@ body { background: var(--bg); color: var(--text); }
     .sidebar.mobile-open { left: 0; }
     .sidebar.collapsed { left: -48px; }
     .main-content { margin-left: 0 !important; }
+    .board { flex-direction: column; padding: 12px; }
+    .board-column { min-width: unset; max-width: unset; max-height: unset; }
+    .detail-panel { width: 100%; }
+    .search-overlay-box { width: 95vw; }
+    .modal { width: 95vw; max-width: 95vw; }
+    .calendar-cell { min-height: 70px; }
+    .topbar-search-btn kbd { display: none; }
+    .topbar-search-btn { padding: 6px 10px; }
 }
 
 /* ── Kanban Board ─────────────────────────────────────────────── */
@@ -408,7 +416,7 @@ body { background: var(--bg); color: var(--text); }
 }
 .board-column {
     flex: 1; min-width: 280px; max-width: 380px;
-    background: rgba(24,24,27,0.3); border: 1px solid #1a1a1f;
+    background: #0a0a0a; border: 1px solid #1a1a1f;
     border-radius: 12px; display: flex; flex-direction: column;
     max-height: calc(100vh - 80px);
 }
@@ -493,7 +501,7 @@ body { background: var(--bg); color: var(--text); }
 .new-task-btn:hover { border-color: #818cf8; color: #818cf8; background: rgba(129,140,248,0.04); }
 .board-column-body:empty::after {
     content: 'No tasks yet'; display: flex; align-items: center; justify-content: center;
-    height: 80px; color: #3f3f46; font-size: 0.8rem; font-style: italic;
+    height: 80px; color: #27272a; font-size: 0.8rem; font-style: italic;
 }
 
 /* ── Task Detail Panel ────────────────────────────────────────── */
@@ -511,7 +519,7 @@ body { background: var(--bg); color: var(--text); }
 }
 .detail-panel {
     position: fixed; top: 0; right: 0; bottom: 0; width: 520px;
-    background: #09090b; border-left: 1px solid #1a1a1f;
+    background: #000; border-left: 1px solid #1a1a1f;
     z-index: 201; overflow-y: auto;
     box-shadow: -8px 0 32px rgba(0,0,0,0.4);
     transform: translateX(100%);
@@ -640,7 +648,7 @@ body { background: var(--bg); color: var(--text); }
 }
 .modal-overlay.open { display: flex; }
 .modal {
-    background: #09090b; border: 1px solid #27272a;
+    background: #000; border: 1px solid #27272a;
     border-radius: 16px; padding: 28px; width: 460px; max-width: 90vw;
     box-shadow: 0 16px 48px rgba(0,0,0,0.5);
 }
@@ -667,7 +675,7 @@ body { background: var(--bg); color: var(--text); }
 .list-toolbar { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
 .search-input {
     width: 100%; max-width: 420px; padding: 10px 14px 10px 38px;
-    background: #0a0a0a; border: 1px solid #1a1a1f; border-radius: 10px;
+    background: #000; border: 1px solid #1a1a1f; border-radius: 10px;
     color: #e4e4e7; font-size: 0.85rem; outline: none;
     transition: border-color 0.15s;
 }
@@ -685,7 +693,7 @@ body { background: var(--bg); color: var(--text); }
 
 /* List table card */
 .list-table-wrap {
-    background: #0a0a0a; border: 1px solid #1a1a1f;
+    background: #000; border: 1px solid #1a1a1f;
     border-radius: 12px; overflow: hidden;
 }
 .list-table { width: 100%; border-collapse: collapse; }
@@ -759,7 +767,7 @@ body { background: var(--bg); color: var(--text); }
 .calendar-header-cell {
     padding: 12px 8px; text-align: center; font-size: 0.7rem; font-weight: 600;
     color: #3f3f46; text-transform: uppercase; letter-spacing: 0.08em;
-    background: #0a0a0a;
+    background: #000;
     border-bottom: 1px solid #1a1a1f;
 }
 .calendar-cell {
@@ -827,7 +835,7 @@ body { background: var(--bg); color: var(--text); }
 }
 .search-overlay.open { display: flex; }
 .search-overlay-box {
-    background: #09090b; border: 1px solid #27272a;
+    background: #000; border: 1px solid #27272a;
     border-radius: 16px; width: 560px; max-width: 90vw;
     overflow: hidden; box-shadow: 0 16px 48px rgba(0,0,0,0.5);
 }
@@ -865,7 +873,8 @@ body { background: var(--bg); color: var(--text); }
 
 /* ── Empty State ──────────────────────────────────────────────── */
 .empty-state {
-    text-align: center; padding: 60px 20px; color: #3f3f46; font-size: 0.9rem;
+    text-align: center; padding: 80px 20px; color: #27272a; font-size: 0.9rem;
+    display: flex; flex-direction: column; align-items: center; gap: 12px;
 }
 
 /* ── Loading Spinner ──────────────────────────────────────────── */
@@ -879,7 +888,7 @@ body { background: var(--bg); color: var(--text); }
     position: fixed; inset: 0; z-index: 9999;
     display: flex; flex-direction: column;
     align-items: center; justify-content: center;
-    background: #09090b;
+    background: #000;
     opacity: 1;
     transition: opacity 0.6s ease;
 }
@@ -1132,7 +1141,11 @@ body { background: var(--bg); color: var(--text); }
                             <tbody id="listBody"></tbody>
                         </table>
                     </div>
-                    <div id="listEmpty" class="empty-state hidden">No tasks yet. Create one from the Board tab.</div>
+                    <div id="listEmpty" class="empty-state hidden">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:#1a1a1f"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                        <span>No tasks yet</span>
+                        <span style="font-size:0.78rem; color:#1a1a1f">Create one from the Board tab</span>
+                    </div>
                 </div>
             </div>
 
