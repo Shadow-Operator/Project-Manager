@@ -49,43 +49,37 @@ body { background: var(--bg); color: var(--text); }
     overflow: hidden;
 }
 
-/* Vignette */
-.login-vignette {
-    position: absolute; inset: 0; pointer-events: none;
-    background: radial-gradient(80% 60% at 50% 30%, rgba(255,255,255,0.06), transparent 60%);
+/* Floating paths background */
+.floating-paths {
+    position: absolute; inset: 0; pointer-events: none; overflow: hidden;
 }
-
-/* Animated accent lines */
-.accent-lines { position: absolute; inset: 0; pointer-events: none; opacity: 0.7; }
-.accent-lines .hline, .accent-lines .vline { position: absolute; background: #27272a; will-change: transform, opacity; }
-.accent-lines .hline { left: 0; right: 0; height: 1px; transform: scaleX(0); transform-origin: 50% 50%; animation: drawX 0.8s cubic-bezier(.22,.61,.36,1) forwards; }
-.accent-lines .vline { top: 0; bottom: 0; width: 1px; transform: scaleY(0); transform-origin: 50% 0%; animation: drawY 0.9s cubic-bezier(.22,.61,.36,1) forwards; }
-.accent-lines .hline:nth-child(1) { top: 18%; animation-delay: .12s; }
-.accent-lines .hline:nth-child(2) { top: 50%; animation-delay: .22s; }
-.accent-lines .hline:nth-child(3) { top: 82%; animation-delay: .32s; }
-.accent-lines .vline:nth-child(4) { left: 22%; animation-delay: .42s; }
-.accent-lines .vline:nth-child(5) { left: 50%; animation-delay: .54s; }
-.accent-lines .vline:nth-child(6) { left: 78%; animation-delay: .66s; }
-.accent-lines .hline::after, .accent-lines .vline::after {
-    content: ""; position: absolute; inset: 0;
-    background: linear-gradient(90deg, transparent, rgba(250,250,250,0.24), transparent);
-    opacity: 0; animation: shimmer 0.9s ease-out forwards;
+.floating-paths svg {
+    width: 100%; height: 100%;
 }
-.accent-lines .hline:nth-child(1)::after { animation-delay: .12s; }
-.accent-lines .hline:nth-child(2)::after { animation-delay: .22s; }
-.accent-lines .hline:nth-child(3)::after { animation-delay: .32s; }
-.accent-lines .vline:nth-child(4)::after { animation-delay: .42s; }
-.accent-lines .vline:nth-child(5)::after { animation-delay: .54s; }
-.accent-lines .vline:nth-child(6)::after { animation-delay: .66s; }
+.floating-paths path {
+    stroke: currentColor;
+    fill: none;
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+}
+.floating-paths.paths-light { color: rgba(255,255,255,0.8); }
+.floating-paths.paths-dark { color: rgba(255,255,255,0.4); }
 
-@keyframes drawX { 0% { transform: scaleX(0); opacity: 0; } 60% { opacity: .95; } 100% { transform: scaleX(1); opacity: .7; } }
-@keyframes drawY { 0% { transform: scaleY(0); opacity: 0; } 60% { opacity: .95; } 100% { transform: scaleY(1); opacity: .7; } }
-@keyframes shimmer { 0% { opacity: 0; } 35% { opacity: .25; } 100% { opacity: 0; } }
+/* Dashboard background paths (very subtle) */
+.dashboard-paths {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    overflow: hidden; opacity: 0.3;
+}
+.dashboard-paths svg { width: 100%; height: 100%; }
 
-/* Particle canvas */
-.login-particles {
-    position: absolute; inset: 0; width: 100%; height: 100%;
-    opacity: 0.5; mix-blend-mode: screen; pointer-events: none;
+@keyframes pathDraw {
+    0% { stroke-dashoffset: 1000; opacity: 0.3; }
+    50% { opacity: 0.6; }
+    100% { stroke-dashoffset: 0; opacity: 0.3; }
+}
+@keyframes pathFloat {
+    0% { stroke-dashoffset: 0; }
+    100% { stroke-dashoffset: -1000; }
 }
 
 /* Card fade-up animation */
@@ -853,19 +847,7 @@ body { background: var(--bg); color: var(--text); }
     pointer-events: none;
 }
 
-/* Dots background */
-.welcome-dots {
-    position: absolute; inset: 0;
-    background-image: radial-gradient(circle, rgba(255,255,255,0.12) 1px, transparent 1px);
-    background-size: 28px 28px;
-    pointer-events: none;
-}
-/* Fade-center mask */
-.welcome-dots-mask {
-    position: absolute; inset: 0;
-    background: radial-gradient(ellipse 50% 50% at 50% 50%, transparent 20%, #09090b 70%);
-    pointer-events: none;
-}
+/* Welcome paths background (reuses .floating-paths) */
 
 /* Shimmer text */
 .welcome-text {
@@ -927,21 +909,9 @@ body { background: var(--bg); color: var(--text); }
 
 <!-- Login Screen -->
 <div id="loginScreen" class="login-screen">
-    <!-- Vignette -->
-    <div class="login-vignette"></div>
-
-    <!-- Animated accent lines -->
-    <div class="accent-lines">
-        <div class="hline"></div>
-        <div class="hline"></div>
-        <div class="hline"></div>
-        <div class="vline"></div>
-        <div class="vline"></div>
-        <div class="vline"></div>
-    </div>
-
-    <!-- Floating particles -->
-    <canvas id="loginParticles" class="login-particles"></canvas>
+    <!-- Floating paths background -->
+    <div class="floating-paths paths-light" id="loginPaths1"></div>
+    <div class="floating-paths paths-dark" id="loginPaths2"></div>
 
     <!-- Card -->
     <div class="login-card">
@@ -989,8 +959,8 @@ body { background: var(--bg); color: var(--text); }
 
 <!-- Welcome Splash -->
 <div id="welcomeSplash" class="welcome-splash hidden">
-    <div class="welcome-dots"></div>
-    <div class="welcome-dots-mask"></div>
+    <div class="floating-paths paths-light" id="splashPaths1"></div>
+    <div class="floating-paths paths-dark" id="splashPaths2"></div>
     <div class="welcome-text">
         <span class="shimmer-wrap" id="welcomeName">Welcome back</span>
     </div>
@@ -1049,6 +1019,8 @@ body { background: var(--bg); color: var(--text); }
 
     <!-- Main Content -->
     <div class="main-content" id="mainContent">
+        <!-- Background paths -->
+        <div class="dashboard-paths" id="dashPaths"></div>
         <!-- Topbar -->
         <header class="topbar">
             <button class="btn-icon sidebar-mobile-toggle" onclick="toggleSidebar()" style="display:none" id="mobileSidebarBtn">
@@ -1340,51 +1312,50 @@ function flattenTree(nodes, depth = 0) {
    ════════════════════════════════════════════════════════════════ */
 const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-/* ── Login Particles ──────────────────────────────────────────── */
-(function initParticles() {
-    const canvas = document.getElementById('loginParticles');
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+/* ── Floating Paths Background ───────────────────────────────── */
+function generatePaths(position) {
+    return Array.from({ length: 36 }, (_, i) => {
+        const p = position;
+        return {
+            d: `M-${380 - i * 5 * p} -${189 + i * 6}C-${380 - i * 5 * p} -${189 + i * 6} -${312 - i * 5 * p} ${216 - i * 6} ${152 - i * 5 * p} ${343 - i * 6}C${616 - i * 5 * p} ${470 - i * 6} ${684 - i * 5 * p} ${875 - i * 6} ${684 - i * 5 * p} ${875 - i * 6}`,
+            width: 0.5 + i * 0.03,
+            opacity: 0.1 + i * 0.03,
+            duration: 20 + Math.random() * 10,
+        };
+    });
+}
 
-    const setSize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
-    setSize();
+function renderPathsSVG(container, position) {
+    if (!container) return;
+    const paths = generatePaths(position);
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('viewBox', '0 0 696 316');
+    svg.setAttribute('fill', 'none');
+    svg.style.width = '100%';
+    svg.style.height = '100%';
 
-    let particles = [];
-    let raf = 0;
-
-    const make = () => ({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        v: Math.random() * 0.25 + 0.05,
-        o: Math.random() * 0.35 + 0.15,
+    paths.forEach(p => {
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('d', p.d);
+        path.setAttribute('stroke', 'currentColor');
+        path.setAttribute('stroke-width', String(p.width));
+        path.style.strokeOpacity = String(p.opacity);
+        path.style.strokeDasharray = '8 12';
+        path.style.animation = `pathFloat ${p.duration}s linear infinite`;
+        svg.appendChild(path);
     });
 
-    const init = () => {
-        particles = [];
-        const count = Math.floor((canvas.width * canvas.height) / 9000);
-        for (let i = 0; i < count; i++) particles.push(make());
-    };
+    container.appendChild(svg);
+}
 
-    const draw = () => {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        particles.forEach(p => {
-            p.y -= p.v;
-            if (p.y < 0) {
-                p.x = Math.random() * canvas.width;
-                p.y = canvas.height + Math.random() * 40;
-                p.v = Math.random() * 0.25 + 0.05;
-                p.o = Math.random() * 0.35 + 0.15;
-            }
-            ctx.fillStyle = `rgba(250,250,250,${p.o})`;
-            ctx.fillRect(p.x, p.y, 0.7, 2.2);
-        });
-        raf = requestAnimationFrame(draw);
-    };
-
-    window.addEventListener('resize', () => { setSize(); init(); });
-    init();
-    raf = requestAnimationFrame(draw);
+// Init paths on login and splash
+(function initFloatingPaths() {
+    renderPathsSVG(document.getElementById('loginPaths1'), 1);
+    renderPathsSVG(document.getElementById('loginPaths2'), -1);
+    renderPathsSVG(document.getElementById('splashPaths1'), 1);
+    renderPathsSVG(document.getElementById('splashPaths2'), -1);
+    // Dashboard paths (subtle)
+    renderPathsSVG(document.getElementById('dashPaths'), 0.5);
 })();
 
 /* ── Email/Password Login ─────────────────────────────────────── */
