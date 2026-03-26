@@ -970,7 +970,7 @@ body { background: var(--bg); color: var(--text); }
     <!-- Card -->
     <div class="login-card">
         <div class="login-card-header">
-            <h2>Welcome back</h2>
+            <h2>Log Into Stlla</h2>
             <div class="login-subtitle">Sign in to your account</div>
         </div>
         <form class="login-card-content" onsubmit="handleEmailLogin(event)">
@@ -1569,7 +1569,7 @@ function enterDashboard(email, name) {
     document.getElementById('loginScreen').classList.add('hidden');
     const splash = document.getElementById('welcomeSplash');
     splash.classList.remove('hidden');
-    document.getElementById('welcomeName').textContent = 'Welcome back, ' + firstName;
+    document.getElementById('welcomeName').textContent = 'Welcome to my Stlla Portal';
 
     // Set up dashboard in background
     document.getElementById('userInfo').textContent = name || email;
