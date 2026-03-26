@@ -745,6 +745,16 @@ body { background: var(--bg); color: var(--text); }
     display: grid; grid-template-columns: repeat(7, 1fr);
     background: #000; border: 1px solid #1a1a1f; border-radius: 14px;
     overflow: hidden; position: relative; z-index: 1;
+    transition: opacity 0.25s ease, transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.calendar-grid.slide-left {
+    opacity: 0; transform: translateX(-40px);
+}
+.calendar-grid.slide-right {
+    opacity: 0; transform: translateX(40px);
+}
+.calendar-nav h2 {
+    transition: opacity 0.2s ease;
 }
 .calendar-header-cell {
     padding: 12px 8px; text-align: center; font-size: 0.7rem; font-weight: 600;
@@ -2291,10 +2301,25 @@ let _calMonth = new Date().getMonth(); // 0-indexed
 let _calEvents = []; // Google Calendar events
 
 function calNavMonth(dir) {
-    _calMonth += dir;
-    if (_calMonth < 0) { _calMonth = 11; _calYear--; }
-    if (_calMonth > 11) { _calMonth = 0; _calYear++; }
-    renderCalendar();
+    const grid = document.getElementById('calendarGrid');
+    const label = document.getElementById('calMonthLabel');
+    // Slide out
+    grid.classList.add(dir > 0 ? 'slide-left' : 'slide-right');
+    label.style.opacity = '0';
+    setTimeout(() => {
+        _calMonth += dir;
+        if (_calMonth < 0) { _calMonth = 11; _calYear--; }
+        if (_calMonth > 11) { _calMonth = 0; _calYear++; }
+        renderCalendar().then(() => {
+            // Reset and slide in from opposite side
+            grid.classList.remove('slide-left', 'slide-right');
+            grid.classList.add(dir > 0 ? 'slide-right' : 'slide-left');
+            // Force reflow
+            void grid.offsetWidth;
+            grid.classList.remove('slide-left', 'slide-right');
+            label.style.opacity = '1';
+        });
+    }, 250);
 }
 
 function calGoToday() {
