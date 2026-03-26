@@ -15,7 +15,7 @@ from google.oauth2 import service_account
 from googleapiclient.discovery import build
 
 SCOPES = ["https://www.googleapis.com/auth/calendar"]
-CALENDAR_ID = os.environ.get("GOOGLE_CALENDAR_ID", "primary")
+CALENDAR_ID = os.environ.get("GOOGLE_CALENDAR_ID", "partner@shadowoperator.ai")
 
 
 def _get_calendar_service():
