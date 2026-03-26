@@ -954,6 +954,62 @@ body { background: var(--bg); color: var(--text); }
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ── Bottom Dock ─────────────────────────────────────────────── */
+.dock-wrapper {
+    position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%);
+    z-index: 100; pointer-events: none;
+}
+.dock {
+    display: flex; align-items: flex-end; gap: 10px;
+    padding: 10px 20px; border-radius: 18px;
+    background: rgba(0,0,0,0.6); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    pointer-events: auto;
+    transition: transform 0.3s ease;
+}
+.dock:hover { transform: scale(1.02); }
+
+.dock-item {
+    position: relative; display: flex; align-items: center; justify-content: center;
+    width: 42px; height: 42px; border-radius: 10px;
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+    color: #fff; cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.2, 0, 0, 1);
+}
+.dock-item:hover {
+    transform: translateY(-6px) scale(1.15);
+    background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.18);
+    box-shadow: 0 6px 20px rgba(255,255,255,0.08);
+}
+.dock-item.active {
+    background: rgba(124,58,237,0.2); border-color: rgba(124,58,237,0.4);
+}
+.dock-item svg { width: 18px; height: 18px; opacity: 0.85; }
+.dock-item:hover svg { opacity: 1; }
+
+.dock-tooltip {
+    position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
+    padding: 4px 10px; margin-bottom: 8px; border-radius: 6px;
+    background: rgba(0,0,0,0.8); backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.06);
+    color: #fff; font-size: 0.7rem; white-space: nowrap;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.15s, transform 0.15s;
+    transform: translateX(-50%) translateY(4px);
+}
+.dock-item:hover .dock-tooltip {
+    opacity: 1; transform: translateX(-50%) translateY(0);
+}
+
+.dock-separator {
+    width: 1px; height: 28px; background: rgba(255,255,255,0.08);
+    margin: 0 2px; align-self: center;
+}
+
+/* Add padding at bottom of page content so dock doesn't cover content */
+.page-content { padding-bottom: 80px; }
 </style>
 </head>
 <body>
@@ -1237,6 +1293,46 @@ body { background: var(--bg); color: var(--text); }
     </div>
 
     </div><!-- end dashboard-layout -->
+
+    <!-- Bottom Dock -->
+    <div class="dock-wrapper" id="bottomDock">
+        <div class="dock">
+            <button class="dock-item active" onclick="dockNav('board')" id="dock-board" title="Board">
+                <span class="dock-tooltip">Board</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+            </button>
+            <button class="dock-item" onclick="dockNav('list')" id="dock-list" title="List">
+                <span class="dock-tooltip">List</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+            </button>
+            <button class="dock-item" onclick="dockNav('calendar')" id="dock-calendar" title="Calendar">
+                <span class="dock-tooltip">Calendar</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </button>
+            <button class="dock-item" onclick="dockNav('dealflow')" id="dock-dealflow" title="Deal Flow">
+                <span class="dock-tooltip">Deal Flow</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            </button>
+            <div class="dock-separator"></div>
+            <button class="dock-item" onclick="openNewTaskModal('To Do')" title="New Task" style="background:rgba(124,58,237,0.15);border-color:rgba(124,58,237,0.3)">
+                <span class="dock-tooltip">New Task</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+            <button class="dock-item" onclick="openSearchOverlay()" title="Search">
+                <span class="dock-tooltip">Search</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            </button>
+            <div class="dock-separator"></div>
+            <button class="dock-item" onclick="dockNav('telegram')" id="dock-telegram" title="Telegram">
+                <span class="dock-tooltip">Telegram</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+            </button>
+            <button class="dock-item" onclick="dockNav('settings')" id="dock-settings" title="Settings">
+                <span class="dock-tooltip">Settings</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+        </div>
+    </div>
 </div>
 
 <!-- Detail Panel Overlay -->
@@ -1747,6 +1843,24 @@ function sidebarNav(tabId, btn) {
 
 // Keep backward compatibility
 function switchTab(id, btn) { sidebarNav(id, document.querySelector('.sidebar-nav-item[data-tab="' + id + '"]')); }
+
+// Dock navigation — syncs with sidebar
+function dockNav(tabId) {
+    sidebarNav(tabId, document.querySelector('.sidebar-nav-item[data-tab="' + tabId + '"]'));
+    // Update dock active state
+    document.querySelectorAll('.dock-item[id^="dock-"]').forEach(d => d.classList.remove('active'));
+    const dockBtn = document.getElementById('dock-' + tabId);
+    if (dockBtn) dockBtn.classList.add('active');
+}
+
+// Also sync dock when sidebar nav is used
+const _origSidebarNav = sidebarNav;
+sidebarNav = function(tabId, btn) {
+    _origSidebarNav(tabId, btn);
+    document.querySelectorAll('.dock-item[id^="dock-"]').forEach(d => d.classList.remove('active'));
+    const dockBtn = document.getElementById('dock-' + tabId);
+    if (dockBtn) dockBtn.classList.add('active');
+};
 
 /* ════════════════════════════════════════════════════════════════
    API
