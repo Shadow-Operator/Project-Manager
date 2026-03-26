@@ -226,21 +226,133 @@ body { background: var(--bg); color: var(--text); }
 }
 .login-card-footer a:hover { text-decoration: underline; }
 
-/* ── Header ───────────────────────────────────────────────────── */
-.header {
+/* ── Sidebar ─────────────────────────────────────────────────── */
+.dashboard-layout { display: flex; height: 100vh; overflow: hidden; }
+
+.sidebar {
+    width: 240px; min-width: 240px; height: 100vh;
+    background: #09090b; border-right: 1px solid #1a1a1f;
+    display: flex; flex-direction: column;
+    transition: width 0.2s ease, min-width 0.2s ease;
+    overflow: hidden; z-index: 50;
+}
+.sidebar.collapsed { width: 48px; min-width: 48px; }
+
+.sidebar-header {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 12px 24px; border-bottom: 1px solid #27272a;
+    padding: 16px 16px 12px; gap: 10px;
+    border-bottom: 1px solid #1a1a1f;
+}
+.sidebar-logo {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 0.9rem; font-weight: 600; color: #fafafa;
+    white-space: nowrap; overflow: hidden;
+    letter-spacing: -0.01em;
+}
+.sidebar-logo-icon {
+    width: 24px; height: 24px; background: #818cf8; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.7rem; font-weight: 800; color: #fff; flex-shrink: 0;
+}
+.sidebar.collapsed .sidebar-logo span { display: none; }
+.sidebar-collapse-btn {
+    background: none; border: none; color: #52525b; cursor: pointer;
+    padding: 4px; border-radius: 6px; display: flex; align-items: center;
+    transition: all 0.15s; flex-shrink: 0;
+}
+.sidebar-collapse-btn:hover { color: #a1a1aa; background: #18181b; }
+.sidebar.collapsed .sidebar-collapse-btn { transform: rotate(180deg); }
+
+.sidebar-nav {
+    flex: 1; padding: 8px; overflow-y: auto;
+    display: flex; flex-direction: column; gap: 2px;
+}
+.sidebar-nav-label {
+    padding: 8px 8px 4px; font-size: 0.68rem; font-weight: 600;
+    color: #52525b; text-transform: uppercase; letter-spacing: 0.08em;
+    white-space: nowrap; overflow: hidden;
+}
+.sidebar.collapsed .sidebar-nav-label { opacity: 0; height: 0; padding: 0; margin: 0; }
+
+.sidebar-nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 10px; border-radius: 8px;
+    color: #a1a1aa; font-size: 0.85rem; font-weight: 500;
+    cursor: pointer; transition: all 0.15s;
+    white-space: nowrap; overflow: hidden;
+    background: none; border: none; width: 100%; text-align: left;
+}
+.sidebar-nav-item:hover { color: #fafafa; background: #18181b; }
+.sidebar-nav-item.active { color: #fafafa; background: #18181b; }
+.sidebar-nav-item svg { width: 18px; height: 18px; flex-shrink: 0; opacity: 0.7; }
+.sidebar-nav-item.active svg { opacity: 1; }
+.sidebar-nav-item span { overflow: hidden; text-overflow: ellipsis; }
+.sidebar.collapsed .sidebar-nav-item span { display: none; }
+.sidebar.collapsed .sidebar-nav-item { justify-content: center; padding: 8px; }
+
+.sidebar-separator {
+    height: 1px; background: #1a1a1f; margin: 4px 8px;
+}
+.sidebar.collapsed .sidebar-separator { margin: 4px; }
+
+.sidebar-footer {
+    padding: 8px; border-top: 1px solid #1a1a1f;
+}
+.sidebar-user {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 10px; border-radius: 8px;
+    cursor: pointer; transition: background 0.15s;
+    overflow: hidden;
+}
+.sidebar-user:hover { background: #18181b; }
+.sidebar-user-avatar {
+    width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.65rem; font-weight: 700; color: #fff;
+    flex-shrink: 0; background: #2563eb;
+}
+.sidebar-user-info { overflow: hidden; flex: 1; }
+.sidebar-user-name { font-size: 0.82rem; font-weight: 500; color: #e4e4e7; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sidebar-user-email { font-size: 0.7rem; color: #52525b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sidebar.collapsed .sidebar-user-info { display: none; }
+.sidebar.collapsed .sidebar-user { justify-content: center; }
+
+/* ── Main Content ────────────────────────────────────────────── */
+.main-content {
+    flex: 1; display: flex; flex-direction: column;
+    overflow: hidden; background: var(--bg);
+    min-width: 0;
+}
+
+/* ── Topbar ──────────────────────────────────────────────────── */
+.topbar {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 20px; border-bottom: 1px solid #27272a;
     background: rgba(9,9,11,0.8); backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
+    min-height: 48px;
 }
-.header-left { display: flex; align-items: center; gap: 16px; }
-.header-left h1 { font-size: 1.1rem; font-weight: 600; color: #fafafa; letter-spacing: -0.01em; }
-.header-right { display: flex; align-items: center; gap: 10px; }
+.topbar-title {
+    font-size: 1rem; font-weight: 600; color: #fafafa;
+    letter-spacing: -0.01em;
+}
+.topbar-spacer { flex: 1; }
+.topbar-search-btn {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 12px; background: #18181b; border: 1px solid #27272a;
+    border-radius: 8px; color: #71717a; font-size: 0.8rem;
+    cursor: pointer; transition: all 0.15s;
+}
+.topbar-search-btn:hover { border-color: #3f3f46; color: #a1a1aa; }
+.topbar-search-btn kbd {
+    background: #27272a; padding: 1px 6px; border-radius: 4px;
+    font-size: 0.7rem; font-family: inherit; color: #52525b;
+}
 
 .team-presence { display: flex; }
 .team-avatar {
-    width: 30px; height: 30px; border-radius: 50%; display: flex;
-    align-items: center; justify-content: center; font-size: 0.65rem;
+    width: 28px; height: 28px; border-radius: 50%; display: flex;
+    align-items: center; justify-content: center; font-size: 0.6rem;
     font-weight: 700; color: #fff; position: relative; cursor: default;
     border: 2px solid #09090b; margin-left: -6px;
     transition: transform 0.15s;
@@ -249,13 +361,12 @@ body { background: var(--bg); color: var(--text); }
 .team-avatar:hover { transform: translateY(-2px); z-index: 2; }
 .team-avatar::after {
     content: ''; position: absolute; bottom: -1px; right: -1px;
-    width: 9px; height: 9px; border-radius: 50%;
-    border: 2px solid #09090b;
+    width: 8px; height: 8px; border-radius: 50%;
+    border: 2px solid var(--bg);
 }
 .team-avatar-online::after { background: #4ade80; }
 .team-avatar-away::after { background: #fbbf24; }
 .team-avatar-offline::after { background: #52525b; }
-
 .team-avatar-tooltip {
     display: none; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
     background: #18181b; border: 1px solid #27272a; border-radius: 8px;
@@ -273,25 +384,32 @@ body { background: var(--bg); color: var(--text); }
 
 .user-info { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: #a1a1aa; }
 
-/* ── Tab Navigation ───────────────────────────────────────────── */
-.tabs {
-    display: flex; gap: 0; padding: 0 24px;
-    border-bottom: 1px solid #27272a; background: #09090b;
-}
-.tab-btn {
-    background: none; border: none; padding: 10px 18px; cursor: pointer;
-    color: #71717a; font-size: 0.85rem; font-weight: 500;
-    border-bottom: 2px solid transparent; transition: all 0.15s;
-}
-.tab-btn:hover { color: #d4d4d8; }
-.tab-btn.active { color: #fafafa; border-bottom-color: #fafafa; }
+/* ── Tab Panes (no tab buttons, switched via sidebar) ─────── */
+.page-content { flex: 1; overflow-y: auto; }
 .tab-pane { display: none; }
 .tab-pane.active { display: block; }
+
+/* ── Mobile Sidebar ──────────────────────────────────────────── */
+.sidebar-mobile-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+    z-index: 49; backdrop-filter: blur(2px);
+}
+.sidebar-mobile-overlay.open { display: block; }
+
+@media (max-width: 768px) {
+    .sidebar {
+        position: fixed; left: -240px; z-index: 50;
+        transition: left 0.2s ease;
+    }
+    .sidebar.mobile-open { left: 0; }
+    .sidebar.collapsed { left: -48px; }
+    .main-content { margin-left: 0 !important; }
+}
 
 /* ── Kanban Board ─────────────────────────────────────────────── */
 .board {
     display: flex; gap: 14px; padding: 20px 24px;
-    height: calc(100vh - 105px); overflow-x: auto;
+    height: calc(100vh - 48px); overflow-x: auto;
 }
 .board-column {
     flex: 1; min-width: 280px; max-width: 400px;
@@ -318,9 +436,14 @@ body { background: var(--bg); color: var(--text); }
 .task-card {
     background: #09090b; border: 1px solid #27272a; border-radius: 8px;
     padding: 12px 14px; cursor: pointer; transition: all 0.15s;
+    position: relative;
+    border-left: 3px solid transparent;
 }
-.task-card:hover { border-color: #3f3f46; background: #0f0f12; }
+.task-card:hover { border-color: #3f3f46; background: #0f0f12; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
 .task-card.done { opacity: 0.5; }
+.task-card.priority-left-High { border-left-color: #ef4444; }
+.task-card.priority-left-Medium { border-left-color: #fbbf24; }
+.task-card.priority-left-Low { border-left-color: #4ade80; }
 
 .task-card-title { font-weight: 500; font-size: 0.875rem; margin-bottom: 8px; line-height: 1.4; color: #e4e4e7; }
 
@@ -367,18 +490,26 @@ body { background: var(--bg); color: var(--text); }
 
 /* ── Task Detail Panel ────────────────────────────────────────── */
 .detail-overlay {
-    position: fixed; top: 0; right: 0; bottom: 0; left: 0;
-    background: rgba(0,0,0,0.6); z-index: 200; display: none;
-    backdrop-filter: blur(2px);
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0); z-index: 200;
+    backdrop-filter: blur(0px); -webkit-backdrop-filter: blur(0px);
+    pointer-events: none;
+    transition: background 0.3s ease, backdrop-filter 0.3s ease, -webkit-backdrop-filter 0.3s ease;
 }
-.detail-overlay.open { display: block; }
+.detail-overlay.open {
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+    pointer-events: auto;
+}
 .detail-panel {
-    position: fixed; top: 0; right: 0; bottom: 0; width: 500px;
-    background: #09090b; border-left: 1px solid #27272a;
-    z-index: 201; overflow-y: auto; display: none;
-    box-shadow: -8px 0 32px rgba(0,0,0,0.3);
+    position: fixed; top: 0; right: 0; bottom: 0; width: 520px;
+    background: #09090b; border-left: 1px solid #1a1a1f;
+    z-index: 201; overflow-y: auto;
+    box-shadow: -8px 0 32px rgba(0,0,0,0.4);
+    transform: translateX(100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.detail-panel.open { display: block; }
+.detail-panel.open { transform: translateX(0); }
 .detail-panel-inner { padding: 24px; }
 
 .detail-header {
@@ -502,7 +633,7 @@ body { background: var(--bg); color: var(--text); }
 .modal-overlay.open { display: flex; }
 .modal {
     background: #09090b; border: 1px solid #27272a;
-    border-radius: 12px; padding: 28px; width: 460px; max-width: 90vw;
+    border-radius: 16px; padding: 28px; width: 460px; max-width: 90vw;
     box-shadow: 0 16px 48px rgba(0,0,0,0.5);
 }
 .modal h3 { margin-bottom: 20px; font-size: 1.05rem; font-weight: 600; color: #fafafa; }
@@ -515,6 +646,13 @@ body { background: var(--bg); color: var(--text); }
 }
 .modal-field input:focus, .modal-field select:focus, .modal-field textarea:focus { border-color: #3f3f46; }
 .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+.modal-overlay.open .modal {
+    animation: modalFadeIn 0.2s ease;
+}
+@keyframes modalFadeIn {
+    from { opacity: 0; transform: scale(0.95) translateY(8px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
 
 /* ── List View ────────────────────────────────────────────────── */
 .list-view { padding: 20px 24px; }
@@ -595,6 +733,7 @@ body { background: var(--bg); color: var(--text); }
 }
 .cal-push-btn:hover { border-color: #3f3f46; color: #fafafa; }
 .cal-push-btn.pushed { border-color: #4ade80; color: #4ade80; }
+.cal-day.today { box-shadow: inset 0 0 0 1px #818cf8; }
 
 /* ── Cmd+K Search Overlay ─────────────────────────────────────── */
 .search-overlay {
@@ -606,15 +745,19 @@ body { background: var(--bg); color: var(--text); }
 .search-overlay.open { display: flex; }
 .search-overlay-box {
     background: #09090b; border: 1px solid #27272a;
-    border-radius: 12px; width: 500px; max-width: 90vw;
+    border-radius: 16px; width: 560px; max-width: 90vw;
     overflow: hidden; box-shadow: 0 16px 48px rgba(0,0,0,0.5);
 }
 .search-overlay-input {
-    width: 100%; padding: 16px 20px; background: transparent;
+    width: 100%; padding: 16px 20px 16px 44px; background: transparent;
     border: none; border-bottom: 1px solid #27272a;
     color: #fafafa; font-size: 0.95rem; outline: none;
 }
 .search-overlay-input::placeholder { color: #52525b; }
+.search-overlay-icon {
+    position: absolute; top: 18px; left: 16px;
+    width: 16px; height: 16px; color: #52525b; pointer-events: none; z-index: 1;
+}
 .search-overlay-results { max-height: 300px; overflow-y: auto; }
 .search-result-item {
     padding: 12px 20px; cursor: pointer; font-size: 0.875rem;
@@ -646,6 +789,81 @@ body { background: var(--bg); color: var(--text); }
 .spinner {
     display: flex; align-items: center; justify-content: center; padding: 40px;
     color: var(--text3);
+}
+
+/* ── Welcome Splash Screen ───────────────────────────────────── */
+.welcome-splash {
+    position: fixed; inset: 0; z-index: 9999;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    background: #09090b;
+    opacity: 1;
+    transition: opacity 0.6s ease;
+}
+.welcome-splash.fade-out {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Dots background */
+.welcome-dots {
+    position: absolute; inset: 0;
+    background-image: radial-gradient(circle, rgba(255,255,255,0.12) 1px, transparent 1px);
+    background-size: 28px 28px;
+    pointer-events: none;
+}
+/* Fade-center mask */
+.welcome-dots-mask {
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 50% 50% at 50% 50%, transparent 20%, #09090b 70%);
+    pointer-events: none;
+}
+
+/* Shimmer text */
+.welcome-text {
+    position: relative; z-index: 2;
+    font-size: clamp(2rem, 6vw, 4.5rem);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    text-align: center;
+    line-height: 1.2;
+    opacity: 0;
+    transform: translateY(16px);
+    animation: splashFadeUp 0.7s ease 0.15s forwards;
+}
+.welcome-text .shimmer-wrap {
+    display: inline-block;
+    background: linear-gradient(
+        90deg,
+        #fafafa 0%,
+        #fafafa 35%,
+        rgba(255,255,255,0.4) 50%,
+        #fafafa 65%,
+        #fafafa 100%
+    );
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmerSlide 2s ease-in-out 0.8s infinite;
+}
+.welcome-subtitle {
+    position: relative; z-index: 2;
+    margin-top: 12px;
+    font-size: 1rem;
+    color: #71717a;
+    opacity: 0;
+    transform: translateY(10px);
+    animation: splashFadeUp 0.6s ease 0.5s forwards;
+    letter-spacing: 0.04em;
+}
+
+@keyframes splashFadeUp {
+    to { opacity: 1; transform: translateY(0); }
+}
+@keyframes shimmerSlide {
+    0% { background-position: 100% 0; }
+    100% { background-position: -100% 0; }
 }
 
 /* ── Scrollbar ────────────────────────────────────────────────── */
@@ -721,94 +939,169 @@ body { background: var(--bg); color: var(--text); }
     </div>
 </div>
 
+<!-- Welcome Splash -->
+<div id="welcomeSplash" class="welcome-splash hidden">
+    <div class="welcome-dots"></div>
+    <div class="welcome-dots-mask"></div>
+    <div class="welcome-text">
+        <span class="shimmer-wrap" id="welcomeName">Welcome back</span>
+    </div>
+    <div class="welcome-subtitle">Loading your workspace…</div>
+</div>
+
 <!-- Dashboard -->
 <div id="dashboardWrap" class="hidden">
+    <div class="dashboard-layout">
 
-    <!-- Header -->
-    <header class="header">
-        <div class="header-left">
-            <h1>Project Manager</h1>
-            <div id="teamPresence" class="team-presence"></div>
-        </div>
-        <div class="header-right">
-            <button class="btn-icon" onclick="openSearchOverlay()" title="Search (Cmd+K)">&#x1F50D;</button>
-            <button class="btn-icon" onclick="toggleTheme()" id="themeToggle" title="Toggle theme">&#x263E;</button>
-            <span class="user-info" id="userInfo"></span>
-            <button class="btn-icon" onclick="handleLogout()">Logout</button>
-        </div>
-    </header>
+    <!-- Mobile Overlay -->
+    <div class="sidebar-mobile-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
-    <!-- Tabs -->
-    <nav class="tabs">
-        <button class="tab-btn active" onclick="switchTab('board', this)">Board</button>
-        <button class="tab-btn" onclick="switchTab('list', this)">List</button>
-        <button class="tab-btn" onclick="switchTab('calendar', this)">Calendar</button>
-    </nav>
-
-    <!-- Board Tab -->
-    <div id="tab-board" class="tab-pane active">
-        <div id="boardLoading" class="spinner">Loading tasks...</div>
-        <div id="boardContent" class="board hidden">
-            <div class="board-column" id="col-todo">
-                <div class="board-column-header">To Do <span class="board-column-count" id="count-todo">0</span></div>
-                <div class="board-column-body" id="body-todo"></div>
-                <button class="new-task-btn" onclick="openNewTaskModal('To Do')">+ New Task</button>
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">
+                <div class="sidebar-logo-icon">PM</div>
+                <span>Project Manager</span>
             </div>
-            <div class="board-column" id="col-inprogress">
-                <div class="board-column-header">In Progress <span class="board-column-count" id="count-inprogress">0</span></div>
-                <div class="board-column-body" id="body-inprogress"></div>
-                <button class="new-task-btn" onclick="openNewTaskModal('In Progress')">+ New Task</button>
-            </div>
-            <div class="board-column" id="col-done">
-                <div class="board-column-header">Done <span class="board-column-count" id="count-done">0</span></div>
-                <div class="board-column-body" id="body-done"></div>
-                <button class="new-task-btn" onclick="openNewTaskModal('Done')">+ New Task</button>
-            </div>
+            <button class="sidebar-collapse-btn" onclick="toggleSidebar()" title="Toggle sidebar (⌘B)">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg>
+            </button>
         </div>
-    </div>
-
-    <!-- List Tab -->
-    <div id="tab-list" class="tab-pane">
-        <div class="list-view">
-            <div class="list-toolbar">
-                <input type="text" class="search-input" id="listSearch" placeholder="Search tasks..." oninput="debouncedListFilter()">
-                <div class="filter-chips" id="filterChips">
-                    <button class="filter-chip" onclick="toggleListFilter('status','To Do',this)">To Do</button>
-                    <button class="filter-chip" onclick="toggleListFilter('status','In Progress',this)">In Progress</button>
-                    <button class="filter-chip" onclick="toggleListFilter('status','Done',this)">Done</button>
-                    <button class="filter-chip" onclick="toggleListFilter('priority','High',this)">High</button>
-                    <button class="filter-chip" onclick="toggleListFilter('priority','Medium',this)">Medium</button>
-                    <button class="filter-chip" onclick="toggleListFilter('priority','Low',this)">Low</button>
+        <nav class="sidebar-nav">
+            <div class="sidebar-nav-label">Workspace</div>
+            <button class="sidebar-nav-item active" onclick="sidebarNav('board', this)" data-tab="board">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                <span>Board</span>
+            </button>
+            <button class="sidebar-nav-item" onclick="sidebarNav('list', this)" data-tab="list">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                <span>List</span>
+            </button>
+            <button class="sidebar-nav-item" onclick="sidebarNav('calendar', this)" data-tab="calendar">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <span>Calendar</span>
+            </button>
+            <div class="sidebar-separator"></div>
+            <div class="sidebar-nav-label">General</div>
+            <button class="sidebar-nav-item" onclick="sidebarNav('settings', this)" data-tab="settings">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+                <span>Settings</span>
+            </button>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="sidebar-user" onclick="handleLogout()" title="Sign out">
+                <div class="sidebar-user-avatar" id="sidebarAvatar">MG</div>
+                <div class="sidebar-user-info">
+                    <div class="sidebar-user-name" id="sidebarUserName">User</div>
+                    <div class="sidebar-user-email" id="sidebarUserEmail">user@email.com</div>
                 </div>
             </div>
-            <table class="list-table">
-                <thead>
-                    <tr>
-                        <th onclick="sortList('title')">Title</th>
-                        <th onclick="sortList('status')">Status</th>
-                        <th onclick="sortList('priority')">Priority</th>
-                        <th onclick="sortList('assignee')">Assignee</th>
-                        <th onclick="sortList('due_date')">Due Date</th>
-                    </tr>
-                </thead>
-                <tbody id="listBody"></tbody>
-            </table>
-            <div id="listEmpty" class="empty-state hidden">No tasks yet. Create one from the Board tab.</div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <!-- Topbar -->
+        <header class="topbar">
+            <button class="btn-icon sidebar-mobile-toggle" onclick="toggleSidebar()" style="display:none" id="mobileSidebarBtn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
+            </button>
+            <span class="topbar-title" id="pageTitle">Board</span>
+            <div class="topbar-spacer"></div>
+            <button class="topbar-search-btn" onclick="openSearchOverlay()" title="Search (⌘K)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                Search
+                <kbd>⌘K</kbd>
+            </button>
+            <div id="teamPresence" class="team-presence"></div>
+            <button class="btn-icon" onclick="toggleTheme()" id="themeToggle" title="Toggle theme">&#x263E;</button>
+            <span class="user-info" id="userInfo" style="display:none"></span>
+        </header>
+
+        <!-- Page Content -->
+        <div class="page-content">
+            <!-- Board Tab -->
+            <div id="tab-board" class="tab-pane active">
+                <div id="boardLoading" class="spinner">Loading tasks...</div>
+                <div id="boardContent" class="board hidden">
+                    <div class="board-column" id="col-todo">
+                        <div class="board-column-header">To Do <span class="board-column-count" id="count-todo">0</span></div>
+                        <div class="board-column-body" id="body-todo"></div>
+                        <button class="new-task-btn" onclick="openNewTaskModal('To Do')">+ New Task</button>
+                    </div>
+                    <div class="board-column" id="col-inprogress">
+                        <div class="board-column-header">In Progress <span class="board-column-count" id="count-inprogress">0</span></div>
+                        <div class="board-column-body" id="body-inprogress"></div>
+                        <button class="new-task-btn" onclick="openNewTaskModal('In Progress')">+ New Task</button>
+                    </div>
+                    <div class="board-column" id="col-done">
+                        <div class="board-column-header">Done <span class="board-column-count" id="count-done">0</span></div>
+                        <div class="board-column-body" id="body-done"></div>
+                        <button class="new-task-btn" onclick="openNewTaskModal('Done')">+ New Task</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- List Tab -->
+            <div id="tab-list" class="tab-pane">
+                <div class="list-view">
+                    <div class="list-toolbar">
+                        <input type="text" class="search-input" id="listSearch" placeholder="Search tasks..." oninput="debouncedListFilter()">
+                        <div class="filter-chips" id="filterChips">
+                            <button class="filter-chip" onclick="toggleListFilter('status','To Do',this)">To Do</button>
+                            <button class="filter-chip" onclick="toggleListFilter('status','In Progress',this)">In Progress</button>
+                            <button class="filter-chip" onclick="toggleListFilter('status','Done',this)">Done</button>
+                            <button class="filter-chip" onclick="toggleListFilter('priority','High',this)">High</button>
+                            <button class="filter-chip" onclick="toggleListFilter('priority','Medium',this)">Medium</button>
+                            <button class="filter-chip" onclick="toggleListFilter('priority','Low',this)">Low</button>
+                        </div>
+                    </div>
+                    <table class="list-table">
+                        <thead>
+                            <tr>
+                                <th onclick="sortList('title')">Title</th>
+                                <th onclick="sortList('status')">Status</th>
+                                <th onclick="sortList('priority')">Priority</th>
+                                <th onclick="sortList('assignee')">Assignee</th>
+                                <th onclick="sortList('due_date')">Due Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="listBody"></tbody>
+                    </table>
+                    <div id="listEmpty" class="empty-state hidden">No tasks yet. Create one from the Board tab.</div>
+                </div>
+            </div>
+
+            <!-- Calendar Tab -->
+            <div id="tab-calendar" class="tab-pane">
+                <div class="calendar-view">
+                    <div class="calendar-nav">
+                        <button class="btn-icon" onclick="calNavMonth(-1)">&larr;</button>
+                        <h2 id="calMonthLabel"></h2>
+                        <button class="btn-icon" onclick="calNavMonth(1)">&rarr;</button>
+                        <button class="btn-sm btn-outline" onclick="calGoToday()">Today</button>
+                    </div>
+                    <div class="calendar-grid" id="calendarGrid"></div>
+                </div>
+            </div>
+
+            <!-- Settings Tab (new) -->
+            <div id="tab-settings" class="tab-pane">
+                <div style="padding: 24px;">
+                    <h2 style="font-size: 1.25rem; font-weight: 600; color: #fafafa; margin-bottom: 20px;">Settings</h2>
+                    <div style="background: #18181b; border: 1px solid #27272a; border-radius: 12px; padding: 20px;">
+                        <h3 style="font-size: 0.9rem; font-weight: 600; color: #d4d4d8; margin-bottom: 16px;">Appearance</h3>
+                        <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 0;">
+                            <span style="font-size: 0.85rem; color: #a1a1aa;">Dark Mode</span>
+                            <button class="btn-icon" onclick="toggleTheme()" id="settingsThemeToggle">Toggle</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Calendar Tab -->
-    <div id="tab-calendar" class="tab-pane">
-        <div class="calendar-view">
-            <div class="calendar-nav">
-                <button class="btn-icon" onclick="calNavMonth(-1)">&larr;</button>
-                <h2 id="calMonthLabel"></h2>
-                <button class="btn-icon" onclick="calNavMonth(1)">&rarr;</button>
-                <button class="btn-sm btn-outline" onclick="calGoToday()">Today</button>
-            </div>
-            <div class="calendar-grid" id="calendarGrid"></div>
-        </div>
-    </div>
+    </div><!-- end dashboard-layout -->
 </div>
 
 <!-- Detail Panel Overlay -->
@@ -864,6 +1157,7 @@ body { background: var(--bg); color: var(--text); }
 <!-- Cmd+K Search Overlay -->
 <div id="searchOverlay" class="search-overlay" onclick="if(event.target===this)closeSearchOverlay()">
     <div class="search-overlay-box">
+                <svg class="search-overlay-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <input id="searchOverlayInput" class="search-overlay-input" placeholder="Search tasks..." oninput="debouncedGlobalSearch()">
         <div id="searchOverlayResults" class="search-overlay-results"></div>
     </div>
@@ -1123,23 +1417,53 @@ function showLoginError(msg) {
 
 function enterDashboard(email, name) {
     currentUserId = email;
+
+    // Extract first name for welcome splash
+    const firstName = (name || email.split('@')[0]).split(' ')[0];
+
+    // Hide login, show splash
     document.getElementById('loginScreen').classList.add('hidden');
-    document.getElementById('dashboardWrap').classList.remove('hidden');
+    const splash = document.getElementById('welcomeSplash');
+    splash.classList.remove('hidden');
+    document.getElementById('welcomeName').textContent = 'Welcome back, ' + firstName;
+
+    // Set up dashboard in background
     document.getElementById('userInfo').textContent = name || email;
-
-    // Populate assignee dropdowns
+    // Populate sidebar user info
+    const auth = JSON.parse(sessionStorage.getItem('app_auth') || localStorage.getItem('app_auth') || '{}');
+    document.getElementById('sidebarUserName').textContent = name || email.split('@')[0];
+    document.getElementById('sidebarUserEmail').textContent = email;
+    if (auth.initials) document.getElementById('sidebarAvatar').textContent = auth.initials;
+    if (auth.color) document.getElementById('sidebarAvatar').style.background = auth.color;
+    // Restore sidebar state
+    if (localStorage.getItem('sidebar_collapsed') === 'true') {
+        document.getElementById('sidebar').classList.add('collapsed');
+    }
+    // Mobile sidebar toggle
+    const mobileBtn = document.getElementById('mobileSidebarBtn');
+    if (window.innerWidth <= 768) mobileBtn.style.display = '';
+    window.addEventListener('resize', () => {
+        mobileBtn.style.display = window.innerWidth <= 768 ? '' : 'none';
+    });
     populateAssigneeSelects();
-
-    // Restore theme
     if (localStorage.getItem('app_theme') === 'light') {
         document.documentElement.classList.add('light');
     }
     updateThemeIcon();
-
     loadTasks();
     startPresence();
     startTaskPoll();
     resetSessionTimer();
+
+    // After 2.5s, fade out splash and show dashboard
+    setTimeout(() => {
+        splash.classList.add('fade-out');
+        setTimeout(() => {
+            splash.classList.add('hidden');
+            splash.classList.remove('fade-out');
+            document.getElementById('dashboardWrap').classList.remove('hidden');
+        }, 600); // matches CSS transition duration
+    }, 2500);
 }
 
 async function checkSession() {
@@ -1233,16 +1557,44 @@ function updateThemeIcon() {
 }
 
 /* ════════════════════════════════════════════════════════════════
-   TAB NAVIGATION
+   SIDEBAR & NAVIGATION
    ════════════════════════════════════════════════════════════════ */
-function switchTab(id, btn) {
-    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById('tab-' + id).classList.add('active');
-    if (btn) btn.classList.add('active');
-    if (id === 'list') renderListView();
-    if (id === 'calendar') renderCalendar();
+const PAGE_TITLES = { board: 'Board', list: 'List', calendar: 'Calendar', settings: 'Settings' };
+
+function toggleSidebar() {
+    const sb = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    const isMobile = window.innerWidth <= 768;
+    if (isMobile) {
+        sb.classList.toggle('mobile-open');
+        overlay.classList.toggle('open');
+    } else {
+        sb.classList.toggle('collapsed');
+        localStorage.setItem('sidebar_collapsed', sb.classList.contains('collapsed'));
+    }
 }
+
+function sidebarNav(tabId, btn) {
+    // Update sidebar active state
+    document.querySelectorAll('.sidebar-nav-item').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    // Update page title
+    document.getElementById('pageTitle').textContent = PAGE_TITLES[tabId] || tabId;
+    // Switch tab pane
+    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+    document.getElementById('tab-' + tabId).classList.add('active');
+    // Trigger renders
+    if (tabId === 'list') renderListView();
+    if (tabId === 'calendar') renderCalendar();
+    // Close mobile sidebar
+    if (window.innerWidth <= 768) {
+        document.getElementById('sidebar').classList.remove('mobile-open');
+        document.getElementById('sidebarOverlay').classList.remove('open');
+    }
+}
+
+// Keep backward compatibility
+function switchTab(id, btn) { sidebarNav(id, document.querySelector('.sidebar-nav-item[data-tab="' + id + '"]')); }
 
 /* ════════════════════════════════════════════════════════════════
    API
@@ -1364,7 +1716,7 @@ function renderTaskCard(task) {
     const sub = countSubtasks(task);
     const dueCls = dueDateClass(task.due_date);
 
-    return `<div class="task-card ${task.status === 'Done' ? 'done' : ''}" onclick="openDetail('${esc(task.task_id)}')">
+    return `<div class="task-card ${task.status === 'Done' ? 'done' : ''} priority-left-${esc(task.priority || '')}" onclick="openDetail('${esc(task.task_id)}')">
         <div class="task-card-title">${esc(task.title)}</div>
         <div class="task-card-meta">
             ${task.priority ? `<span class="priority-badge priority-${esc(task.priority)}">${esc(task.priority)}</span>` : ''}
@@ -1741,6 +2093,14 @@ document.addEventListener('keydown', function(e) {
     }
     if (e.key === 'Escape') {
         if (document.getElementById('searchOverlay').classList.contains('open')) closeSearchOverlay();
+    }
+});
+
+// Cmd+B to toggle sidebar
+document.addEventListener('keydown', e => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'b') {
+        e.preventDefault();
+        toggleSidebar();
     }
 });
 
