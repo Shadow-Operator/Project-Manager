@@ -142,7 +142,12 @@ class handler(BaseHTTPRequestHandler):
                 }
 
                 target_calendar = _get_calendar_id(assignee)
-                event = service.events().insert(calendarId=target_calendar, body=event_body).execute()
+                try:
+                    event = service.events().insert(calendarId=target_calendar, body=event_body).execute()
+                except Exception as cal_err:
+                    # Fallback to default calendar if assignee's calendar isn't accessible
+                    print(f"[Calendar] Failed to push to {target_calendar}, falling back to default: {cal_err}")
+                    event = service.events().insert(calendarId=DEFAULT_CALENDAR_ID, body=event_body).execute()
                 event_id = event.get("id", "")
 
                 json_response(self, 200, {"ok": True, "event_id": event_id})
