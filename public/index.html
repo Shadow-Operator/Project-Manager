@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Project Manager</title>
+<title>Stlla</title>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
@@ -1018,7 +1018,7 @@ body { background: var(--bg); color: var(--text); }
     <div class="welcome-text">
         <span class="shimmer-wrap" id="welcomeName">Welcome back</span>
     </div>
-    <div class="welcome-subtitle">Loading your workspace…</div>
+    <div class="welcome-subtitle">Loading your Stlla workspace…</div>
 </div>
 
 <!-- Dashboard -->
@@ -1033,7 +1033,7 @@ body { background: var(--bg); color: var(--text); }
         <div class="sidebar-header">
             <div class="sidebar-logo">
                 <div class="sidebar-logo-icon"><img src="/favicon.svg" alt="Logo"></div>
-                <span>Project Manager</span>
+                <span>Stlla</span>
             </div>
             <button class="sidebar-collapse-btn" onclick="toggleSidebar()" title="Toggle sidebar (⌘B)">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg>
@@ -1052,6 +1052,16 @@ body { background: var(--bg); color: var(--text); }
             <button class="sidebar-nav-item" onclick="sidebarNav('calendar', this)" data-tab="calendar">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
                 <span>Calendar</span>
+            </button>
+            <button class="sidebar-nav-item" onclick="sidebarNav('dealflow', this)" data-tab="dealflow">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                <span>Deal Flow</span>
+            </button>
+            <div class="sidebar-separator"></div>
+            <div class="sidebar-nav-label">Communication</div>
+            <button class="sidebar-nav-item" onclick="sidebarNav('telegram', this)" data-tab="telegram">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+                <span>Telegram</span>
             </button>
             <div class="sidebar-separator"></div>
             <div class="sidebar-nav-label">General</div>
@@ -1097,6 +1107,13 @@ body { background: var(--bg); color: var(--text); }
             <!-- Board Tab -->
             <div id="tab-board" class="tab-pane active">
                 <div id="boardLoading" class="spinner">Loading tasks...</div>
+                <div id="boardCategoryFilter" class="filter-chips hidden" style="padding:12px 20px 0;display:flex;gap:6px;flex-wrap:wrap">
+                    <button class="filter-chip" onclick="toggleBoardCategory('Recast',this)">Recast</button>
+                    <button class="filter-chip" onclick="toggleBoardCategory('Shadow Operating',this)">Shadow Op</button>
+                    <button class="filter-chip" onclick="toggleBoardCategory('Mulligan\\'s Marketplace',this)">Mulligan's</button>
+                    <button class="filter-chip" onclick="toggleBoardCategory('Agency',this)">Agency</button>
+                    <button class="filter-chip" onclick="toggleBoardCategory('',this)">No Category</button>
+                </div>
                 <div id="boardContent" class="board hidden">
                     <div class="board-column" id="col-todo">
                         <div class="board-column-header">To Do <span class="board-column-count" id="count-todo">0</span></div>
@@ -1128,6 +1145,11 @@ body { background: var(--bg); color: var(--text); }
                             <button class="filter-chip" onclick="toggleListFilter('priority','High',this)">High</button>
                             <button class="filter-chip" onclick="toggleListFilter('priority','Medium',this)">Medium</button>
                             <button class="filter-chip" onclick="toggleListFilter('priority','Low',this)">Low</button>
+                            <span style="width:1px;height:20px;background:#1a1a1f"></span>
+                            <button class="filter-chip" onclick="toggleListFilter('category','Recast',this)">Recast</button>
+                            <button class="filter-chip" onclick="toggleListFilter('category','Shadow Operating',this)">Shadow Op</button>
+                            <button class="filter-chip" onclick="toggleListFilter('category',&quot;Mulligan's Marketplace&quot;,this)">Mulligan's</button>
+                            <button class="filter-chip" onclick="toggleListFilter('category','Agency',this)">Agency</button>
                         </div>
                     </div>
                     <div class="list-table-wrap">
@@ -1136,6 +1158,7 @@ body { background: var(--bg); color: var(--text); }
                                 <tr>
                                     <th style="width:50px">No</th>
                                     <th onclick="sortList('title')">Task</th>
+                                    <th onclick="sortList('category')">Category</th>
                                     <th onclick="sortList('status')">Status</th>
                                     <th onclick="sortList('priority')">Priority</th>
                                     <th onclick="sortList('assignee')">Assignee</th>
@@ -1166,7 +1189,38 @@ body { background: var(--bg); color: var(--text); }
                 </div>
             </div>
 
-            <!-- Settings Tab (new) -->
+            <!-- Deal Flow Tab -->
+            <div id="tab-dealflow" class="tab-pane">
+                <div style="padding: 20px;">
+                    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap">
+                        <button class="btn-sm" onclick="openNewDealModal()">+ New Deal</button>
+                        <div class="filter-chips" id="dealCategoryChips">
+                            <button class="filter-chip" onclick="toggleDealFilter('Recast',this)">Recast</button>
+                            <button class="filter-chip" onclick="toggleDealFilter('Shadow Operating',this)">Shadow Op</button>
+                            <button class="filter-chip" onclick="toggleDealFilter('Mulligan\\'s Marketplace',this)">Mulligan's</button>
+                            <button class="filter-chip" onclick="toggleDealFilter('Agency',this)">Agency</button>
+                        </div>
+                    </div>
+                    <div id="dealFlowBoard" class="board" style="max-height:calc(100vh - 140px)"></div>
+                </div>
+            </div>
+
+            <!-- Telegram Tab -->
+            <div id="tab-telegram" class="tab-pane">
+                <div style="padding:24px;display:flex;flex-direction:column;align-items:center;gap:16px;height:calc(100vh - 80px)">
+                    <div style="background:#18181b;border:1px solid #27272a;border-radius:12px;padding:20px;width:100%;max-width:600px;text-align:center">
+                        <h3 style="font-size:1rem;font-weight:600;color:#fafafa;margin-bottom:8px">Telegram Chat</h3>
+                        <p style="font-size:0.85rem;color:#71717a;margin-bottom:16px">Connect with your team via Telegram</p>
+                        <a href="https://web.telegram.org" target="_blank" rel="noopener" class="btn-sm" style="display:inline-flex;align-items:center;gap:8px;text-decoration:none;padding:10px 20px">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+                            Open Telegram Web
+                        </a>
+                    </div>
+                    <iframe src="https://web.telegram.org" style="width:100%;max-width:600px;flex:1;border:1px solid #27272a;border-radius:12px;background:#000" allow="camera;microphone" sandbox="allow-scripts allow-same-origin allow-popups allow-forms"></iframe>
+                </div>
+            </div>
+
+            <!-- Settings Tab -->
             <div id="tab-settings" class="tab-pane">
                 <div style="padding: 24px;">
                     <h2 style="font-size: 1.25rem; font-weight: 600; color: #fafafa; margin-bottom: 20px;">Settings</h2>
@@ -1227,6 +1281,16 @@ body { background: var(--bg); color: var(--text); }
             <label>Due Date</label>
             <input id="ntDueDate" type="date">
         </div>
+        <div class="modal-field">
+            <label>Category</label>
+            <select id="ntCategory">
+                <option value="">None</option>
+                <option>Recast</option>
+                <option>Shadow Operating</option>
+                <option>Mulligan's Marketplace</option>
+                <option>Agency</option>
+            </select>
+        </div>
         <input type="hidden" id="ntParentId" value="">
         <div class="modal-actions">
             <button class="btn-sm btn-outline" onclick="closeNewTaskModal()">Cancel</button>
@@ -1274,7 +1338,7 @@ let _presenceData = {};
 let _sessionTimer;
 let _detailStack = [];            // Breadcrumb stack of task_ids
 let _collapsedSubtasks = new Set(); // task_ids whose children are collapsed
-let listFilters = { status: new Set(), priority: new Set() };
+let listFilters = { status: new Set(), priority: new Set(), category: new Set() };
 let listSort = { col: 'title', asc: true };
 
 const SESSION_TIMEOUT = 30 * 60 * 1000;
@@ -1642,7 +1706,11 @@ function updateThemeIcon() {
 /* ════════════════════════════════════════════════════════════════
    SIDEBAR & NAVIGATION
    ════════════════════════════════════════════════════════════════ */
-const PAGE_TITLES = { board: 'Board', list: 'List', calendar: 'Calendar', settings: 'Settings' };
+const PAGE_TITLES = { board: 'Board', list: 'List', calendar: 'Calendar', dealflow: 'Deal Flow', telegram: 'Telegram', settings: 'Settings' };
+const CATEGORIES = ['Recast', 'Shadow Operating', "Mulligan's Marketplace", 'Agency'];
+const DEAL_STAGES = ['Lead', 'Contact Made', 'Proposal', 'Negotiation', 'Won', 'Lost'];
+let _boardCategoryFilter = new Set();
+let _dealCategoryFilter = new Set();
 
 function toggleSidebar() {
     const sb = document.getElementById('sidebar');
@@ -1669,6 +1737,7 @@ function sidebarNav(tabId, btn) {
     // Trigger renders
     if (tabId === 'list') renderListView();
     if (tabId === 'calendar') renderCalendar();
+    if (tabId === 'dealflow') renderDealFlow();
     // Close mobile sidebar
     if (window.innerWidth <= 768) {
         document.getElementById('sidebar').classList.remove('mobile-open');
@@ -1778,7 +1847,13 @@ async function apiDeleteTask(taskId, cascade = true) {
    KANBAN BOARD RENDERING
    ════════════════════════════════════════════════════════════════ */
 function renderBoard() {
-    const roots = TREE;
+    let roots = TREE;
+    // Apply category filter
+    if (_boardCategoryFilter.size) {
+        roots = roots.filter(t => _boardCategoryFilter.has(t.category || ''));
+    }
+    // Show category filter bar
+    document.getElementById('boardCategoryFilter').classList.remove('hidden');
 
     const cols = { 'To Do': [], 'In Progress': [], 'Done': [] };
     roots.forEach(t => {
@@ -1812,6 +1887,7 @@ function renderTaskCard(task) {
         <div class="task-card-body">
             <div class="task-card-title">${esc(task.title)}</div>
             <div class="task-card-subtitle">${subtitleParts.join(' <span class="card-sep">·</span> ')}</div>
+            ${task.category ? `<div style="margin-top:4px">${categoryBadge(task.category)}</div>` : ''}
         </div>
     </div>`;
 }
@@ -1897,6 +1973,18 @@ function renderDetail(taskId) {
             </select>
             <div class="detail-label">Due Date</div>
             <input type="date" value="${esc(task.due_date)}" onchange="updateDetailField('${esc(task.task_id)}','due_date',this.value)">
+            <div class="detail-label">Category</div>
+            <select onchange="updateDetailField('${esc(task.task_id)}','category',this.value)">
+                <option value="">None</option>
+                ${CATEGORIES.map(c => `<option ${c === task.category ? 'selected' : ''}>${esc(c)}</option>`).join('')}
+            </select>
+            <div class="detail-label">Stage</div>
+            <select onchange="updateDetailField('${esc(task.task_id)}','stage',this.value)">
+                <option value="">None</option>
+                ${DEAL_STAGES.map(s => `<option ${s === task.stage ? 'selected' : ''}>${esc(s)}</option>`).join('')}
+            </select>
+            <div class="detail-label">Deal Value</div>
+            <input type="text" value="${esc(task.deal_value || '')}" placeholder="e.g. 5000" onblur="updateDetailField('${esc(task.task_id)}','deal_value',this.value)">
         </div>
 
         <div class="detail-section">
@@ -2067,6 +2155,9 @@ async function submitNewTask() {
         parent_task_id: document.getElementById('ntParentId').value,
         links: '[]',
         created_by: currentUserId,
+        category: document.getElementById('ntCategory').value,
+        stage: '',
+        deal_value: '',
     };
 
     closeNewTaskModal();
@@ -2105,6 +2196,7 @@ function renderListView() {
         if (q && !t.title.toLowerCase().includes(q) && !(t.description || '').toLowerCase().includes(q)) return false;
         if (listFilters.status.size && !listFilters.status.has(t.status)) return false;
         if (listFilters.priority.size && !listFilters.priority.has(t.priority)) return false;
+        if (listFilters.category.size && !listFilters.category.has(t.category)) return false;
         return true;
     });
 
@@ -2134,6 +2226,7 @@ function renderListView() {
         return `<tr class="${depthCls}">
             <td><span class="list-row-num">${idx + 1}</span></td>
             <td><span class="list-row-title" onclick="openDetail('${esc(t.task_id)}')">${esc(t.title)}</span></td>
+            <td>${categoryBadge(t.category)}</td>
             <td><span class="${statusBadge}">${esc(statusLabel)}</span></td>
             <td><span class="priority-badge priority-${esc(t.priority)}">${esc(t.priority)}</span></td>
             <td>${member ? esc(member.name) : (t.assignee ? esc(t.assignee) : '<span style="color:#3f3f46">—</span>')}</td>
@@ -2457,6 +2550,92 @@ async function pushToCalendar(taskId) {
         showToast('Failed to connect to calendar', 'error');
         if (btn) { btn.innerHTML = '&#x1F4C5; Push to Google Calendar'; btn.disabled = false; }
     }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   BOARD CATEGORY FILTER
+   ════════════════════════════════════════════════════════════════ */
+function toggleBoardCategory(cat, btn) {
+    if (_boardCategoryFilter.has(cat)) { _boardCategoryFilter.delete(cat); btn.classList.remove('active'); }
+    else { _boardCategoryFilter.add(cat); btn.classList.add('active'); }
+    renderBoard();
+}
+
+/* ════════════════════════════════════════════════════════════════
+   DEAL FLOW
+   ════════════════════════════════════════════════════════════════ */
+function toggleDealFilter(cat, btn) {
+    if (_dealCategoryFilter.has(cat)) { _dealCategoryFilter.delete(cat); btn.classList.remove('active'); }
+    else { _dealCategoryFilter.add(cat); btn.classList.add('active'); }
+    renderDealFlow();
+}
+
+function renderDealFlow() {
+    const board = document.getElementById('dealFlowBoard');
+    // Get tasks that have a stage (deal flow items)
+    let deals = DATA.filter(t => t.stage && DEAL_STAGES.includes(t.stage));
+    if (_dealCategoryFilter.size) deals = deals.filter(t => _dealCategoryFilter.has(t.category));
+
+    const cols = {};
+    DEAL_STAGES.forEach(s => cols[s] = []);
+    deals.forEach(t => { if (cols[t.stage]) cols[t.stage].push(t); });
+
+    const stageColors = { Lead: '#71717a', 'Contact Made': '#818cf8', Proposal: '#fbbf24', Negotiation: '#f97316', Won: '#4ade80', Lost: '#ef4444' };
+
+    board.innerHTML = DEAL_STAGES.map(stage => {
+        const items = cols[stage];
+        const color = stageColors[stage] || '#71717a';
+        return `<div class="board-column" style="min-width:220px;max-width:280px">
+            <div class="board-column-header">
+                <span style="display:flex;align-items:center;gap:8px">
+                    <span style="width:8px;height:8px;border-radius:50%;background:${color}"></span>
+                    ${stage}
+                </span>
+                <span class="board-column-count">${items.length}</span>
+            </div>
+            <div class="board-column-body">
+                ${items.map(t => {
+                    const val = t.deal_value ? `<span style="color:#4ade80;font-weight:600">£${esc(t.deal_value)}</span>` : '';
+                    return `<div class="task-card" onclick="openDetail('${esc(t.task_id)}')">
+                        <div class="task-card-body">
+                            <div class="task-card-title">${esc(t.title)}</div>
+                            <div class="task-card-subtitle">
+                                ${t.category ? `<span style="color:${color}">${esc(t.category)}</span>` : ''}
+                                ${val}
+                                ${t.assignee ? '<span class="card-sep">·</span> ' + esc((getTeamMember(t.assignee) || {}).name || t.assignee) : ''}
+                            </div>
+                        </div>
+                    </div>`;
+                }).join('')}
+                ${items.length === 0 ? '<div style="padding:20px;text-align:center;color:#27272a;font-size:0.8rem">No deals</div>' : ''}
+            </div>
+            <button class="new-task-btn" onclick="openNewDealModal('${stage}')">+ New Deal</button>
+        </div>`;
+    }).join('');
+}
+
+function openNewDealModal(stage) {
+    openNewTaskModal('To Do');
+    // Override for deal flow
+    setTimeout(() => {
+        document.getElementById('newTaskModalTitle').textContent = 'New Deal';
+    }, 50);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   CATEGORY BADGE
+   ════════════════════════════════════════════════════════════════ */
+const CATEGORY_COLORS = {
+    'Recast': '#818cf8',
+    'Shadow Operating': '#7c3aed',
+    "Mulligan's Marketplace": '#f97316',
+    'Agency': '#06b6d4'
+};
+
+function categoryBadge(cat) {
+    if (!cat) return '';
+    const color = CATEGORY_COLORS[cat] || '#71717a';
+    return `<span style="display:inline-block;padding:2px 8px;border-radius:12px;font-size:0.65rem;font-weight:600;background:${color}20;color:${color}">${esc(cat)}</span>`;
 }
 
 /* ════════════════════════════════════════════════════════════════

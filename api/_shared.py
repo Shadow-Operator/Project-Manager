@@ -17,7 +17,8 @@ PRESENCE_TAB_NAME = "Presence"
 TASK_HEADERS = [
     "task_id", "title", "description", "status", "priority",
     "assignee", "due_date", "parent_task_id", "links",
-    "created_by", "created_at", "updated_at"
+    "created_by", "created_at", "updated_at",
+    "category", "stage", "deal_value"
 ]
 
 # ── Google Sheets Connection ────────────────────────────────────────

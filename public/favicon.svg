@@ -1,12 +1,21 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
   <defs>
-    <radialGradient id="g" cx="50%" cy="35%" r="50%">
-      <stop offset="0%" stop-color="#7c3aed" stop-opacity="0.6"/>
-      <stop offset="100%" stop-color="#000" stop-opacity="1"/>
+    <radialGradient id="glow" cx="50%" cy="30%" r="60%">
+      <stop offset="0%" stop-color="#a855f7" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#000" stop-opacity="0"/>
     </radialGradient>
+    <linearGradient id="hood" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7c3aed"/>
+      <stop offset="50%" stop-color="#a855f7"/>
+      <stop offset="100%" stop-color="#6d28d9"/>
+    </linearGradient>
   </defs>
-  <rect width="64" height="64" rx="14" fill="#000"/>
-  <circle cx="32" cy="28" r="22" fill="url(#g)"/>
-  <path d="M16 44 C16 24 24 12 32 10 C40 12 48 24 48 44 C44 40 38 38 32 38 C26 38 20 40 16 44Z" fill="#000" stroke="#7c3aed" stroke-width="1.2" stroke-opacity="0.8"/>
-  <path d="M22 44 C22 36 26 32 32 32 C38 32 42 36 42 44" fill="#000"/>
+  <rect width="100" height="100" fill="#000" rx="20"/>
+  <circle cx="50" cy="35" r="35" fill="url(#glow)"/>
+  <!-- Hood outline -->
+  <path d="M50 15 C30 15 20 35 22 55 C22 58 25 60 28 58 C30 50 35 35 50 30 C65 35 70 50 72 58 C75 60 78 58 78 55 C80 35 70 15 50 15Z" fill="none" stroke="url(#hood)" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Inner shadow face -->
+  <path d="M50 25 C38 25 30 38 32 50 C33 52 36 53 38 52 C39 46 42 38 50 35 C58 38 61 46 62 52 C64 53 67 52 68 50 C70 38 62 25 50 25Z" fill="#0a0a0a" opacity="0.9"/>
+  <!-- Shoulder glow -->
+  <path d="M28 58 C25 65 22 75 20 82 C30 88 42 90 50 90 C58 90 70 88 80 82 C78 75 75 65 72 58" fill="none" stroke="url(#hood)" stroke-width="1.8" stroke-linecap="round" opacity="0.7"/>
 </svg>
