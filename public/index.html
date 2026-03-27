@@ -2199,12 +2199,25 @@ function handleForgotPassword() {
 }
 
 function handleGoogleLogin() {
-    _supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: { redirectTo: window.location.origin }
-    }).then(({ error }) => {
-        if (error) showLoginError(error.message);
-    });
+    console.log('Google login clicked, supabase:', !!_supabase);
+    try {
+        _supabase.auth.signInWithOAuth({
+            provider: 'google',
+            options: { redirectTo: window.location.origin }
+        }).then(({ data, error }) => {
+            console.log('OAuth response:', data, error);
+            if (error) {
+                console.error('OAuth error:', error);
+                showLoginError(error.message);
+            }
+        }).catch(err => {
+            console.error('OAuth catch:', err);
+            showLoginError('Google sign-in failed: ' + err.message);
+        });
+    } catch(e) {
+        console.error('handleGoogleLogin error:', e);
+        showLoginError('Failed to start Google sign-in: ' + e.message);
+    }
 }
 
 function showLoginError(msg) {
