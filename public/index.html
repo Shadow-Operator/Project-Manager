@@ -1068,6 +1068,53 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .comment-item:last-child { border-bottom: none; }
 .comment-list { max-height: 400px; overflow-y: auto; }
 
+/* ── Date Picker ─────────────────────────────────────────────── */
+.date-picker-wrap { position: relative; }
+.date-picker-btn {
+    width: 100%; padding: 9px 12px; background: #18181b;
+    border: 1px solid #27272a; border-radius: 8px;
+    color: #e4e4e7; font-size: 0.85rem; font-family: inherit;
+    cursor: pointer; text-align: left; display: flex; align-items: center; gap: 7px;
+    transition: border-color 0.15s;
+}
+.date-picker-btn:hover { border-color: #3f3f46; }
+.date-picker-btn.has-date { color: #fafafa; }
+.date-picker-btn svg { color: #52525b; flex-shrink: 0; }
+.date-picker-popover {
+    position: absolute; top: calc(100% + 6px); left: 0; z-index: 500;
+    background: #0a0a0c; border: 1px solid #27272a; border-radius: 12px;
+    padding: 10px; width: 260px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+    animation: modalFadeIn 0.15s ease;
+}
+.dp-quick { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #1a1a1f; }
+.dp-quick button {
+    padding: 4px 10px; border-radius: 20px; border: 1px solid #27272a;
+    background: #18181b; color: #a1a1aa; font-size: 0.73rem; cursor: pointer;
+    font-family: inherit; transition: all 0.12s;
+}
+.dp-quick button:hover { border-color: #818cf8; color: #818cf8; }
+.dp-quick .dp-clear { border-color: transparent; color: #52525b; }
+.dp-quick .dp-clear:hover { border-color: #f87171; color: #f87171; }
+.dp-cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.dp-cal-header span { font-size: 0.82rem; font-weight: 600; color: #fafafa; }
+.dp-cal-header button { background: none; border: none; color: #71717a; cursor: pointer; font-size: 1.1rem; padding: 2px 6px; border-radius: 4px; }
+.dp-cal-header button:hover { color: #fafafa; background: #18181b; }
+.dp-day-headers { display: grid; grid-template-columns: repeat(7,1fr); margin-bottom: 4px; }
+.dp-day-headers span { text-align: center; font-size: 0.65rem; color: #3f3f46; font-weight: 600; padding: 2px 0; }
+.dp-days { display: grid; grid-template-columns: repeat(7,1fr); gap: 2px; }
+.dp-day {
+    aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem; border-radius: 6px; border: none; background: none;
+    color: #a1a1aa; cursor: pointer; transition: all 0.1s; font-family: inherit;
+}
+.dp-day:hover { background: #27272a; color: #fafafa; }
+.dp-day.dp-today { color: #818cf8; font-weight: 700; }
+.dp-day.dp-selected { background: #818cf8; color: #fff; font-weight: 600; }
+.dp-day.dp-selected:hover { background: #6366f1; }
+.dp-day.dp-past { color: #2e2e33; }
+.dp-day.dp-past:hover { background: #18181b; color: #3f3f46; }
+
 /* ── Modal ────────────────────────────────────────────────────── */
 .modal-overlay {
     position: fixed; top: 0; left: 0; right: 0; bottom: 0;
@@ -2713,7 +2760,14 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
                 </div>
                 <div class="modal-field">
                     <label>Due Date</label>
-                    <input id="ntDueDate" type="date">
+                    <div class="date-picker-wrap" id="ntDueDateWrap">
+                        <button type="button" class="date-picker-btn" onclick="toggleDatePicker('ntDueDateWrap','ntDueDate')">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                            <span>No date</span>
+                        </button>
+                        <input type="hidden" id="ntDueDate">
+                        <div class="date-picker-popover hidden" id="ntDueDatePopover"></div>
+                    </div>
                 </div>
             </div>
             <div class="modal-row">
@@ -2779,11 +2833,25 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
             <div class="modal-row">
                 <div class="modal-field">
                     <label>Issue Date</label>
-                    <input id="invIssueDate" type="date">
+                    <div class="date-picker-wrap" id="invIssueDateWrap">
+                        <button type="button" class="date-picker-btn" onclick="toggleDatePicker('invIssueDateWrap','invIssueDate')">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                            <span>No date</span>
+                        </button>
+                        <input type="hidden" id="invIssueDate">
+                        <div class="date-picker-popover hidden"></div>
+                    </div>
                 </div>
                 <div class="modal-field">
                     <label>Due Date</label>
-                    <input id="invDueDate" type="date">
+                    <div class="date-picker-wrap" id="invDueDateWrap">
+                        <button type="button" class="date-picker-btn" onclick="toggleDatePicker('invDueDateWrap','invDueDate')">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                            <span>No date</span>
+                        </button>
+                        <input type="hidden" id="invDueDate">
+                        <div class="date-picker-popover hidden"></div>
+                    </div>
                 </div>
             </div>
             <div class="modal-row">
@@ -4645,13 +4713,124 @@ function populateAssigneeSelects() {
         TEAM_ROSTER.map(m => `<option value="${esc(m.email)}">${esc(m.name)}</option>`).join('');
 }
 
+/* ── Date Picker Logic ───────────────────────────────────────── */
+function setDatePickerValue(wrapId, inputId, dateStr) {
+    const input = document.getElementById(inputId);
+    if (input) input.value = dateStr || '';
+    const wrap = document.getElementById(wrapId);
+    if (!wrap) return;
+    const btn = wrap.querySelector('.date-picker-btn');
+    const label = btn ? btn.querySelector('span') : null;
+    if (label) {
+        if (dateStr) {
+            const d = new Date(dateStr + 'T00:00:00');
+            label.textContent = d.toLocaleDateString('en-GB', { weekday:'short', day:'numeric', month:'short' });
+            btn.classList.add('has-date');
+        } else {
+            label.textContent = 'No date';
+            btn.classList.remove('has-date');
+        }
+    }
+}
+
+function toggleDatePicker(wrapId, inputId) {
+    const wrap = document.getElementById(wrapId);
+    if (!wrap) return;
+    const popover = wrap.querySelector('.date-picker-popover');
+    if (!popover) return;
+    if (popover.classList.contains('hidden')) {
+        // Close any other open pickers
+        document.querySelectorAll('.date-picker-popover:not(.hidden)').forEach(p => p.classList.add('hidden'));
+        const val = document.getElementById(inputId)?.value;
+        const base = val ? new Date(val + 'T00:00:00') : new Date();
+        wrap._calYear = base.getFullYear();
+        wrap._calMonth = base.getMonth();
+        renderDatePickerPopover(wrapId, inputId);
+        popover.classList.remove('hidden');
+        setTimeout(() => {
+            document.addEventListener('click', function closePicker(e) {
+                if (!wrap.contains(e.target)) {
+                    popover.classList.add('hidden');
+                    document.removeEventListener('click', closePicker);
+                }
+            });
+        }, 0);
+    } else {
+        popover.classList.add('hidden');
+    }
+}
+
+function renderDatePickerPopover(wrapId, inputId) {
+    const wrap = document.getElementById(wrapId);
+    const popover = wrap.querySelector('.date-picker-popover');
+    const selectedVal = document.getElementById(inputId)?.value || '';
+    const year = wrap._calYear, month = wrap._calMonth;
+    const today = new Date(); today.setHours(0,0,0,0);
+    const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    const dayNames = ['Su','Mo','Tu','We','Th','Fr','Sa'];
+    const fmt = d => d.toISOString().slice(0,10);
+    const t = new Date(today);
+    const tom = new Date(t); tom.setDate(t.getDate()+1);
+    const in3 = new Date(t); in3.setDate(t.getDate()+3);
+    const nw  = new Date(t); nw.setDate(t.getDate()+7);
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month+1, 0).getDate();
+    let days = '';
+    for (let i=0; i<firstDay; i++) days += '<span></span>';
+    for (let d=1; d<=daysInMonth; d++) {
+        const ds = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        const dt = new Date(year, month, d);
+        const cls = [
+            'dp-day',
+            dt.getTime()===today.getTime() ? 'dp-today' : '',
+            ds===selectedVal ? 'dp-selected' : '',
+            dt < today ? 'dp-past' : ''
+        ].filter(Boolean).join(' ');
+        days += `<button class="${cls}" onclick="selectPickerDate('${wrapId}','${inputId}','${ds}')">${d}</button>`;
+    }
+    popover.innerHTML = `
+        <div class="dp-quick">
+            <button onclick="selectPickerDate('${wrapId}','${inputId}','${fmt(t)}')">Today</button>
+            <button onclick="selectPickerDate('${wrapId}','${inputId}','${fmt(tom)}')">Tomorrow</button>
+            <button onclick="selectPickerDate('${wrapId}','${inputId}','${fmt(in3)}')">In 3 days</button>
+            <button onclick="selectPickerDate('${wrapId}','${inputId}','${fmt(nw)}')">Next week</button>
+            ${selectedVal ? `<button class="dp-clear" onclick="selectPickerDate('${wrapId}','${inputId}','')">✕ Clear</button>` : ''}
+        </div>
+        <div class="dp-cal-header">
+            <button onclick="shiftCalMonth('${wrapId}','${inputId}',-1)">‹</button>
+            <span>${monthNames[month]} ${year}</span>
+            <button onclick="shiftCalMonth('${wrapId}','${inputId}',1)">›</button>
+        </div>
+        <div class="dp-day-headers">${dayNames.map(d=>`<span>${d}</span>`).join('')}</div>
+        <div class="dp-days">${days}</div>`;
+}
+
+function shiftCalMonth(wrapId, inputId, delta) {
+    const wrap = document.getElementById(wrapId);
+    wrap._calMonth += delta;
+    if (wrap._calMonth > 11) { wrap._calMonth = 0; wrap._calYear++; }
+    if (wrap._calMonth < 0)  { wrap._calMonth = 11; wrap._calYear--; }
+    renderDatePickerPopover(wrapId, inputId);
+}
+
+function selectPickerDate(wrapId, inputId, dateStr) {
+    setDatePickerValue(wrapId, inputId, dateStr);
+    if (dateStr) {
+        const wrap = document.getElementById(wrapId);
+        if (wrap) wrap.querySelector('.date-picker-popover')?.classList.add('hidden');
+    } else {
+        renderDatePickerPopover(wrapId, inputId);
+    }
+}
+/* ─────────────────────────────────────────────────────────────── */
+
 function openNewTaskModal(status, parentId) {
     document.getElementById('ntTitle').value = '';
     document.getElementById('ntDescription').value = '';
     document.getElementById('ntStatus').value = status || 'To Do';
     document.getElementById('ntPriority').value = 'Medium';
     document.getElementById('ntAssignee').value = '';
-    document.getElementById('ntDueDate').value = '';
+    setDatePickerValue('ntDueDateWrap', 'ntDueDate', '');
     document.getElementById('ntParentId').value = parentId || '';
     document.getElementById('newTaskModalTitle').textContent = parentId ? 'New Subtask' : 'New Task';
     document.getElementById('newTaskModal').classList.add('open');
@@ -5485,8 +5664,8 @@ function toggleCalDayExpand(btn, dateStr) {
 function calClickDay(dateStr) {
     openNewTaskModal('To Do');
     setTimeout(() => {
-        document.getElementById('ntDueDate').value = dateStr;
-    }, 50);
+        setDatePickerValue('ntDueDateWrap', 'ntDueDate', dateStr);
+    }, 100);
 }
 
 async function pushToCalendar(taskId) {
@@ -6313,8 +6492,8 @@ function openNewInvoiceModal(editId) {
         document.getElementById('invTitle').value = inv.title || '';
         document.getElementById('invClient').value = inv.client || '';
         document.getElementById('invAmount').value = inv.amount || '';
-        document.getElementById('invIssueDate').value = inv.issue_date || '';
-        document.getElementById('invDueDate').value = inv.due_date || '';
+        setDatePickerValue('invIssueDateWrap', 'invIssueDate', inv.issue_date || '');
+        setDatePickerValue('invDueDateWrap', 'invDueDate', inv.due_date || '');
         document.getElementById('invStatus').value = inv.status || 'Draft';
         document.getElementById('invCategory').value = inv.category || '';
         document.getElementById('invNotes').value = inv.notes || '';
@@ -6324,8 +6503,8 @@ function openNewInvoiceModal(editId) {
         document.getElementById('invTitle').value = '';
         document.getElementById('invClient').value = '';
         document.getElementById('invAmount').value = '';
-        document.getElementById('invIssueDate').value = new Date().toISOString().slice(0,10);
-        document.getElementById('invDueDate').value = '';
+        setDatePickerValue('invIssueDateWrap', 'invIssueDate', new Date().toISOString().slice(0,10));
+        setDatePickerValue('invDueDateWrap', 'invDueDate', '');
         document.getElementById('invStatus').value = 'Draft';
         document.getElementById('invCategory').value = '';
         document.getElementById('invNotes').value = '';
