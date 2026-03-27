@@ -1798,17 +1798,30 @@ body { background: #030303; color: var(--text); font-size: 14px; line-height: 1.
                     <!-- Account -->
                     <div id="settings-account" class="settings-section">
                         <div style="background: #18181b; border: 1px solid #27272a; border-radius: 12px; padding: 20px; margin-bottom: 16px;">
-                            <h3 style="font-size: 0.9rem; font-weight: 600; color: #d4d4d8; margin-bottom: 16px;">Profile</h3>
-                            <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 16px;">
-                                <div id="settingsAvatar" style="width:56px;height:56px;border-radius:50%;background:#7c3aed;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:1.1rem;color:#fff;overflow:hidden;"></div>
-                                <div>
-                                    <div id="settingsName" style="font-size:0.95rem;font-weight:600;color:#fafafa;">—</div>
-                                    <div id="settingsEmail" style="font-size:0.8rem;color:#71717a;">—</div>
+                            <h3 style="font-size: 0.72rem; font-weight: 600; color: #71717a; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.06em;">Profile</h3>
+                            <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px;">
+                                <div style="position:relative;cursor:pointer;" onclick="document.getElementById('profilePhotoInput').click()">
+                                    <div id="settingsAvatar" style="width:64px;height:64px;border-radius:50%;background:#7c3aed;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:1.1rem;color:#fff;overflow:hidden;border:2px solid #27272a;transition:border-color 0.2s;"></div>
+                                    <div style="position:absolute;bottom:0;right:0;width:22px;height:22px;border-radius:50%;background:#27272a;border:2px solid #18181b;display:flex;align-items:center;justify-content:center;">
+                                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#a1a1aa" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                                    </div>
+                                    <input type="file" id="profilePhotoInput" accept="image/*" style="display:none" onchange="handleProfilePhotoUpload(event)">
                                 </div>
+                                <div style="flex:1;">
+                                    <div id="settingsName" style="font-size:1rem;font-weight:600;color:#fafafa;margin-bottom:2px;">—</div>
+                                    <div id="settingsEmail" style="font-size:0.8rem;color:#71717a;margin-bottom:8px;">—</div>
+                                    <div id="settingsRole" style="font-size:0.7rem;color:#818cf8;font-weight:500;text-transform:uppercase;letter-spacing:0.04em;">Owner</div>
+                                </div>
+                            </div>
+                            <div style="border-top:1px solid #27272a;padding-top:16px;">
+                                <label style="font-size:0.75rem;font-weight:500;color:#a1a1aa;display:block;margin-bottom:6px;">Display Name</label>
+                                <input type="text" id="settingsDisplayName" placeholder="Your display name" style="width:100%;padding:8px 12px;background:#0a0a0c;border:1px solid #27272a;border-radius:8px;color:#fafafa;font-size:0.85rem;outline:none;margin-bottom:12px;" onchange="updateDisplayName(this.value)">
+                                <label style="font-size:0.75rem;font-weight:500;color:#a1a1aa;display:block;margin-bottom:6px;">Role</label>
+                                <input type="text" id="settingsRoleInput" placeholder="e.g. CEO, Developer, Designer" style="width:100%;padding:8px 12px;background:#0a0a0c;border:1px solid #27272a;border-radius:8px;color:#fafafa;font-size:0.85rem;outline:none;" onchange="updateRole(this.value)">
                             </div>
                         </div>
                         <div style="background: #18181b; border: 1px solid #27272a; border-radius: 12px; padding: 20px;">
-                            <h3 style="font-size: 0.9rem; font-weight: 600; color: #d4d4d8; margin-bottom: 16px;">Team Members</h3>
+                            <h3 style="font-size: 0.72rem; font-weight: 600; color: #71717a; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.06em;">Team Members</h3>
                             <div id="settingsTeamList" style="display:flex;flex-direction:column;gap:10px;"></div>
                         </div>
                     </div>
@@ -1816,30 +1829,42 @@ body { background: #030303; color: var(--text); font-size: 14px; line-height: 1.
                     <!-- Integrations -->
                     <div id="settings-integrations" class="settings-section hidden">
                         <div style="background: #18181b; border: 1px solid #27272a; border-radius: 12px; padding: 20px; margin-bottom: 16px;">
-                            <h3 style="font-size: 0.9rem; font-weight: 600; color: #d4d4d8; margin-bottom: 16px;">Google Calendar</h3>
-                            <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #27272a;">
-                                <div>
-                                    <div style="font-size:0.85rem;color:#e2e8f0;">Auto-sync tasks to Calendar</div>
-                                    <div style="font-size:0.75rem;color:#52525b;">Tasks with due dates are automatically pushed to Google Calendar</div>
+                            <h3 style="font-size: 0.72rem; font-weight: 600; color: #71717a; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.06em;">Connected Services</h3>
+                            <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #27272a;">
+                                <div style="display:flex;align-items:center;gap:12px;">
+                                    <div style="width:36px;height:36px;border-radius:8px;background:rgba(74,222,128,0.1);display:flex;align-items:center;justify-content:center;">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                                    </div>
+                                    <div>
+                                        <div style="font-size:0.85rem;font-weight:500;color:#e2e8f0;">Google Calendar</div>
+                                        <div style="font-size:0.72rem;color:#52525b;">Auto-sync tasks with due dates</div>
+                                    </div>
                                 </div>
-                                <span style="font-size:0.75rem;padding:4px 8px;border-radius:6px;background:rgba(74,222,128,0.15);color:#4ade80;">Active</span>
+                                <span style="font-size:0.68rem;padding:4px 10px;border-radius:6px;background:rgba(74,222,128,0.12);color:#4ade80;font-weight:500;">Active</span>
                             </div>
-                            <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;">
-                                <div>
-                                    <div style="font-size:0.85rem;color:#e2e8f0;">Connected Calendars</div>
-                                    <div style="font-size:0.75rem;color:#52525b;">partner@shadowoperator.ai, harry@maudegroup.co.uk</div>
+                            <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #27272a;">
+                                <div style="display:flex;align-items:center;gap:12px;">
+                                    <div style="width:36px;height:36px;border-radius:8px;background:rgba(129,140,248,0.1);display:flex;align-items:center;justify-content:center;">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-width="2"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+                                    </div>
+                                    <div>
+                                        <div style="font-size:0.85rem;font-weight:500;color:#e2e8f0;">Telegram</div>
+                                        <div style="font-size:0.72rem;color:#52525b;">Team messaging</div>
+                                    </div>
                                 </div>
-                                <span style="font-size:0.75rem;padding:4px 8px;border-radius:6px;background:rgba(74,222,128,0.15);color:#4ade80;">Connected</span>
+                                <span style="font-size:0.68rem;padding:4px 10px;border-radius:6px;background:rgba(129,140,248,0.12);color:#818cf8;font-weight:500;">Configured</span>
                             </div>
+                            <div id="customIntegrationsList"></div>
                         </div>
                         <div style="background: #18181b; border: 1px solid #27272a; border-radius: 12px; padding: 20px;">
-                            <h3 style="font-size: 0.9rem; font-weight: 600; color: #d4d4d8; margin-bottom: 16px;">Telegram</h3>
-                            <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;">
-                                <div>
-                                    <div style="font-size:0.85rem;color:#e2e8f0;">Telegram Widget</div>
-                                    <div style="font-size:0.75rem;color:#52525b;">Embedded in the Telegram tab</div>
-                                </div>
-                                <span style="font-size:0.75rem;padding:4px 8px;border-radius:6px;background:rgba(129,140,248,0.15);color:#818cf8;">Configured</span>
+                            <h3 style="font-size: 0.72rem; font-weight: 600; color: #71717a; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.06em;">Add Integration</h3>
+                            <div style="display:flex;flex-direction:column;gap:10px;">
+                                <input type="text" id="integrationName" placeholder="Integration name (e.g. Whop, Stripe)" style="width:100%;padding:8px 12px;background:#0a0a0c;border:1px solid #27272a;border-radius:8px;color:#fafafa;font-size:0.85rem;outline:none;">
+                                <input type="url" id="integrationUrl" placeholder="URL (e.g. https://whop.com/dashboard)" style="width:100%;padding:8px 12px;background:#0a0a0c;border:1px solid #27272a;border-radius:8px;color:#fafafa;font-size:0.85rem;outline:none;">
+                                <button onclick="addCustomIntegration()" class="btn-sm" style="align-self:flex-start;display:flex;align-items:center;gap:6px;">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                    Add Integration
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -2447,16 +2472,132 @@ function switchSettingsTab(tab, btn) {
     }
     // Populate settings content
     if (tab === 'account') renderSettingsAccount();
+    if (tab === 'integrations') renderCustomIntegrations();
     if (tab === 'automations') renderSettingsAutomations();
+}
+
+function handleProfilePhotoUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const dataUrl = e.target.result;
+        // Save to localStorage
+        localStorage.setItem('stlla_profile_photo', dataUrl);
+        // Update auth
+        const auth = JSON.parse(sessionStorage.getItem('app_auth') || localStorage.getItem('app_auth') || '{}');
+        auth.avatar = dataUrl;
+        sessionStorage.setItem('app_auth', JSON.stringify(auth));
+        // Update UI
+        renderSettingsAccount();
+        updateTopbarAvatars();
+        showToast('Profile photo updated', 'success');
+    };
+    reader.readAsDataURL(file);
+}
+
+function updateDisplayName(newName) {
+    if (!newName.trim()) return;
+    const auth = JSON.parse(sessionStorage.getItem('app_auth') || localStorage.getItem('app_auth') || '{}');
+    auth.name = newName.trim();
+    auth.initials = newName.trim().split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+    sessionStorage.setItem('app_auth', JSON.stringify(auth));
+    // Update TEAM_ROSTER
+    const member = TEAM_ROSTER.find(m => m.email.toLowerCase() === (auth.username || '').toLowerCase());
+    if (member) { member.name = newName.trim(); }
+    localStorage.setItem('stlla_display_name_' + auth.username, newName.trim());
+    renderSettingsAccount();
+    updateTopbarAvatars();
+    showToast('Display name updated', 'success');
+}
+
+function updateRole(newRole) {
+    if (!newRole.trim()) return;
+    const auth = JSON.parse(sessionStorage.getItem('app_auth') || localStorage.getItem('app_auth') || '{}');
+    localStorage.setItem('stlla_role_' + auth.username, newRole.trim());
+    document.getElementById('settingsRole').textContent = newRole.trim();
+    showToast('Role updated', 'success');
+}
+
+function updateTopbarAvatars() {
+    const auth = JSON.parse(sessionStorage.getItem('app_auth') || localStorage.getItem('app_auth') || '{}');
+    // Update sidebar footer avatar
+    const sidebarAvatar = document.getElementById('sidebarAvatar');
+    if (sidebarAvatar) {
+        if (auth.avatar) sidebarAvatar.innerHTML = `<img src="${auth.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+        else sidebarAvatar.textContent = auth.initials || '?';
+    }
+    const sidebarName = document.getElementById('sidebarUserName');
+    if (sidebarName) sidebarName.textContent = auth.name || 'User';
+}
+
+function addCustomIntegration() {
+    const nameInput = document.getElementById('integrationName');
+    const urlInput = document.getElementById('integrationUrl');
+    const name = nameInput.value.trim();
+    const url = urlInput.value.trim();
+    if (!name || !url) { showToast('Please enter both name and URL', 'error'); return; }
+    // Save to localStorage
+    const integrations = JSON.parse(localStorage.getItem('stlla_integrations') || '[]');
+    integrations.push({ name, url, addedAt: new Date().toISOString() });
+    localStorage.setItem('stlla_integrations', JSON.stringify(integrations));
+    nameInput.value = ''; urlInput.value = '';
+    renderCustomIntegrations();
+    showToast(`${name} integration added`, 'success');
+}
+
+function removeIntegration(index) {
+    const integrations = JSON.parse(localStorage.getItem('stlla_integrations') || '[]');
+    integrations.splice(index, 1);
+    localStorage.setItem('stlla_integrations', JSON.stringify(integrations));
+    renderCustomIntegrations();
+    showToast('Integration removed', 'success');
+}
+
+function renderCustomIntegrations() {
+    const container = document.getElementById('customIntegrationsList');
+    if (!container) return;
+    const integrations = JSON.parse(localStorage.getItem('stlla_integrations') || '[]');
+    container.innerHTML = integrations.map((integ, i) => `
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #27272a;">
+            <div style="display:flex;align-items:center;gap:12px;">
+                <div style="width:36px;height:36px;border-radius:8px;background:rgba(168,85,247,0.1);display:flex;align-items:center;justify-content:center;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#a855f7" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                </div>
+                <div>
+                    <div style="font-size:0.85rem;font-weight:500;color:#e2e8f0;">${esc(integ.name)}</div>
+                    <a href="${esc(integ.url)}" target="_blank" style="font-size:0.72rem;color:#818cf8;text-decoration:none;">${esc(integ.url)}</a>
+                </div>
+            </div>
+            <div style="display:flex;gap:6px;">
+                <a href="${esc(integ.url)}" target="_blank" style="font-size:0.68rem;padding:4px 10px;border-radius:6px;background:rgba(129,140,248,0.12);color:#818cf8;text-decoration:none;font-weight:500;">Open</a>
+                <button onclick="removeIntegration(${i})" style="font-size:0.68rem;padding:4px 8px;border-radius:6px;background:rgba(239,68,68,0.1);color:#f87171;border:none;cursor:pointer;font-weight:500;">✕</button>
+            </div>
+        </div>
+    `).join('');
 }
 
 function renderSettingsAccount() {
     const auth = JSON.parse(sessionStorage.getItem('app_auth') || localStorage.getItem('app_auth') || '{}');
+    // Check for saved custom name/photo
+    const savedName = localStorage.getItem('stlla_display_name_' + auth.username);
+    const savedPhoto = localStorage.getItem('stlla_profile_photo');
+    const savedRole = localStorage.getItem('stlla_role_' + auth.username);
+    if (savedName) auth.name = savedName;
+    if (savedPhoto) auth.avatar = savedPhoto;
+
     const nameEl = document.getElementById('settingsName');
     const emailEl = document.getElementById('settingsEmail');
     const avatarEl = document.getElementById('settingsAvatar');
+    const roleEl = document.getElementById('settingsRole');
+    const displayNameInput = document.getElementById('settingsDisplayName');
+    const roleInput = document.getElementById('settingsRoleInput');
+
     if (nameEl) nameEl.textContent = auth.name || 'User';
     if (emailEl) emailEl.textContent = auth.username || '';
+    if (roleEl) roleEl.textContent = savedRole || 'Owner';
+    if (displayNameInput) displayNameInput.value = auth.name || '';
+    if (roleInput) roleInput.value = savedRole || '';
     if (avatarEl) {
         if (auth.avatar) {
             avatarEl.innerHTML = `<img src="${auth.avatar}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
