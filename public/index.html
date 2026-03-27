@@ -258,9 +258,19 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     font-size: 0.875rem; color: #a1a1aa; cursor: pointer;
 }
 .login-remember-row input[type="checkbox"] {
-    width: 16px; height: 16px; accent-color: #fafafa;
-    border-radius: 4px; cursor: pointer;
+    appearance: none; -webkit-appearance: none;
+    width: 16px; height: 16px; border-radius: 4px; flex-shrink: 0;
+    border: 1.5px solid #27272a; background: rgba(39,39,42,0.32);
+    cursor: pointer; position: relative; vertical-align: middle;
+    transition: all 0.15s; box-shadow: inset 0 1px rgba(0,0,0,0.25);
 }
+.login-remember-row input[type="checkbox"]:checked {
+    background: #818cf8; border-color: #818cf8; box-shadow: none;
+    background-image: url("data:image/svg+xml,%3Csvg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M5.252 12.7 10.2 18.63 18.748 5.37'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: center;
+}
+.login-remember-row input[type="checkbox"]:hover:not(:checked) { border-color: #818cf8; }
+.login-remember-row input[type="checkbox"]:focus-visible { outline: 2px solid #818cf8; outline-offset: 1px; }
 .login-forgot {
     font-size: 0.875rem; color: #d4d4d8; text-decoration: none;
     cursor: pointer; background: none; border: none;
@@ -662,17 +672,20 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     display: flex; align-items: center; gap: 6px; margin-top: 4px; flex-wrap: wrap;
 }
 
-/* Quick status checkbox */
+/* Quick status checkbox — shadcn-inspired */
 .task-check {
-    width: 20px; height: 20px; border-radius: 6px; flex-shrink: 0;
-    border: 2px solid #27272a; background: transparent;
-    cursor: pointer; display: flex; align-items: center; justify-content: center;
-    transition: all 0.2s ease; color: transparent; padding: 0;
+    width: 18px; height: 18px; border-radius: 4px; flex-shrink: 0;
+    border: 1.5px solid #27272a; background: rgba(39,39,42,0.32);
+    cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
+    transition: all 0.15s; padding: 0; position: relative;
+    box-shadow: inset 0 1px rgba(0,0,0,0.25); color: transparent;
 }
-.task-check:hover { border-color: #4ade80; background: rgba(74,222,128,0.08); }
+.task-check:hover:not(.checked) { border-color: #818cf8; background: rgba(129,140,248,0.10); }
+.task-check:focus-visible { outline: 2px solid #818cf8; outline-offset: 1px; }
 .task-check.checked {
-    border-color: #4ade80; background: rgba(74,222,128,0.15); color: #4ade80;
+    border-color: #818cf8; background: #818cf8; color: #fff; box-shadow: none;
 }
+.task-check.checked:hover { background: #6366f1; border-color: #6366f1; }
 
 /* Card footer bar */
 .task-card-footer {
@@ -3336,7 +3349,7 @@ function renderTaskCard(task) {
     return `<div class="task-card ${cardCls}" draggable="true" ondragstart="handleDragStart(event,'${esc(task.task_id)}')" ondragend="handleDragEnd(event)" onclick="openDetail('${esc(task.task_id)}')" oncontextmenu="showContextMenu(event,'${esc(task.task_id)}')">
         <div class="task-card-main">
             <button class="task-check ${isDone ? 'checked' : ''}" onclick="event.stopPropagation(); quickToggleStatus('${esc(task.task_id)}')" title="${isDone ? 'Mark incomplete' : 'Mark done'}">
-                ${isDone ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' : ''}
+                ${isDone ? '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5.252 12.7 10.2 18.63 18.748 5.37"/></svg>' : ''}
             </button>
             <div class="task-card-body">
                 <div class="task-card-title">${esc(task.title)}</div>
@@ -4541,7 +4554,7 @@ function renderHome() {
                         const dueLabel = dueCls === 'overdue' ? 'Overdue' : dueCls === 'today' ? 'Due today' : (t.due_date ? formatDate(t.due_date) : '');
                         return `<div class="home-task-item" onclick="sidebarNav('board', document.querySelector('[data-tab=board]')); setTimeout(() => openDetail('${esc(t.task_id)}'), 100)">
                             <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0">
-                                <button class="task-check ${t.status === 'Done' ? 'checked' : ''}" onclick="event.stopPropagation(); quickToggleStatus('${esc(t.task_id)}')" style="width:18px;height:18px;flex-shrink:0"></button>
+                                <button class="task-check ${t.status === 'Done' ? 'checked' : ''}" onclick="event.stopPropagation(); quickToggleStatus('${esc(t.task_id)}')" style="flex-shrink:0">${t.status === 'Done' ? '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5.252 12.7 10.2 18.63 18.748 5.37"/></svg>' : ''}</button>
                                 <div class="home-task-title">${esc(t.title)}</div>
                             </div>
                             <div style="display:flex;gap:6px;align-items:center">
