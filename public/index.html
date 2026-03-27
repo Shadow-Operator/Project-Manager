@@ -2131,25 +2131,32 @@ function enterDashboard(email, name) {
         document.documentElement.classList.add('light');
     }
     updateThemeIcon();
+    // Show dashboard after 3s NO MATTER WHAT
+    setTimeout(() => {
+        try {
+            splash.classList.add('fade-out');
+            setTimeout(() => {
+                splash.classList.add('hidden');
+                splash.classList.remove('fade-out');
+                document.getElementById('dashboardWrap').classList.remove('hidden');
+            }, 600);
+        } catch(e) {
+            // Force show dashboard
+            splash.style.display = 'none';
+            document.getElementById('dashboardWrap').classList.remove('hidden');
+        }
+    }, 3000);
+
+    // Load data in background
     loadTasks().then(() => {
-        renderHome();
+        try { renderHome(); } catch(e) { console.log('Home error:', e); }
         try { processRecurringTasks(); } catch(e) { console.log('Recurring error:', e); }
         try { runAutomations(); } catch(e) { console.log('Automation error:', e); }
     }).catch(e => { console.log('Load error:', e); });
-    startPresence();
-    startTaskPoll();
-    updateNotifBadge();
+    try { startPresence(); } catch(e) {}
+    try { startTaskPoll(); } catch(e) {}
+    try { updateNotifBadge(); } catch(e) {}
     resetSessionTimer();
-
-    // After 3s, fade out splash and show dashboard (always, even if tasks fail)
-    setTimeout(() => {
-        splash.classList.add('fade-out');
-        setTimeout(() => {
-            splash.classList.add('hidden');
-            splash.classList.remove('fade-out');
-            document.getElementById('dashboardWrap').classList.remove('hidden');
-        }, 600);
-    }, 3000);
 }
 
 async function checkSession() {
