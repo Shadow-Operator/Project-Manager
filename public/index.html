@@ -1789,10 +1789,22 @@ body { background: var(--bg); color: var(--text); }
                 <option>Agency</option>
             </select>
         </div>
+        <div class="modal-field">
+            <label>Recurring</label>
+            <select id="ntRecurring">
+                <option value="">None</option>
+                <option value="daily">Daily</option>
+                <option value="weekdays">Weekdays (Mon-Fri)</option>
+                <option value="weekly">Weekly</option>
+                <option value="monthly">Monthly</option>
+            </select>
+        </div>
         <input type="hidden" id="ntParentId" value="">
         <div class="modal-actions">
             <button class="btn-sm btn-outline" onclick="closeNewTaskModal()">Cancel</button>
             <button class="btn-sm" onclick="submitNewTask()">Create Task</button>
+            <div style="flex:1"></div>
+            <button class="btn-sm btn-outline" onclick="showTemplates()" style="font-size:0.72rem">📋 Templates</button>
         </div>
     </div>
 </div>
@@ -2091,7 +2103,11 @@ function enterDashboard(email, name) {
         document.documentElement.classList.add('light');
     }
     updateThemeIcon();
-    loadTasks().then(() => renderHome());
+    loadTasks().then(() => {
+        renderHome();
+        processRecurringTasks();
+        runAutomations();
+    });
     startPresence();
     startTaskPoll();
     updateNotifBadge();
@@ -2472,8 +2488,14 @@ function renderTaskCard(task) {
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
             ${sub.done}/${sub.total}</span>` : '';
 
+    // Dependency indicator
+    let depsArr = [];
+    try { depsArr = JSON.parse(task.dependencies || '[]'); } catch(e) {}
+    const hasBlocker = depsArr.some(depId => { const d = getTaskById(depId); return d && d.status !== 'Done'; });
+    const blockedHtml = hasBlocker ? '<span style="font-size:0.68rem;color:#f87171;display:flex;align-items:center;gap:2px">🔒 Blocked</span>' : '';
+
     // Footer items
-    const footerItems = [dueHtml, subHtml, assigneeHtml].filter(Boolean);
+    const footerItems = [blockedHtml, dueHtml, subHtml, assigneeHtml].filter(Boolean);
 
     const isDone = task.status === 'Done';
     const dueCls2 = !isDone && dueDateClass(task.due_date);
@@ -2488,7 +2510,8 @@ function renderTaskCard(task) {
                 ${task.description ? `<div style="font-size:0.72rem;color:#3f3f46;line-height:1.4;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(task.description)}</div>` : ''}
                 ${task.category ? `<div class="task-card-meta">${categoryBadge(task.category)}
                     <span class="priority-badge priority-${esc(task.priority)}" style="font-size:0.62rem;padding:1px 8px">${esc(task.priority)}</span>
-                </div>` : `<div class="task-card-meta"><span class="priority-badge priority-${esc(task.priority)}" style="font-size:0.62rem;padding:1px 8px">${esc(task.priority)}</span></div>`}
+                    ${task.recurring ? '<span style="font-size:0.62rem;color:#818cf8" title="Recurring">🔄</span>' : ''}
+                </div>` : `<div class="task-card-meta"><span class="priority-badge priority-${esc(task.priority)}" style="font-size:0.62rem;padding:1px 8px">${esc(task.priority)}</span>${task.recurring ? '<span style="font-size:0.62rem;color:#818cf8" title="Recurring">🔄</span>' : ''}</div>`}
             </div>
         </div>
         ${footerItems.length > 0 ? `<div class="task-card-footer">${footerItems.join('<span style="color:#1a1a1f">·</span>')}</div>` : ''}
@@ -2687,6 +2710,34 @@ function renderDetail(taskId) {
                     <button class="btn-sm btn-outline" onclick="addManualTime('${esc(task.task_id)}')" style="font-size:0.72rem;padding:3px 10px">+ Add Manual</button>
                 </div>
             </div>
+            <!-- Dependencies -->
+            <div class="detail-section">
+                <div class="detail-section-title">
+                    Dependencies
+                    <button class="btn-sm btn-outline" onclick="addDependency('${esc(task.task_id)}')" style="font-size:0.72rem;padding:3px 10px">+ Add</button>
+                </div>
+                ${deps.length === 0 ? '<div style="font-size:0.82rem;color:#3f3f46">No dependencies</div>' : ''}
+                <div class="link-list">
+                    ${deps.map((depId, i) => {
+                        const depTask = getTaskById(depId);
+                        if (!depTask) return '';
+                        const isBlocked = depTask.status !== 'Done';
+                        return `<div class="link-item">
+                            <span style="font-size:0.72rem;padding:2px 8px;border-radius:12px;background:${isBlocked ? 'rgba(239,68,68,0.1);color:#f87171' : 'rgba(74,222,128,0.1);color:#4ade80'}">${isBlocked ? 'Blocked by' : 'Resolved'}</span>
+                            <span style="flex:1;font-size:0.82rem;color:#d4d4d8;cursor:pointer" onclick="openDetail('${esc(depId)}')">${esc(depTask.title)}</span>
+                            <button class="link-remove" onclick="removeDependency('${esc(task.task_id)}', ${i})">&times;</button>
+                        </div>`;
+                    }).join('')}
+                </div>
+            </div>
+            <!-- Recurring -->
+            ${task.recurring ? `<div class="detail-section">
+                <div class="detail-section-title">
+                    Recurring
+                    <span style="font-size:0.78rem;font-weight:500;color:#818cf8;text-transform:none;letter-spacing:0">🔄 ${esc(task.recurring)}</span>
+                </div>
+                <button class="btn-sm btn-outline" onclick="updateDetailField('${esc(task.task_id)}','recurring',''); renderDetail('${esc(task.task_id)}')" style="font-size:0.72rem">Remove recurrence</button>
+            </div>` : ''}
             <!-- Google Calendar -->
             <div class="detail-section">
                 <div class="detail-section-title">Google Calendar</div>
@@ -2925,6 +2976,7 @@ async function submitNewTask() {
         category: document.getElementById('ntCategory').value,
         stage: '',
         deal_value: '',
+        recurring: document.getElementById('ntRecurring').value,
     };
 
     closeNewTaskModal();
@@ -3800,6 +3852,243 @@ function addManualTime(taskId) {
     addActivity(`logged ${mins}m on`, task.title);
     renderDetail(taskId);
     showToast(`Added ${mins} minutes`, 'success');
+}
+
+/* ════════════════════════════════════════════════════════════════
+   DEPENDENCIES
+   ════════════════════════════════════════════════════════════════ */
+function addDependency(taskId) {
+    const otherTasks = DATA.filter(t => t.task_id !== taskId);
+    if (otherTasks.length === 0) { showToast('No other tasks to depend on', 'error'); return; }
+
+    const options = otherTasks.map(t => `${t.title} (${t.status})`).join('\n');
+    const chosen = prompt('Enter task title to depend on:\n\n' + options);
+    if (!chosen) return;
+
+    const match = otherTasks.find(t => chosen.includes(t.title));
+    if (!match) { showToast('Task not found', 'error'); return; }
+
+    const task = getTaskById(taskId);
+    let deps = [];
+    try { deps = JSON.parse(task.dependencies || '[]'); } catch(e) {}
+    if (deps.includes(match.task_id)) { showToast('Already a dependency', 'error'); return; }
+    deps.push(match.task_id);
+
+    apiUpdateField(taskId, 'dependencies', JSON.stringify(deps));
+    addActivity('added dependency on', task.title);
+    renderDetail(taskId);
+}
+
+function removeDependency(taskId, index) {
+    const task = getTaskById(taskId);
+    let deps = [];
+    try { deps = JSON.parse(task.dependencies || '[]'); } catch(e) {}
+    deps.splice(index, 1);
+    apiUpdateField(taskId, 'dependencies', JSON.stringify(deps));
+    renderDetail(taskId);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   RECURRING TASKS
+   ════════════════════════════════════════════════════════════════ */
+function processRecurringTasks() {
+    const today = new Date().toISOString().slice(0, 10);
+    const recurringTasks = DATA.filter(t => t.recurring && t.status === 'Done');
+
+    recurringTasks.forEach(t => {
+        // Check if we should create a new instance
+        const lastCreated = t.updated_at ? t.updated_at.slice(0, 10) : t.created_at ? t.created_at.slice(0, 10) : '';
+        if (lastCreated === today) return; // Already created today
+
+        let shouldCreate = false;
+        const dow = new Date().getDay(); // 0=Sun, 6=Sat
+
+        if (t.recurring === 'daily') shouldCreate = true;
+        else if (t.recurring === 'weekdays' && dow >= 1 && dow <= 5) shouldCreate = true;
+        else if (t.recurring === 'weekly') shouldCreate = true;
+        else if (t.recurring === 'monthly') {
+            const dayOfMonth = new Date().getDate();
+            const createdDay = t.created_at ? new Date(t.created_at).getDate() : 1;
+            if (dayOfMonth === createdDay) shouldCreate = true;
+        }
+
+        if (shouldCreate) {
+            // Calculate next due date
+            let nextDue = today;
+            if (t.due_date) {
+                const orig = new Date(t.due_date);
+                const diff = t.recurring === 'daily' || t.recurring === 'weekdays' ? 1 :
+                    t.recurring === 'weekly' ? 7 : 30;
+                const next = new Date(orig.getTime() + diff * 86400000);
+                nextDue = next.toISOString().slice(0, 10);
+            }
+
+            apiCreateTask({
+                title: t.title,
+                description: t.description,
+                status: 'To Do',
+                priority: t.priority,
+                assignee: t.assignee,
+                due_date: nextDue,
+                parent_task_id: '',
+                links: t.links || '[]',
+                created_by: t.created_by || currentUserId,
+                category: t.category,
+                stage: '',
+                deal_value: '',
+                recurring: t.recurring,
+            }).then(created => {
+                if (created) {
+                    showToast(`🔄 Recurring: ${t.title}`, 'success');
+                    renderBoard();
+                }
+            });
+        }
+    });
+}
+
+/* ════════════════════════════════════════════════════════════════
+   SIMPLE AUTOMATIONS
+   ════════════════════════════════════════════════════════════════ */
+let _automations = JSON.parse(localStorage.getItem('stlla_automations') || '[]');
+
+// Default automations
+if (_automations.length === 0) {
+    _automations = [
+        { id: 'auto1', name: 'Overdue → High Priority', enabled: true, trigger: 'overdue', action: 'set_priority', value: 'High' },
+        { id: 'auto2', name: 'Done → Notify', enabled: true, trigger: 'status_done', action: 'notify', value: '' },
+    ];
+    localStorage.setItem('stlla_automations', JSON.stringify(_automations));
+}
+
+function runAutomations() {
+    const today = new Date().toISOString().slice(0, 10);
+    _automations.filter(a => a.enabled).forEach(auto => {
+        if (auto.trigger === 'overdue') {
+            DATA.filter(t => t.due_date && t.due_date < today && t.status !== 'Done' && t.priority !== auto.value).forEach(t => {
+                apiUpdateField(t.task_id, 'priority', auto.value);
+            });
+        }
+    });
+}
+
+/* ════════════════════════════════════════════════════════════════
+   TEMPLATES
+   ════════════════════════════════════════════════════════════════ */
+let _templates = JSON.parse(localStorage.getItem('stlla_templates') || '[]');
+
+// Default templates
+if (_templates.length === 0) {
+    _templates = [
+        {
+            id: 'tpl1', name: 'New Client Onboarding',
+            tasks: [
+                { title: 'Initial meeting', priority: 'High', status: 'To Do' },
+                { title: 'Contract signed', priority: 'High', status: 'To Do' },
+                { title: 'Email & domain setup', priority: 'Medium', status: 'To Do' },
+                { title: 'Kickoff call', priority: 'Medium', status: 'To Do' },
+                { title: 'First deliverable', priority: 'Medium', status: 'To Do' },
+            ]
+        },
+        {
+            id: 'tpl2', name: 'Content Campaign',
+            tasks: [
+                { title: 'Creative strategy', priority: 'High', status: 'To Do' },
+                { title: 'Content production', priority: 'Medium', status: 'To Do' },
+                { title: 'Ad account setup', priority: 'Medium', status: 'To Do' },
+                { title: 'Launch campaign', priority: 'High', status: 'To Do' },
+                { title: 'Report & optimize', priority: 'Low', status: 'To Do' },
+            ]
+        },
+        {
+            id: 'tpl3', name: 'Deal Pipeline',
+            tasks: [
+                { title: 'Research prospect', priority: 'Medium', status: 'To Do' },
+                { title: 'Initial outreach', priority: 'High', status: 'To Do' },
+                { title: 'Discovery call', priority: 'High', status: 'To Do' },
+                { title: 'Send proposal', priority: 'High', status: 'To Do' },
+                { title: 'Follow up', priority: 'Medium', status: 'To Do' },
+                { title: 'Close deal', priority: 'High', status: 'To Do' },
+            ]
+        },
+    ];
+    localStorage.setItem('stlla_templates', JSON.stringify(_templates));
+}
+
+function showTemplates() {
+    const tplList = _templates.map(t =>
+        `• ${t.name} (${t.tasks.length} tasks)`
+    ).join('\n');
+
+    const chosen = prompt(`Choose a template:\n\n${tplList}\n\nType the template name:`);
+    if (!chosen) return;
+
+    const tpl = _templates.find(t => chosen.toLowerCase().includes(t.name.toLowerCase()));
+    if (!tpl) { showToast('Template not found', 'error'); return; }
+
+    const category = document.getElementById('ntCategory').value;
+    const assignee = document.getElementById('ntAssignee').value;
+
+    closeNewTaskModal();
+
+    // Create parent task
+    apiCreateTask({
+        title: tpl.name,
+        description: `Created from template: ${tpl.name}`,
+        status: 'To Do',
+        priority: 'High',
+        assignee,
+        due_date: '',
+        parent_task_id: '',
+        links: '[]',
+        created_by: currentUserId,
+        category,
+        stage: '',
+        deal_value: '',
+        recurring: '',
+    }).then(parent => {
+        if (!parent) return;
+        // Create subtasks
+        const promises = tpl.tasks.map(sub =>
+            apiCreateTask({
+                title: sub.title,
+                description: '',
+                status: sub.status,
+                priority: sub.priority,
+                assignee,
+                due_date: '',
+                parent_task_id: parent.task_id,
+                links: '[]',
+                created_by: currentUserId,
+                category,
+                stage: '',
+                deal_value: '',
+                recurring: '',
+            })
+        );
+        Promise.all(promises).then(() => {
+            showToast(`Template "${tpl.name}" created with ${tpl.tasks.length} subtasks`, 'success');
+            addActivity('created from template', tpl.name);
+            TREE = buildTaskTree(DATA);
+            renderBoard();
+            renderListView();
+        });
+    });
+}
+
+function saveTemplate() {
+    const name = prompt('Template name:');
+    if (!name) return;
+    const tasks = prompt('Task titles (comma-separated):');
+    if (!tasks) return;
+
+    _templates.push({
+        id: 'tpl_' + Date.now(),
+        name,
+        tasks: tasks.split(',').map(t => ({ title: t.trim(), priority: 'Medium', status: 'To Do' })),
+    });
+    localStorage.setItem('stlla_templates', JSON.stringify(_templates));
+    showToast('Template saved', 'success');
 }
 
 /* ════════════════════════════════════════════════════════════════
