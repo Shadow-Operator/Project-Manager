@@ -5,11 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Stlla</title>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
 /* ── Reset & Base ─────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+html, body { height: 100%; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; letter-spacing: -0.01em; }
 
 :root {
     --bg: #000000;
@@ -76,17 +79,17 @@ body { background: #030303; color: var(--text); }
     to { opacity: 1; transform: translateY(0); }
 }
 .bg-shape-1 {
-    --shape-color: rgba(99,102,241,0.18); --float-duration: 14s; --rotate: 12deg;
+    --shape-color: rgba(99,102,241,0.25); --float-duration: 14s; --rotate: 12deg;
     width: 500px; height: 120px; left: -5%; top: 18%;
     animation-delay: 0.3s;
 }
 .bg-shape-2 {
-    --shape-color: rgba(244,63,94,0.18); --float-duration: 16s; --rotate: -15deg;
+    --shape-color: rgba(244,63,94,0.22); --float-duration: 16s; --rotate: -15deg;
     width: 420px; height: 100px; right: -3%; top: 72%;
     animation-delay: 0.5s;
 }
 .bg-shape-3 {
-    --shape-color: rgba(139,92,246,0.15); --float-duration: 13s; --rotate: -8deg;
+    --shape-color: rgba(139,92,246,0.20); --float-duration: 13s; --rotate: -8deg;
     width: 260px; height: 70px; left: 8%; bottom: 8%;
     animation-delay: 0.4s;
 }
@@ -381,7 +384,7 @@ body { background: #030303; color: var(--text); }
 /* ── Main Content ────────────────────────────────────────────── */
 .main-content {
     flex: 1; display: flex; flex-direction: column;
-    overflow: hidden; background: rgba(3,3,3,0.95);
+    overflow: hidden; background: rgba(3,3,3,0.85);
     min-width: 0; position: relative;
 }
 
@@ -1772,8 +1775,6 @@ body { background: #030303; color: var(--text); }
             <!-- Settings Tab -->
             <div id="tab-settings" class="tab-pane">
                 <div style="padding: 24px; max-width: 720px;">
-                    <h2 style="font-size: 1.25rem; font-weight: 600; color: #fafafa; margin-bottom: 24px;">Settings</h2>
-
                     <!-- Settings Tabs -->
                     <div class="seg-tabs" style="margin-bottom: 24px;">
                         <button class="seg-tab active" onclick="switchSettingsTab('account', this)">Account</button>
@@ -2011,9 +2012,16 @@ const SUPABASE_URL = 'https://ouesmvzewhjoydnryfdc.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91ZXNtdnpld2hqb3lkbnJ5ZmRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1NDM3MzAsImV4cCI6MjA5MDExOTczMH0.HoNS3IyQWiNvKVTPHYhxIYWhI2Ls9fjEi4U_Vh9L9A0';
 
 const TEAM_ROSTER = [
-    { id: 'max', email: 'partner@shadowoperator.ai', name: 'Max', initials: 'MG', color: '#7c3aed', avatar: '' },
+    { id: 'max', email: 'partner@shadowoperator.ai', name: 'Maximilian', initials: 'MG', color: '#7c3aed', avatar: '' },
     { id: 'harry', email: 'harry@maudegroup.co.uk', name: 'Harry', initials: 'HM', color: '#6d28d9', avatar: '' },
 ];
+
+// Get display name - prefer TEAM_ROSTER name over Google metadata
+function getDisplayName(email, googleName) {
+    const member = TEAM_ROSTER.find(m => m.email.toLowerCase() === (email || '').toLowerCase());
+    if (member) return member.name;
+    return googleName || email.split('@')[0];
+}
 
 // Update team roster avatar from Google login
 function updateTeamAvatar(email, avatarUrl) {
@@ -2158,7 +2166,8 @@ function handleEmailLogin(e) {
 
             const u = data.user;
             const meta = u.user_metadata || {};
-            const name = meta.full_name || meta.name || u.email.split('@')[0];
+            const googleName = meta.full_name || meta.name || u.email.split('@')[0];
+            const name = getDisplayName(u.email, googleName);
             const authData = {
                 token: data.session.access_token,
                 username: u.email,
