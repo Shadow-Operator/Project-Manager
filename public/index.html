@@ -1584,118 +1584,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     transition: width 0.5s ease;
 }
 
-/* ── Landing Page ────────────────────────────────────────────── */
-.landing-page {
-    position: relative; z-index: 2; min-height: 100vh;
-    display: flex; flex-direction: column;
-}
-.landing-nav {
-    position: sticky; top: 0; z-index: 10;
-    background: rgba(3,3,3,0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-    border-bottom: 1px solid var(--border);
-    padding: 0 24px; height: 56px;
-}
-.landing-nav-inner {
-    max-width: 1100px; margin: 0 auto; height: 100%;
-    display: flex; align-items: center; justify-content: space-between;
-}
-.landing-logo {
-    display: flex; align-items: center; gap: 10px;
-    font-size: 1.1rem; font-weight: 700; color: #fafafa; letter-spacing: -0.02em;
-}
-.landing-logo img { width: 28px; height: 28px; }
-.landing-nav-actions { display: flex; align-items: center; gap: 10px; }
-.landing-btn-ghost {
-    background: transparent; border: 1px solid var(--border); color: var(--text);
-    padding: 7px 16px; border-radius: var(--radius); font-size: 0.85rem; font-weight: 500;
-    cursor: pointer; transition: all 0.15s;
-}
-.landing-btn-ghost:hover { background: var(--surface2); border-color: #3f3f46; }
-.landing-btn-primary {
-    background: var(--accent); border: none; color: #fff;
-    padding: 8px 18px; border-radius: var(--radius); font-size: 0.85rem; font-weight: 600;
-    cursor: pointer; transition: all 0.15s;
-}
-.landing-btn-primary:hover { background: var(--accent2); }
-.landing-btn-lg { padding: 12px 28px; font-size: 0.95rem; border-radius: var(--radius-lg); }
-
-.landing-hero {
-    max-width: 800px; margin: 0 auto; text-align: center;
-    padding: 80px 24px 60px;
-}
-.landing-hero h1 {
-    font-size: 3rem; font-weight: 800; letter-spacing: -0.04em; line-height: 1.1;
-    color: #fafafa;
-    background: linear-gradient(135deg, #fafafa 0%, #a5b4fc 50%, #818cf8 100%);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-.landing-hero-sub {
-    font-size: 1.15rem; color: var(--text2); margin-top: 20px; line-height: 1.6;
-    max-width: 600px; margin-left: auto; margin-right: auto;
-}
-.landing-hero-actions { margin-top: 36px; display: flex; justify-content: center; gap: 12px; }
-
-.landing-section {
-    max-width: 1100px; margin: 0 auto; padding: 60px 24px;
-}
-.landing-section h2 {
-    font-size: 1.75rem; font-weight: 700; letter-spacing: -0.03em; color: #fafafa;
-    text-align: center; margin-bottom: 40px;
-}
-.landing-features-grid {
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
-}
-.landing-feature-card {
-    background: rgba(24,24,27,0.70); border: 1px solid var(--border);
-    border-radius: var(--radius-lg); padding: 28px;
-    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-    transition: border-color 0.2s, transform 0.2s;
-}
-.landing-feature-card:hover { border-color: #3f3f46; transform: translateY(-2px); }
-.landing-feature-icon {
-    width: 40px; height: 40px; border-radius: 10px;
-    background: rgba(129,140,248,0.12); display: flex; align-items: center; justify-content: center;
-    margin-bottom: 16px;
-}
-.landing-feature-icon svg { width: 20px; height: 20px; color: var(--accent); }
-.landing-feature-card h3 {
-    font-size: 1rem; font-weight: 600; color: #fafafa; margin-bottom: 8px;
-}
-.landing-feature-card p { font-size: 0.85rem; color: var(--text2); line-height: 1.5; }
-
-.landing-social-proof {
-    max-width: 900px; margin: 0 auto; padding: 40px 24px 60px; text-align: center;
-}
-.landing-social-proof h2 {
-    font-size: 1.75rem; font-weight: 700; letter-spacing: -0.03em; color: #fafafa;
-    margin-bottom: 36px;
-}
-.landing-testimonials { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-.landing-testimonial {
-    background: rgba(24,24,27,0.50); border: 1px solid var(--border);
-    border-radius: var(--radius-lg); padding: 24px; text-align: left;
-}
-.landing-testimonial p { font-size: 0.85rem; color: var(--text2); line-height: 1.6; font-style: italic; }
-.landing-testimonial-author {
-    margin-top: 16px; font-size: 0.8rem; font-weight: 600; color: var(--text);
-}
-.landing-testimonial-role { font-weight: 400; color: var(--text3); }
-
-.landing-footer {
-    border-top: 1px solid var(--border); padding: 24px;
-    text-align: center; font-size: 0.8rem; color: var(--text3);
-}
-
-@media (max-width: 768px) {
-    .landing-hero h1 { font-size: 2rem; }
-    .landing-hero-sub { font-size: 1rem; }
-    .landing-hero { padding: 48px 16px 36px; }
-    .landing-features-grid { grid-template-columns: 1fr; }
-    .landing-testimonials { grid-template-columns: 1fr; }
-    .landing-nav { padding: 0 16px; }
-    .landing-section { padding: 40px 16px; }
-}
 </style>
 
 <!-- JSON-LD Structured Data -->
@@ -1758,106 +1646,11 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     <div class="bg-shapes-overlay"></div>
 </div>
 
-<!-- Landing Page (public, crawlable) -->
-<div id="landingPage" class="landing-page hidden">
-    <nav class="landing-nav" aria-label="Landing page navigation">
-        <div class="landing-nav-inner">
-            <div class="landing-logo">
-                <img src="/favicon.svg" alt="Stlla logo" width="28" height="28">
-                <span>Stlla</span>
-            </div>
-            <div class="landing-nav-actions">
-                <button class="landing-btn-ghost" onclick="showLoginFromLanding()">Log In</button>
-                <button class="landing-btn-primary" onclick="showLoginFromLanding()">Get Started Free</button>
-            </div>
-        </div>
-    </nav>
-
-    <section class="landing-hero">
-        <h1>Project Management Built for Small Teams</h1>
-        <p class="landing-hero-sub">Kanban boards, deal flow tracking, invoicing, and calendar sync — everything your team needs in one modern dashboard. No bloat, no learning curve.</p>
-        <div class="landing-hero-actions">
-            <button class="landing-btn-primary landing-btn-lg" onclick="showLoginFromLanding()">Start Managing Projects</button>
-            <a href="#landingFeatures" class="landing-btn-ghost landing-btn-lg" style="text-decoration:none">See Features</a>
-        </div>
-    </section>
-
-    <section class="landing-section" id="landingFeatures">
-        <h2>Everything You Need to Ship Faster</h2>
-        <div class="landing-features-grid">
-            <div class="landing-feature-card">
-                <div class="landing-feature-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-                </div>
-                <h3>Kanban Boards</h3>
-                <p>Drag-and-drop task management with customizable columns. See your entire workflow at a glance and move work forward.</p>
-            </div>
-            <div class="landing-feature-card">
-                <div class="landing-feature-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-                </div>
-                <h3>Deal Flow Tracking</h3>
-                <p>Track opportunities from lead to close. Built-in pipeline management so you never lose sight of revenue.</p>
-            </div>
-            <div class="landing-feature-card">
-                <div class="landing-feature-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M12 9v6"/><path d="M16 13H8"/></svg>
-                </div>
-                <h3>Invoicing</h3>
-                <p>Create and track invoices without leaving your project manager. Link invoices to deals and keep finances organized.</p>
-            </div>
-            <div class="landing-feature-card">
-                <div class="landing-feature-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
-                </div>
-                <h3>Calendar Sync</h3>
-                <p>Sync with Google Calendar to see deadlines alongside your meetings. Never miss a due date again.</p>
-            </div>
-            <div class="landing-feature-card">
-                <div class="landing-feature-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                </div>
-                <h3>Team Collaboration</h3>
-                <p>Real-time presence, activity feeds, and notifications keep your team aligned without constant check-ins.</p>
-            </div>
-            <div class="landing-feature-card">
-                <div class="landing-feature-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                </div>
-                <h3>Time Tracking</h3>
-                <p>Built-in timers on every task. Track hours, measure productivity, and export time logs for billing.</p>
-            </div>
-        </div>
-    </section>
-
-    <section class="landing-social-proof">
-        <h2>Trusted by Growing Teams</h2>
-        <div class="landing-testimonials">
-            <div class="landing-testimonial">
-                <p>"We switched from Asana to Stlla and haven't looked back. The deal flow view alone saves us hours every week."</p>
-                <div class="landing-testimonial-author">Jordan M. <span class="landing-testimonial-role">— Agency Owner</span></div>
-            </div>
-            <div class="landing-testimonial">
-                <p>"Finally a project tool that doesn't feel like it was built for a 500-person company. Simple, fast, and exactly what we needed."</p>
-                <div class="landing-testimonial-author">Priya S. <span class="landing-testimonial-role">— Startup Founder</span></div>
-            </div>
-            <div class="landing-testimonial">
-                <p>"The invoicing feature is a game changer. No more juggling between our PM tool and a separate billing app."</p>
-                <div class="landing-testimonial-author">Alex T. <span class="landing-testimonial-role">— Freelance Consultant</span></div>
-            </div>
-        </div>
-    </section>
-
-    <footer class="landing-footer">
-        <p>&copy; 2026 Stlla. Built for teams that move fast.</p>
-    </footer>
-</div>
-
 <!-- Toast Container -->
 <div id="toastContainer"></div>
 
 <!-- Login Screen -->
-<div id="loginScreen" class="login-screen hidden" role="dialog" aria-label="Sign in to Stlla">
+<div id="loginScreen" class="login-screen" role="dialog" aria-label="Sign in to Stlla">
 
     <!-- Card -->
     <div class="login-card">
@@ -2658,12 +2451,6 @@ const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 /* No JS needed — elegant shapes are pure CSS */
 
-/* ── Landing → Login transition ──────────────────────────────── */
-function showLoginFromLanding() {
-    document.getElementById('landingPage').classList.add('hidden');
-    document.getElementById('loginScreen').classList.remove('hidden');
-}
-
 /* ── Email/Password Login ─────────────────────────────────────── */
 function handleEmailLogin(e) {
     e.preventDefault();
@@ -2760,9 +2547,8 @@ function enterDashboard(email, name) {
     // Extract first name for welcome splash
     const firstName = (name || email.split('@')[0]).split(' ')[0];
 
-    // Hide login/landing, show splash
+    // Hide login, show splash
     document.getElementById('loginScreen').classList.add('hidden');
-    document.getElementById('landingPage').classList.add('hidden');
     const splash = document.getElementById('welcomeSplash');
     splash.classList.remove('hidden');
 
@@ -2870,7 +2656,7 @@ async function checkSession() {
     sessionStorage.removeItem('app_auth');
     localStorage.removeItem('app_auth');
     document.getElementById('dashboardWrap').classList.add('hidden');
-    document.getElementById('landingPage').classList.remove('hidden');
+    document.getElementById('loginScreen').classList.remove('hidden');
 
     // Listen for auth state changes (e.g., OAuth redirect completing)
     _supabase.auth.onAuthStateChange((event, session) => {
@@ -2933,13 +2719,8 @@ function handleLogout(msg) {
     currentUserId = '';
     DATA = []; TREE = [];
     document.getElementById('dashboardWrap').classList.add('hidden');
-    document.getElementById('landingPage').classList.remove('hidden');
-    if (msg) {
-        // Show login with error message instead of landing
-        document.getElementById('landingPage').classList.add('hidden');
-        document.getElementById('loginScreen').classList.remove('hidden');
-        showLoginError(msg);
-    }
+    document.getElementById('loginScreen').classList.remove('hidden');
+    if (msg) showLoginError(msg);
 }
 
 function resetSessionTimer() {
