@@ -1,0 +1,17 @@
+{
+  "name": "Stlla",
+  "short_name": "Stlla",
+  "description": "Modern project management for small teams",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#030303",
+  "theme_color": "#030303",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

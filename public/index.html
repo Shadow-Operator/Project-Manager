@@ -3,7 +3,33 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Stlla</title>
+<title>Stlla — Project Management for Small Teams</title>
+<meta name="description" content="Stlla is a modern project management dashboard with Kanban boards, calendar sync, deal flow tracking, and invoicing — built for small teams that move fast.">
+<meta name="keywords" content="project management, kanban board, task management, deal flow, invoicing, team collaboration, calendar sync">
+<meta name="author" content="Stlla">
+<meta name="theme-color" content="#030303">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Stlla — Project Management for Small Teams">
+<meta property="og:description" content="Modern project management with Kanban boards, calendar sync, deal flow tracking, and invoicing. Built for small teams that move fast.">
+<meta property="og:image" content="/og-image.png">
+<meta property="og:url" content="https://stlla.vercel.app">
+<meta property="og:site_name" content="Stlla">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Stlla — Project Management for Small Teams">
+<meta name="twitter:description" content="Modern project management with Kanban boards, calendar sync, deal flow tracking, and invoicing.">
+<meta name="twitter:image" content="/og-image.png">
+
+<!-- Canonical -->
+<link rel="canonical" href="https://stlla.vercel.app">
+
+<!-- PWA -->
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/favicon.svg">
+
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -33,8 +59,30 @@ html, body { height: 100%; font-family: 'Inter', -apple-system, BlinkMacSystemFo
 
 /* Dark mode only — no light mode */
 
-body { background: #030303; color: var(--text); font-size: 14px; line-height: 1.5; }
+body {
+    background: #030303;
+    color: var(--text); font-size: 14px; line-height: 1.5;
+    position: relative;
+}
+/* Ambient gradient layer */
+body::before {
+    content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+        radial-gradient(ellipse 80% 60% at 15% 20%, rgba(99,102,241,0.07), transparent),
+        radial-gradient(ellipse 70% 50% at 85% 75%, rgba(139,92,246,0.05), transparent),
+        radial-gradient(ellipse 60% 40% at 50% 50%, rgba(244,63,94,0.03), transparent);
+}
+/* Noise grain overlay */
+body::after {
+    content: ''; position: fixed; inset: 0; z-index: 1; pointer-events: none;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 256px 256px;
+    mix-blend-mode: overlay;
+}
 .hidden { display: none !important; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
 
 /* ── Typography Hierarchy ────────────────────────────────────── */
 .type-page-title { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.03em; color: #fafafa; }
@@ -260,11 +308,11 @@ body { background: #030303; color: var(--text); font-size: 14px; line-height: 1.
 .login-card-footer a:hover { text-decoration: underline; }
 
 /* ── Sidebar ─────────────────────────────────────────────────── */
-.dashboard-layout { display: flex; height: 100vh; overflow: hidden; position: relative; z-index: 2; }
+.dashboard-layout { display: flex; height: 100vh; overflow: hidden; position: relative; z-index: 3; }
 
 .sidebar {
     width: 240px; min-width: 240px; height: 100vh;
-    background: rgba(0,0,0,0.92); border-right: 1px solid #1a1a1f;
+    background: rgba(0,0,0,0.88); border-right: 1px solid #1a1a1f;
     backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
     display: flex; flex-direction: column;
     transition: width 0.2s ease, min-width 0.2s ease;
@@ -395,7 +443,7 @@ body { background: #030303; color: var(--text); font-size: 14px; line-height: 1.
 /* ── Main Content ────────────────────────────────────────────── */
 .main-content {
     flex: 1; display: flex; flex-direction: column;
-    overflow: hidden; background: rgba(3,3,3,0.85);
+    overflow: hidden; background: rgba(3,3,3,0.78);
     min-width: 0; position: relative;
 }
 
@@ -1711,6 +1759,7 @@ body { background: #030303; color: var(--text); font-size: 14px; line-height: 1.
 
     <!-- Main Content -->
     <div class="main-content" id="mainContent">
+        <h1 class="sr-only">Stlla Project Manager</h1>
         <!-- Topbar -->
         <header class="topbar">
             <button class="btn-icon sidebar-mobile-toggle" onclick="toggleSidebar()" style="display:none" id="mobileSidebarBtn">
@@ -4183,7 +4232,7 @@ function renderHome() {
 
     const html = `
         <div style="margin-bottom:24px">
-            <h1 style="font-size:1.5rem;font-weight:700;color:#fafafa;letter-spacing:-0.02em">Good ${new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 18 ? 'afternoon' : 'evening'}, ${esc(firstName)}</h1>
+            <h2 style="font-size:1.5rem;font-weight:700;color:#fafafa;letter-spacing:-0.02em">Good ${new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 18 ? 'afternoon' : 'evening'}, ${esc(firstName)}</h2>
             <p style="font-size:0.85rem;color:#52525b;margin-top:4px">Here's your workspace overview</p>
         </div>
 
