@@ -1653,10 +1653,10 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .splash-wordmark {
     position: relative; z-index: 2;
     font-family: 'Bricolage Grotesque', sans-serif;
-    font-size: 3.2rem; font-weight: 600; color: #fafafa;
-    letter-spacing: -0.03em;
+    font-size: clamp(2rem, 5vw, 3.4rem); font-weight: 600; color: #fafafa;
+    letter-spacing: -0.03em; text-align: center; padding: 0 24px;
     opacity: 0;
-    animation: splashWordIn 0.7s cubic-bezier(0.16,1,0.3,1) 0.2s forwards;
+    animation: splashWordIn 0.8s cubic-bezier(0.16,1,0.3,1) 0.15s forwards;
 }
 .splash-tagline {
     position: relative; z-index: 2;
@@ -3342,66 +3342,62 @@ function enterDashboard(email, name) {
     // Extract first name for welcome splash
     const firstName = (name || email.split('@')[0]).split(' ')[0];
 
-    // Hide login, show splash
+    // ── 1. Show splash immediately ──────────────────────────────
     document.getElementById('loginScreen').classList.add('hidden');
     const splash = document.getElementById('welcomeSplash');
+    const splashWord = document.getElementById('splashWordmark');
+    if (splashWord) splashWord.textContent = 'Welcome to Stlla';
     splash.classList.remove('hidden');
 
-    // Set up dashboard in background
-    document.getElementById('userInfo').textContent = name || email;
-    // Populate sidebar user info
-    const auth = JSON.parse(sessionStorage.getItem('app_auth') || localStorage.getItem('app_auth') || '{}');
-    document.getElementById('sidebarUserName').textContent = name || email.split('@')[0];
-    document.getElementById('sidebarUserEmail').textContent = email;
-    if (auth.avatar) {
-        document.getElementById('sidebarAvatar').innerHTML = `<img src="${auth.avatar}" alt="">`;
-    } else if (auth.initials) {
-        document.getElementById('sidebarAvatar').textContent = auth.initials;
-    }
-    if (auth.color && !auth.avatar) document.getElementById('sidebarAvatar').style.background = auth.color;
-    // Check localStorage for profile photo
-    const savedProfilePhoto = localStorage.getItem('stlla_profile_photo');
-    if (savedProfilePhoto) {
-        auth.avatar = savedProfilePhoto;
-        document.getElementById('sidebarAvatar').innerHTML = '<img src="' + savedProfilePhoto + '" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
-        // Also update topbar team avatar if present
-        const topbarAvatars = document.querySelectorAll('.team-avatar');
-        topbarAvatars.forEach(function(av) {
-            if (av.getAttribute('data-email') === email) {
-                av.innerHTML = '<img src="' + savedProfilePhoto + '" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
-            }
-        });
-    }
-    // Restore sidebar state
-    if (localStorage.getItem('sidebar_collapsed') === 'true') {
-        document.getElementById('sidebar').classList.add('collapsed');
-    }
-    // Mobile sidebar toggle
-    const mobileBtn = document.getElementById('mobileSidebarBtn');
-    if (window.innerWidth <= 768) mobileBtn.style.display = '';
-    window.addEventListener('resize', () => {
-        mobileBtn.style.display = window.innerWidth <= 768 ? '' : 'none';
-    });
-    populateAssigneeSelects();
-    // Update team avatar from Google login
-    if (auth.avatar) updateTeamAvatar(email, auth.avatar);
-    // Store avatar in localStorage for team roster persistence
-    const storedAvatars = JSON.parse(localStorage.getItem('stlla_avatars') || '{}');
-    if (auth.avatar) storedAvatars[email] = auth.avatar;
-    localStorage.setItem('stlla_avatars', JSON.stringify(storedAvatars));
-    // Load saved avatars for all team members
-    Object.entries(storedAvatars).forEach(([e, url]) => updateTeamAvatar(e, url));
-    // Simple CSS splash — no canvas, guaranteed to dismiss
+    // ── 2. Register dismiss timer FIRST — nothing below can stop it ──
     const dismissSplash = () => {
-        document.getElementById('dashboardWrap').classList.remove('hidden');
-        splash.classList.add('fade-out');
-        setTimeout(() => {
-            splash.classList.add('hidden');
-            splash.classList.remove('fade-out');
-        }, 650);
+        try { document.getElementById('dashboardWrap').classList.remove('hidden'); } catch(e) {}
+        try {
+            splash.classList.add('fade-out');
+            setTimeout(() => { splash.classList.add('hidden'); splash.classList.remove('fade-out'); }, 650);
+        } catch(e) { try { splash.classList.add('hidden'); } catch(e2) {} }
     };
-    // Show for 2.2s then dismiss — CSS animations handle the intro
-    setTimeout(dismissSplash, 2200);
+    setTimeout(dismissSplash, 2400);
+
+    // ── 3. Dashboard setup — all wrapped so a throw can't block the timer ──
+    try {
+        const auth = JSON.parse(sessionStorage.getItem('app_auth') || localStorage.getItem('app_auth') || '{}');
+        const el = (id) => document.getElementById(id);
+        if (el('userInfo')) el('userInfo').textContent = name || email;
+        if (el('sidebarUserName')) el('sidebarUserName').textContent = name || email.split('@')[0];
+        if (el('sidebarUserEmail')) el('sidebarUserEmail').textContent = email;
+        const savedProfilePhoto = localStorage.getItem('stlla_profile_photo');
+        if (savedProfilePhoto) auth.avatar = savedProfilePhoto;
+        if (el('sidebarAvatar')) {
+            if (auth.avatar) {
+                el('sidebarAvatar').innerHTML = '<img src="' + auth.avatar + '" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
+            } else if (auth.initials) {
+                el('sidebarAvatar').textContent = auth.initials;
+                if (auth.color) el('sidebarAvatar').style.background = auth.color;
+            }
+        }
+        if (savedProfilePhoto) {
+            document.querySelectorAll('.team-avatar').forEach(av => {
+                if (av.getAttribute('data-email') === email)
+                    av.innerHTML = '<img src="' + savedProfilePhoto + '" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
+            });
+        }
+        if (localStorage.getItem('sidebar_collapsed') === 'true' && el('sidebar'))
+            el('sidebar').classList.add('collapsed');
+        const mobileBtn = el('mobileSidebarBtn');
+        if (mobileBtn) {
+            if (window.innerWidth <= 768) mobileBtn.style.display = '';
+            window.addEventListener('resize', () => {
+                mobileBtn.style.display = window.innerWidth <= 768 ? '' : 'none';
+            });
+        }
+        populateAssigneeSelects();
+        if (auth.avatar) updateTeamAvatar(email, auth.avatar);
+        const storedAvatars = JSON.parse(localStorage.getItem('stlla_avatars') || '{}');
+        if (auth.avatar) storedAvatars[email] = auth.avatar;
+        localStorage.setItem('stlla_avatars', JSON.stringify(storedAvatars));
+        Object.entries(storedAvatars).forEach(([e, url]) => updateTeamAvatar(e, url));
+    } catch(setupErr) { console.warn('Dashboard setup error:', setupErr); }
 
     // Load data in background
     loadTasks().then(() => {
