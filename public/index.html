@@ -942,19 +942,38 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 /* Row number */
 .list-row-num { color: #3f3f46; font-size: 0.8rem; font-weight: 400; }
 
-/* Status badges */
-.status-badge-completed {
-    display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 600;
-    background: rgba(74,222,128,0.1); color: #4ade80;
+/* Status / Priority badges — dot + border outline style */
+.status-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 3px 8px; border-radius: 5px; font-size: 0.72rem; font-weight: 500;
+    border: 1px solid #27272a; background: rgba(10,10,10,0.8); color: #a1a1aa;
+    white-space: nowrap; vertical-align: middle;
 }
-.status-badge-inprogress {
-    display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 600;
-    background: rgba(251,191,36,0.1); color: #fbbf24;
+.status-dot {
+    width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
 }
-.status-badge-todo {
-    display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 600;
-    background: rgba(113,113,122,0.15); color: #a1a1aa;
+.dot-done     { background: #10b981; }
+.dot-progress { background: #fbbf24; }
+.dot-todo     { background: #52525b; }
+.dot-high     { background: #ef4444; }
+.dot-medium   { background: #f97316; }
+.dot-low      { background: #22c55e; }
+/* Assignee avatar in list */
+.list-assignee {
+    display: inline-flex; align-items: center; gap: 7px;
 }
+.list-assignee-avatar {
+    width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.6rem; font-weight: 700; color: #fff; overflow: hidden;
+}
+.list-assignee-avatar img { width: 100%; height: 100%; object-fit: cover; }
+/* List footer row */
+.list-table tfoot td {
+    padding: 12px 16px; border-top: 1px solid #1a1a1f; font-size: 0.75rem;
+    color: #52525b; font-weight: 500; border-bottom: none;
+}
+.list-table tfoot tr:hover td { background: transparent; }
 
 /* ── Calendar View ────────────────────────────────────────────── */
 .calendar-view { padding: 20px; }
@@ -2638,7 +2657,18 @@ function enterDashboard(email, name) {
     try { startPresence(); } catch(e) {}
     try { startTaskPoll(); } catch(e) {}
     try { updateNotifBadge(); } catch(e) {}
+    loadProfiles();
     resetSessionTimer();
+}
+
+async function loadProfiles() {
+    try {
+        const { data } = await _supabase.from('profiles').select('email, avatar_url');
+        if (data) {
+            data.forEach(p => { if (p.avatar_url) updateTeamAvatar(p.email, p.avatar_url); });
+            updateTopbarAvatars();
+        }
+    } catch(e) { /* profiles table not set up yet — silent fail */ }
 }
 
 async function checkSession() {
@@ -2781,24 +2811,56 @@ function switchSettingsTab(tab, btn) {
     if (tab === 'automations') renderSettingsAutomations();
 }
 
-function handleProfilePhotoUpload(event) {
+async function handleProfilePhotoUpload(event) {
     const file = event.target.files[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        const dataUrl = e.target.result;
-        // Save to localStorage
-        localStorage.setItem('stlla_profile_photo', dataUrl);
-        // Update auth
-        const auth = JSON.parse(sessionStorage.getItem('app_auth') || localStorage.getItem('app_auth') || '{}');
-        auth.avatar = dataUrl;
+    const auth = JSON.parse(sessionStorage.getItem('app_auth') || localStorage.getItem('app_auth') || '{}');
+    const email = auth.username || currentUserId;
+    showToast('Uploading photo...', 'info');
+
+    try {
+        // Upload to Supabase Storage bucket "avatars"
+        const ext = file.name.split('.').pop() || 'jpg';
+        const fileName = email.replace(/[^a-z0-9]/gi, '_') + '.' + ext;
+        const { error: uploadError } = await _supabase.storage
+            .from('avatars')
+            .upload(fileName, file, { upsert: true, contentType: file.type });
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = _supabase.storage
+            .from('avatars')
+            .getPublicUrl(fileName);
+
+        // Upsert to profiles table so other users can see it
+        await _supabase.from('profiles').upsert({
+            email,
+            avatar_url: publicUrl,
+            updated_at: new Date().toISOString()
+        });
+
+        // Update local state
+        localStorage.setItem('stlla_profile_photo', publicUrl);
+        auth.avatar = publicUrl;
         sessionStorage.setItem('app_auth', JSON.stringify(auth));
-        // Update UI
+        updateTeamAvatar(email, publicUrl);
         renderSettingsAccount();
         updateTopbarAvatars();
         showToast('Profile photo updated', 'success');
-    };
-    reader.readAsDataURL(file);
+    } catch(err) {
+        // Fallback: store as base64 locally if Supabase storage not configured yet
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const dataUrl = e.target.result;
+            localStorage.setItem('stlla_profile_photo', dataUrl);
+            auth.avatar = dataUrl;
+            sessionStorage.setItem('app_auth', JSON.stringify(auth));
+            renderSettingsAccount();
+            updateTopbarAvatars();
+            showToast('Profile photo saved locally', 'success');
+        };
+        reader.readAsDataURL(file);
+    }
 }
 
 function updateDisplayName(newName) {
@@ -3811,23 +3873,37 @@ function renderListView() {
     }
     empty.classList.add('hidden');
 
+    const statusDot = s => s === 'Done' ? 'dot-done' : s === 'In Progress' ? 'dot-progress' : 'dot-todo';
+    const statusLabel = s => s === 'Done' ? 'Completed' : (s || 'To Do');
+    const priorityDot = p => p === 'High' ? 'dot-high' : p === 'Medium' ? 'dot-medium' : 'dot-low';
+
     tbody.innerHTML = filtered.map((t, idx) => {
         const member = getTeamMember(t.assignee);
         const depthCls = t._depth > 0 ? `depth-${Math.min(t._depth, 3)}` : '';
         const dueCls = dueDateClass(t.due_date);
-        const statusBadge = t.status === 'Done' ? 'status-badge-completed'
-            : t.status === 'In Progress' ? 'status-badge-inprogress' : 'status-badge-todo';
-        const statusLabel = t.status === 'Done' ? 'Completed' : t.status;
+        const avatarHtml = member
+            ? (member.avatar
+                ? `<span class="list-assignee-avatar"><img src="${esc(member.avatar)}" alt="${esc(member.initials)}"></span>`
+                : `<span class="list-assignee-avatar" style="background:${member.color}">${esc(member.initials)}</span>`)
+            : '';
         return `<tr class="${depthCls}">
             <td><span class="list-row-num">${idx + 1}</span></td>
             <td><span class="list-row-title" onclick="openDetail('${esc(t.task_id)}')">${esc(t.title)}</span></td>
             <td>${categoryBadge(t.category)}</td>
-            <td><span class="${statusBadge}">${esc(statusLabel)}</span></td>
-            <td><span class="priority-badge priority-${esc(t.priority)}">${esc(t.priority)}</span></td>
-            <td>${member ? esc(member.name) : (t.assignee ? esc(t.assignee) : '<span style="color:#3f3f46">—</span>')}</td>
+            <td><span class="status-badge"><span class="status-dot ${statusDot(t.status)}"></span>${esc(statusLabel(t.status))}</span></td>
+            <td>${t.priority ? `<span class="status-badge"><span class="status-dot ${priorityDot(t.priority)}"></span>${esc(t.priority)}</span>` : '<span style="color:#3f3f46">—</span>'}</td>
+            <td><span class="list-assignee">${avatarHtml}${member ? esc(member.name) : (t.assignee ? esc(t.assignee.split('@')[0]) : '<span style="color:#3f3f46">—</span>')}</span></td>
             <td style="text-align:right"><span class="due-date ${dueCls}">${formatDate(t.due_date)}</span></td>
         </tr>`;
     }).join('');
+
+    // Footer: task count summary
+    const done = filtered.filter(t => t.status === 'Done').length;
+    const inProgress = filtered.filter(t => t.status === 'In Progress').length;
+    const listTable = tbody.closest('table');
+    let tfoot = listTable.querySelector('tfoot');
+    if (!tfoot) { tfoot = document.createElement('tfoot'); listTable.appendChild(tfoot); }
+    tfoot.innerHTML = `<tr><td colspan="7">${filtered.length} task${filtered.length !== 1 ? 's' : ''} &nbsp;·&nbsp; <span style="color:#10b981">${done} completed</span> &nbsp;·&nbsp; <span style="color:#fbbf24">${inProgress} in progress</span></td></tr>`;
 }
 
 function toggleListFilter(category, value, btn) {
