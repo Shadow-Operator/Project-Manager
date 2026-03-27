@@ -306,10 +306,10 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 /* Google button */
 .login-google-btn {
     width: 100%; padding: 10px 16px; height: 40px;
-    background: #09090b;
-    border: 1px solid #27272a;
+    background: #fafafa;
+    border: 1px solid #e4e4e7;
     border-radius: 8px;
-    color: #fafafa;
+    color: #18181b;
     font-size: 0.875rem;
     font-weight: 500;
     cursor: pointer;
@@ -317,7 +317,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     transition: background 0.2s ease;
 }
 .login-google-btn:hover {
-    background: rgba(24,24,27,0.80);
+    background: #f4f4f5;
 }
 .login-google-btn svg { flex-shrink: 0; }
 
@@ -1440,6 +1440,36 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 }
 .spinner-text { font-size: 0.82rem; color: #3f3f46; }
 
+/* ── Detail Panel — Craftboard Style ────────────────────────── */
+.dp-topbar { display:flex; align-items:center; justify-content:space-between; padding:14px 20px 0; gap:8px; }
+.dp-breadcrumb-path { font-size:0.72rem; color:#52525b; letter-spacing:0.04em; }
+.dp-close-btn { background:none; border:none; color:#52525b; cursor:pointer; padding:4px; border-radius:6px; display:flex; align-items:center; }
+.dp-close-btn:hover { color:#fafafa; background:#27272a; }
+.dp-title-wrap { padding:10px 20px 14px; border-bottom:1px solid #27272a; }
+.dp-title-input { width:100%; background:transparent; border:none; color:#fafafa; font-size:1.15rem; font-weight:700; line-height:1.35; outline:none; font-family:inherit; padding:0; box-sizing:border-box; }
+.dp-title-input:focus { color:#fafafa; }
+.dp-meta-grid { padding:12px 20px; border-bottom:1px solid #27272a; display:flex; flex-direction:column; gap:0; }
+.dp-meta-row { display:flex; align-items:center; gap:10px; min-height:34px; border-radius:6px; padding:0 4px; margin:0 -4px; }
+.dp-meta-row:hover { background:#18181b; }
+.dp-meta-icon { width:14px; color:#52525b; flex-shrink:0; font-size:0.78rem; display:flex; align-items:center; }
+.dp-meta-label { font-size:0.72rem; color:#52525b; width:80px; flex-shrink:0; font-weight:500; }
+.dp-meta-val { font-size:0.82rem; color:#d4d4d8; flex:1; display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+.dp-assignee-chip { display:flex; align-items:center; gap:5px; font-size:0.78rem; color:#d4d4d8; }
+.dp-assignee-avatar { width:20px; height:20px; border-radius:50%; object-fit:cover; flex-shrink:0; display:inline-flex; align-items:center; justify-content:center; font-size:0.58rem; font-weight:600; color:#fff; }
+.dp-tag-pill { font-size:0.7rem; padding:2px 8px; border-radius:10px; border:1px solid #3f3f46; color:#a1a1aa; background:transparent; }
+.dp-desc-wrap { padding:12px 20px 14px; border-bottom:1px solid #27272a; }
+.dp-desc-label { font-size:0.7rem; color:#52525b; text-transform:uppercase; letter-spacing:0.06em; font-weight:500; margin-bottom:6px; display:flex; align-items:center; gap:5px; }
+.dp-desc-ta { width:100%; background:transparent; border:none; color:#71717a; font-size:0.82rem; line-height:1.55; resize:none; outline:none; font-family:inherit; min-height:52px; box-sizing:border-box; }
+.dp-desc-ta:focus { color:#d4d4d8; }
+.dp-desc-ta::placeholder { color:#3f3f46; }
+.dp-tabs { display:flex; padding:0 16px; border-bottom:1px solid #27272a; overflow-x:auto; gap:0; scrollbar-width:none; }
+.dp-tabs::-webkit-scrollbar { display:none; }
+.dp-tab-btn { font-size:0.78rem; color:#71717a; padding:9px 12px; cursor:pointer; border:none; border-bottom:2px solid transparent; background:none; font-family:inherit; white-space:nowrap; display:flex; align-items:center; gap:4px; transition:color 0.15s; }
+.dp-tab-btn:hover { color:#d4d4d8; }
+.dp-tab-btn.active { color:#818cf8; border-bottom-color:#818cf8; }
+.dp-tab-badge { background:#27272a; color:#a1a1aa; border-radius:8px; padding:0 5px; font-size:0.65rem; font-weight:600; min-width:14px; text-align:center; }
+.dp-tab-body { padding:14px 20px; flex:1; overflow-y:auto; }
+
 /* ── Welcome Splash Screen ───────────────────────────────────── */
 .welcome-splash {
     position: fixed; inset: 0; z-index: 3;
@@ -1889,8 +1919,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
             <div class="login-divider"><span>or</span></div>
 
             <button type="button" class="login-google-btn" onclick="handleGoogleLogin()" aria-label="Sign in with Google">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><line x1="21.17" y1="8" x2="12" y2="8"/><line x1="3.95" y1="6.06" x2="8.54" y2="14"/><line x1="10.88" y1="21.94" x2="15.46" y2="14"/></svg>
-                Google
+                <svg width="16" height="16" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/><path fill="none" d="M0 0h48v48H0z"/></svg>
+                Continue with Google
             </button>
             <div id="loginError" class="login-error"></div>
         </form>
@@ -3013,9 +3043,6 @@ function enterDashboard(email, name) {
     localStorage.setItem('stlla_avatars', JSON.stringify(storedAvatars));
     // Load saved avatars for all team members
     Object.entries(storedAvatars).forEach(([e, url]) => updateTeamAvatar(e, url));
-    // Set personalised greeting
-    document.getElementById('splashGreeting').textContent = firstName ? `Signed in as ${firstName}` : '';
-
     // Vaporize text animation — transitions to dashboard when complete
     const splashCanvas = document.getElementById('splashCanvas');
     const splashTexts = ['Welcome to Stlla'];
@@ -3029,22 +3056,25 @@ function enterDashboard(email, name) {
             document.getElementById('dashboardWrap').classList.remove('hidden');
         }, 700);
     };
-    try {
-        _splashCleanup = initVaporizeCanvas(splashCanvas, splashTexts, {
-            fontFamily: 'Inter, sans-serif',
-            fontSize: 52,
-            fontWeight: 700,
-            color: 'rgba(250,250,250,1)',
-            spread: 5,
-            density: 6,
-            vaporizeDuration: 1.8,
-            fadeInDuration: 0.9,
-            waitDuration: 1.2,
-        }, dismissSplash);
-    } catch(e) {
-        // Fallback: 2.5s fixed timer if canvas fails
-        setTimeout(dismissSplash, 2500);
-    }
+    // rAF defers until browser has laid out the splash, so canvas has real dimensions
+    requestAnimationFrame(() => {
+        try {
+            _splashCleanup = initVaporizeCanvas(splashCanvas, splashTexts, {
+                fontFamily: 'Inter, sans-serif',
+                fontSize: 52,
+                fontWeight: 700,
+                color: 'rgba(250,250,250,1)',
+                spread: 5,
+                density: 6,
+                vaporizeDuration: 1.8,
+                fadeInDuration: 0.9,
+                waitDuration: 1.2,
+            }, dismissSplash);
+        } catch(e) {
+            // Fallback: 2.5s fixed timer if canvas fails
+            setTimeout(dismissSplash, 2500);
+        }
+    });
     // Hard fallback: never stay on splash longer than 6s
     setTimeout(() => {
         if (!splash.classList.contains('hidden')) dismissSplash();
@@ -3948,8 +3978,8 @@ function renderDetail(taskId) {
     const iconClose  = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
 
     const tabBtn = (id, label, count) => `
-        <button class="detail-tab-btn ${tab === id ? 'active' : ''}" onclick="_detailTab='${id}'; renderDetail('${esc(taskId)}')">
-            ${label}${count ? `<span class="detail-tab-count">${count}</span>` : ''}
+        <button class="dp-tab-btn ${tab === id ? 'active' : ''}" onclick="_detailTab='${id}'; renderDetail('${esc(taskId)}')">
+            ${label}${count ? `<span class="dp-tab-badge">${count}</span>` : ''}
         </button>`;
 
     // ── Tab content ────────────────────────────────────────────
@@ -4055,25 +4085,6 @@ function renderDetail(taskId) {
                     <button class="btn-sm btn-outline" onclick="addManualTime('${esc(task.task_id)}')" style="font-size:0.72rem;padding:3px 10px">+ Manual</button>
                 </div>
             </div>
-            <div class="detail-section">
-                <div class="detail-section-title">
-                    Dependencies
-                    <button class="btn-sm btn-outline" onclick="addDependency('${esc(task.task_id)}')" style="font-size:0.72rem;padding:3px 10px">+ Add</button>
-                </div>
-                ${deps.length === 0 ? '<div style="font-size:0.82rem;color:#3f3f46">No dependencies</div>' : ''}
-                <div class="link-list">
-                    ${deps.map((depId, i) => {
-                        const depTask = getTaskById(depId);
-                        if (!depTask) return '';
-                        const isBlocked = depTask.status !== 'Done';
-                        return `<div class="link-item">
-                            <span style="font-size:0.72rem;padding:2px 8px;border-radius:12px;background:${isBlocked ? 'rgba(239,68,68,0.1)' : 'rgba(74,222,128,0.1)'};color:${isBlocked ? '#f87171' : '#4ade80'}">${isBlocked ? 'Blocked' : 'Resolved'}</span>
-                            <span style="flex:1;font-size:0.82rem;color:#d4d4d8;cursor:pointer" onclick="openDetail('${esc(depId)}')">${esc(depTask.title)}</span>
-                            <button class="link-remove" onclick="removeDependency('${esc(task.task_id)}', ${i})">&times;</button>
-                        </div>`;
-                    }).join('')}
-                </div>
-            </div>
             ${task.recurring ? `
             <div class="detail-section">
                 <div class="detail-section-title">
@@ -4093,73 +4104,107 @@ function renderDetail(taskId) {
                       </div>`
                     : '<div style="font-size:0.82rem;color:#3f3f46">Set a due date first</div>'}
             </div>`;
+
+    } else if (tab === 'deps') {
+        tabContent = `
+            <div class="detail-section">
+                <div class="detail-section-title">
+                    Dependencies
+                    <button class="btn-sm btn-outline" onclick="addDependency('${esc(task.task_id)}')" style="font-size:0.72rem;padding:3px 10px">+ Add</button>
+                </div>
+                ${deps.length === 0 ? '<div style="font-size:0.82rem;color:#3f3f46">No dependencies — this task is unblocked</div>' : ''}
+                <div class="link-list">
+                    ${deps.map((depId, i) => {
+                        const depTask = getTaskById(depId);
+                        if (!depTask) return '';
+                        const isBlocked = depTask.status !== 'Done';
+                        return `<div class="link-item">
+                            <span style="font-size:0.72rem;padding:2px 8px;border-radius:12px;background:${isBlocked ? 'rgba(239,68,68,0.1)' : 'rgba(74,222,128,0.1)'};color:${isBlocked ? '#f87171' : '#4ade80'}">${isBlocked ? 'Blocked' : 'Resolved'}</span>
+                            <span style="flex:1;font-size:0.82rem;color:#d4d4d8;cursor:pointer" onclick="openDetail('${esc(depId)}')">${esc(depTask.title)}</span>
+                            <button class="link-remove" onclick="removeDependency('${esc(task.task_id)}', ${i})">&times;</button>
+                        </div>`;
+                    }).join('')}
+                </div>
+            </div>`;
     }
+
+    // ── Assignee display for meta row ─────────────────────────
+    const assigneeMetaHtml = assigneeMember ? `
+        <div class="dp-assignee-chip">
+            ${assigneeMember.avatar
+                ? `<img src="${esc(assigneeMember.avatar)}" alt="${esc(assigneeMember.initials)}" class="dp-assignee-avatar">`
+                : `<span class="dp-assignee-avatar" style="background:${assigneeMember.color}">${esc(assigneeMember.initials)}</span>`}
+            <span>${esc(assigneeMember.name)}</span>
+        </div>` : `<span style="color:#3f3f46">Unassigned</span>`;
+
+    // Priority dot colour
+    const prioColor = task.priority === 'High' ? '#f87171' : task.priority === 'Medium' ? '#fbbf24' : '#71717a';
 
     // ── Build full HTML ────────────────────────────────────────
     const html = `
         <!-- Top bar -->
-        <div class="detail-topbar">
-            <span class="detail-breadcrumb-path">${esc(topPath)}</span>
-            <div class="detail-topbar-actions">
-                <button class="detail-action-btn" onclick="closeDetail()" title="Close">${iconClose}</button>
-            </div>
+        <div class="dp-topbar">
+            <span class="dp-breadcrumb-path">${esc(topPath)}</span>
+            <button class="dp-close-btn" onclick="closeDetail()" title="Close">${iconClose}</button>
         </div>
 
         ${breadcrumbHtml}
 
         <!-- Title -->
-        <div class="detail-title-area">
-            <input class="detail-title" value="${esc(task.title)}" placeholder="Task title"
-                onblur="updateDetailField('${esc(task.task_id)}','title',this.value)">
+        <div class="dp-title-wrap">
+            <input class="dp-title-input" value="${esc(task.title)}" placeholder="Task title"
+                onblur="updateDetailField('${esc(task.task_id)}','title',this.value)"
+                onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur()}">
         </div>
 
         <!-- Property rows -->
-        <div class="detail-props">
-            <div class="detail-prop-row">
-                <span class="detail-prop-icon">${iconStatus}</span>
-                <span class="detail-prop-label">Status</span>
-                <div class="detail-prop-value">
-                    <span class="dprop-status-dot ${statusDotCls}"></span>
+        <div class="dp-meta-grid">
+            <div class="dp-meta-row">
+                <span class="dp-meta-icon">${iconStatus}</span>
+                <span class="dp-meta-label">Status</span>
+                <div class="dp-meta-val">
+                    <span class="status-dot dot-${statusDotCls}"></span>
                     <select class="detail-prop-select" onchange="updateDetailField('${esc(task.task_id)}','status',this.value); renderDetail('${esc(task.task_id)}')">
                         ${STATUSES.map(s => `<option ${s === task.status ? 'selected' : ''}>${esc(s)}</option>`).join('')}
                     </select>
                 </div>
             </div>
-            <div class="detail-prop-row">
-                <span class="detail-prop-icon">${iconTag}</span>
-                <span class="detail-prop-label">Priority</span>
-                <div class="detail-prop-value">
-                    <select class="detail-prop-select" onchange="updateDetailField('${esc(task.task_id)}','priority',this.value); renderDetail('${esc(task.task_id)}')">
-                        <option value="">No priority</option>
-                        ${PRIORITIES.map(p => `<option ${p === task.priority ? 'selected' : ''}>${esc(p)}</option>`).join('')}
-                    </select>
-                </div>
-            </div>
-            <div class="detail-prop-row">
-                <span class="detail-prop-icon">${iconCal}</span>
-                <span class="detail-prop-label">Due date</span>
-                <div class="detail-prop-value">
+            <div class="dp-meta-row">
+                <span class="dp-meta-icon">${iconCal}</span>
+                <span class="dp-meta-label">Due date</span>
+                <div class="dp-meta-val">
                     <input type="date" class="detail-prop-date" value="${esc(task.due_date || '')}"
                         onchange="updateDetailField('${esc(task.task_id)}','due_date',this.value)">
                 </div>
             </div>
-            <div class="detail-prop-row">
-                <span class="detail-prop-icon">${iconPerson}</span>
-                <span class="detail-prop-label">Assignee</span>
-                <div class="detail-prop-value" style="gap:8px">
-                    <div class="detail-assignee-chips">${assigneeChipHtml}</div>
+            <div class="dp-meta-row">
+                <span class="dp-meta-icon">${iconPerson}</span>
+                <span class="dp-meta-label">Assignee</span>
+                <div class="dp-meta-val">
+                    ${assigneeMetaHtml}
                     <select class="detail-chip-select" onchange="updateDetailField('${esc(task.task_id)}','assignee',this.value); renderDetail('${esc(task.task_id)}')" title="Change assignee">
                         <option value="">Unassigned</option>
                         ${TEAM_ROSTER.map(m => `<option value="${esc(m.email)}" ${task.assignee === m.email ? 'selected' : ''}>${esc(m.name)}</option>`).join('')}
                     </select>
                 </div>
             </div>
-            <div class="detail-prop-row">
-                <span class="detail-prop-icon">${iconFolder}</span>
-                <span class="detail-prop-label">Category</span>
-                <div class="detail-prop-value">
-                    ${task.category ? categoryBadge(task.category) : ''}
-                    <select class="detail-prop-select" onchange="updateDetailField('${esc(task.task_id)}','category',this.value); renderDetail('${esc(task.task_id)}')" style="${task.category ? 'width:20px;opacity:0.4' : ''}">
+            <div class="dp-meta-row">
+                <span class="dp-meta-icon">${iconTag}</span>
+                <span class="dp-meta-label">Priority</span>
+                <div class="dp-meta-val">
+                    ${task.priority ? `<span style="width:8px;height:8px;border-radius:50%;background:${prioColor};flex-shrink:0;display:inline-block"></span>` : ''}
+                    <select class="detail-prop-select" onchange="updateDetailField('${esc(task.task_id)}','priority',this.value); renderDetail('${esc(task.task_id)}')">
+                        <option value="">No priority</option>
+                        ${PRIORITIES.map(p => `<option ${p === task.priority ? 'selected' : ''}>${esc(p)}</option>`).join('')}
+                    </select>
+                </div>
+            </div>
+            <div class="dp-meta-row">
+                <span class="dp-meta-icon">${iconFolder}</span>
+                <span class="dp-meta-label">Category</span>
+                <div class="dp-meta-val">
+                    ${task.category ? `<span class="dp-tag-pill">${esc(task.category)}</span>` : ''}
+                    <select class="detail-prop-select" onchange="updateDetailField('${esc(task.task_id)}','category',this.value); renderDetail('${esc(task.task_id)}')" style="${task.category ? 'width:20px;opacity:0.35' : ''}">
                         <option value="">None</option>
                         ${CATEGORIES.map(c => `<option ${c === task.category ? 'selected' : ''}>${esc(c)}</option>`).join('')}
                     </select>
@@ -4168,22 +4213,23 @@ function renderDetail(taskId) {
         </div>
 
         <!-- Description -->
-        <div class="detail-desc-area">
-            <div class="detail-desc-label">${iconDoc} Description</div>
-            <textarea class="detail-description" placeholder="Add a description..."
+        <div class="dp-desc-wrap">
+            <div class="dp-desc-label">${iconDoc} Description</div>
+            <textarea class="dp-desc-ta" placeholder="Add a description..."
                 onblur="updateDetailField('${esc(task.task_id)}','description',this.value)">${esc(task.description || '')}</textarea>
         </div>
 
         <!-- Tabs -->
-        <div class="detail-tabs-bar">
+        <div class="dp-tabs">
             ${tabBtn('subtasks', 'Subtasks', children.length || '')}
             ${tabBtn('comments', 'Comments', comments.length || '')}
+            ${tabBtn('time', 'Time')}
+            ${tabBtn('deps', 'Dependencies', deps.length || '')}
             ${tabBtn('files', 'Files', (files.length + links.length) || '')}
-            ${tabBtn('time', 'Time & More')}
         </div>
 
         <!-- Tab content -->
-        <div class="detail-tab-content">${tabContent}</div>
+        <div class="dp-tab-body">${tabContent}</div>
 
         <!-- Footer -->
         <div class="detail-footer">
