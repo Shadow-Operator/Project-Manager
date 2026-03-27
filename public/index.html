@@ -742,6 +742,55 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
     pointer-events: auto;
 }
+/* ── Plan View ────────────────────────────────────────────────── */
+.plan-wrap { padding: 20px; max-width: 760px; margin: 0 auto; }
+.plan-card { background: #111114; border: 1px solid #1a1a1f; border-radius: 12px; overflow: hidden; }
+.plan-card-body { padding: 12px 16px; }
+.plan-task-row {
+    display: flex; align-items: center;
+    padding: 7px 10px; border-radius: 8px; cursor: pointer; transition: background 0.15s;
+}
+.plan-task-row:hover { background: rgba(255,255,255,0.025); }
+.plan-icon-btn {
+    flex-shrink: 0; width: 26px; height: 26px; display: flex; align-items: center;
+    justify-content: center; background: none; border: none; cursor: pointer; padding: 0;
+    border-radius: 50%; transition: transform 0.15s;
+}
+.plan-icon-btn:hover { transform: scale(1.15); }
+.plan-icon-btn svg { width: 15px; height: 15px; }
+.plan-icon-completed svg { color: #4ade80; }
+.plan-icon-progress  svg { color: #818cf8; }
+.plan-icon-needhelp  svg { color: #fbbf24; }
+.plan-icon-failed    svg { color: #f87171; }
+.plan-icon-pending   svg { color: #3f3f46; }
+.plan-task-title-wrap { flex: 1; display: flex; align-items: center; justify-content: space-between; gap: 8px; min-width: 0; }
+.plan-task-title { font-size: 0.875rem; color: #e4e4e7; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.plan-task-title.done { color: #3f3f46; text-decoration: line-through; }
+.plan-task-meta { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.plan-status-badge { font-size: 0.68rem; font-weight: 500; padding: 2px 8px; border-radius: 6px; white-space: nowrap; }
+.plan-badge-completed { background: rgba(74,222,128,0.1); color: #4ade80; }
+.plan-badge-progress  { background: rgba(129,140,248,0.1); color: #818cf8; }
+.plan-badge-needhelp  { background: rgba(251,191,36,0.1); color: #fbbf24; }
+.plan-badge-failed    { background: rgba(248,113,113,0.1); color: #f87171; }
+.plan-badge-pending   { background: #18181b; color: #52525b; }
+.plan-dep-badge { font-size: 0.65rem; padding: 2px 6px; border-radius: 5px; background: #18181b; color: #52525b; border: 1px solid #27272a; }
+.plan-divider { height: 1px; background: #1a1a1f; margin: 3px 0; }
+.plan-subtasks-wrap { position: relative; margin: 0 0 2px 14px; overflow: hidden; max-height: 0; transition: max-height 0.3s cubic-bezier(0.4,0,0.2,1); }
+.plan-subtasks-wrap.open { max-height: 2000px; }
+.plan-vline { position: absolute; left: 5px; top: 0; bottom: 0; border-left: 1.5px dashed #27272a; pointer-events: none; }
+.plan-subtask-list { padding: 2px 0 4px 20px; display: flex; flex-direction: column; gap: 1px; }
+.plan-subtask-row {
+    display: flex; align-items: center;
+    padding: 5px 8px; border-radius: 6px; cursor: pointer; transition: background 0.15s;
+}
+.plan-subtask-row:hover { background: rgba(255,255,255,0.02); }
+.plan-subtask-title { font-size: 0.8rem; color: #71717a; flex: 1; }
+.plan-subtask-title.done { color: #3f3f46; text-decoration: line-through; }
+.plan-subtask-details { max-height: 0; overflow: hidden; transition: max-height 0.2s cubic-bezier(0.4,0,0.2,1); margin-left: 34px; }
+.plan-subtask-details.open { max-height: 300px; }
+.plan-subtask-details-inner { padding: 5px 0 8px 12px; border-left: 1.5px dashed #27272a; font-size: 0.75rem; color: #52525b; line-height: 1.5; }
+.plan-tool-badge { display: inline-flex; align-items: center; font-size: 0.65rem; padding: 2px 7px; border-radius: 5px; background: #18181b; color: #71717a; border: 1px solid #27272a; margin: 2px 3px 0 0; }
+
 /* ── Detail Panel ─────────────────────────────────────────────── */
 .detail-panel {
     position: fixed; top: 0; right: 0; bottom: 0; width: 540px;
@@ -1894,6 +1943,10 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
                 <span>Calendar</span>
             </button>
+            <button class="sidebar-nav-item" onclick="sidebarNav('plan', this)" data-tab="plan">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                <span>Plan</span>
+            </button>
             <button class="sidebar-nav-item" onclick="sidebarNav('dealflow', this)" data-tab="dealflow">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
                 <span>Deal Flow</span>
@@ -2196,6 +2249,21 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
                     <div class="home-section">
                         <div id="activityFeedBody" style="max-height:calc(100vh - 200px);overflow-y:auto">
                             <div style="padding:24px;text-align:center;color:#27272a;font-size:0.82rem">No activity yet</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Plan Tab -->
+            <div id="tab-plan" class="tab-pane">
+                <div class="plan-wrap">
+                    <div style="margin-bottom:20px">
+                        <h2 style="font-size:1.2rem;font-weight:700;color:#fafafa;letter-spacing:-0.02em">Plan</h2>
+                        <p style="font-size:0.82rem;color:#52525b;margin-top:4px">Task execution plan across all projects</p>
+                    </div>
+                    <div class="plan-card">
+                        <div class="plan-card-body" id="planBody">
+                            <div style="padding:24px;text-align:center;color:#27272a;font-size:0.82rem">Loading…</div>
                         </div>
                     </div>
                 </div>
@@ -3443,7 +3511,7 @@ function exportCSV() {
 /* ════════════════════════════════════════════════════════════════
    SIDEBAR & NAVIGATION
    ════════════════════════════════════════════════════════════════ */
-const PAGE_TITLES = { home: 'Home', board: 'Board', list: 'List', calendar: 'Calendar', dealflow: 'Deal Flow', invoices: 'Invoices', telegram: 'Telegram', activity: 'Activity', settings: 'Settings' };
+const PAGE_TITLES = { home: 'Home', board: 'Board', list: 'List', calendar: 'Calendar', plan: 'Plan', dealflow: 'Deal Flow', invoices: 'Invoices', telegram: 'Telegram', activity: 'Activity', settings: 'Settings' };
 const CATEGORIES = ['Recast', 'Shadow Operating', "Mulligan's Marketplace", 'Agency'];
 const DEAL_STAGES = ['Lead', 'Contact Made', 'Proposal', 'Negotiation', 'Won', 'Lost'];
 let _boardCategoryFilter = new Set();
@@ -3485,6 +3553,7 @@ function sidebarNav(tabId, btn) {
     if (tabId === 'dealflow') renderDealFlow();
     if (tabId === 'invoices') renderInvoices();
     if (tabId === 'activity') renderActivityFeed();
+    if (tabId === 'plan') renderPlanView();
     if (tabId === 'settings') switchSettingsTab('account', null);
     // Close mobile sidebar
     if (window.innerWidth <= 768) {
@@ -4283,6 +4352,138 @@ function confirmDeleteTask(taskId, childCount) {
 /* ════════════════════════════════════════════════════════════════
    LIST VIEW
    ════════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   PLAN VIEW
+   ═══════════════════════════════════════════════════════════════ */
+const _planExpanded    = new Set();
+const _planSubExpanded = new Set();
+
+function planStatusClass(s) {
+    if (s === 'Done')        return 'completed';
+    if (s === 'In Progress') return 'progress';
+    if (s === 'To Do')       return 'pending';
+    return 'pending';
+}
+
+function planIconSvg(status) {
+    const cls = planStatusClass(status);
+    if (cls === 'completed') return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`;
+    if (cls === 'progress')  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2" stroke-dasharray="3 2"/></svg>`;
+    return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>`;
+}
+
+function renderPlanView() {
+    const body = document.getElementById('planBody');
+    if (!body) return;
+
+    // Group top-level tasks by category, then show children as subtasks
+    const flat = flattenTree(TREE);
+    const roots = flat.filter(t => t._depth === 0);
+
+    if (roots.length === 0) {
+        body.innerHTML = `<div style="padding:32px;text-align:center;color:#27272a;font-size:0.82rem">No tasks yet — create some from the Board view.</div>`;
+        return;
+    }
+
+    // Group roots by category
+    const groups = {};
+    roots.forEach(t => {
+        const key = t.category || 'General';
+        if (!groups[key]) groups[key] = [];
+        groups[key].push(t);
+    });
+
+    let html = '';
+    const entries = Object.entries(groups);
+
+    entries.forEach(([cat, tasks], gi) => {
+        if (gi > 0) html += `<div class="plan-divider" style="margin:8px 0"></div>`;
+
+        // Category header
+        html += `<div style="padding:6px 10px 4px;font-size:0.7rem;font-weight:700;color:#52525b;text-transform:uppercase;letter-spacing:0.06em">${esc(cat)}</div>`;
+
+        tasks.forEach((task, ti) => {
+            const statusCls = planStatusClass(task.status);
+            const isExpanded = _planExpanded.has(task.task_id);
+            const children = (findTreeNode(TREE, task.task_id)?.children) || [];
+            const titleCls = task.status === 'Done' ? 'done' : '';
+
+            html += `
+            <div class="plan-task-item">
+                <div class="plan-task-row" onclick="togglePlanTask('${esc(task.task_id)}')">
+                    <button class="plan-icon-btn plan-icon-${statusCls}" onclick="event.stopPropagation(); cyclePlanStatus('${esc(task.task_id)}')" title="Cycle status">
+                        ${planIconSvg(task.status)}
+                    </button>
+                    <div class="plan-task-title-wrap">
+                        <span class="plan-task-title ${titleCls}">${esc(task.title)}</span>
+                        <div class="plan-task-meta">
+                            ${children.length ? `<span style="font-size:0.68rem;color:#3f3f46">${children.length} subtask${children.length!==1?'s':''}</span>` : ''}
+                            <span class="plan-status-badge plan-badge-${statusCls}">${task.status}</span>
+                        </div>
+                    </div>
+                </div>
+                ${children.length ? `
+                <div class="plan-subtasks-wrap ${isExpanded ? 'open' : ''}" id="planSub-${esc(task.task_id)}">
+                    <div class="plan-vline"></div>
+                    <div class="plan-subtask-list">
+                        ${children.map(child => {
+                            const subKey = task.task_id + '|' + child.task_id;
+                            const isSubExp = _planSubExpanded.has(subKey);
+                            const subCls = planStatusClass(child.status);
+                            const subTitleCls = child.status === 'Done' ? 'done' : '';
+                            const grandChildren = (findTreeNode(TREE, child.task_id)?.children) || [];
+                            return `
+                            <div class="plan-subtask-item">
+                                <div class="plan-subtask-row" onclick="togglePlanSubtask('${esc(task.task_id)}','${esc(child.task_id)}')">
+                                    <button class="plan-icon-btn plan-icon-${subCls}" onclick="event.stopPropagation(); cyclePlanStatus('${esc(child.task_id)}')" title="Cycle status">
+                                        ${planIconSvg(child.status)}
+                                    </button>
+                                    <span class="plan-subtask-title ${subTitleCls}">${esc(child.title)}</span>
+                                    <span class="plan-status-badge plan-badge-${subCls}" style="margin-left:8px">${child.status}</span>
+                                </div>
+                                <div class="plan-subtask-details ${isSubExp ? 'open' : ''}" id="planDetail-${esc(child.task_id)}">
+                                    <div class="plan-subtask-details-inner">
+                                        ${child.description ? `<p style="margin:0 0 6px">${esc(child.description)}</p>` : ''}
+                                        ${child.due_date ? `<span style="color:#71717a">Due: <strong style="color:#a1a1aa">${esc(child.due_date)}</strong></span>` : ''}
+                                        ${child.priority ? `&nbsp;·&nbsp;<span style="color:#71717a">Priority: <strong style="color:#a1a1aa">${esc(child.priority)}</strong></span>` : ''}
+                                        ${grandChildren.length ? `<div style="margin-top:4px;color:#52525b">${grandChildren.length} nested subtask${grandChildren.length!==1?'s':''}</div>` : ''}
+                                    </div>
+                                </div>
+                            </div>`;
+                        }).join('')}
+                    </div>
+                </div>` : ''}
+            </div>`;
+        });
+    });
+
+    body.innerHTML = html;
+}
+
+function togglePlanTask(taskId) {
+    if (_planExpanded.has(taskId)) _planExpanded.delete(taskId);
+    else _planExpanded.add(taskId);
+    const el = document.getElementById('planSub-' + taskId);
+    if (el) el.classList.toggle('open', _planExpanded.has(taskId));
+}
+
+function togglePlanSubtask(taskId, childId) {
+    const key = taskId + '|' + childId;
+    if (_planSubExpanded.has(key)) _planSubExpanded.delete(key);
+    else _planSubExpanded.add(key);
+    const el = document.getElementById('planDetail-' + childId);
+    if (el) el.classList.toggle('open', _planSubExpanded.has(key));
+}
+
+function cyclePlanStatus(taskId) {
+    const task = getTaskById(taskId);
+    if (!task) return;
+    const cycle = ['To Do', 'In Progress', 'Done'];
+    const next = cycle[(cycle.indexOf(task.status) + 1) % cycle.length];
+    apiUpdateField(taskId, 'status', next);
+    renderPlanView();
+}
+
 let _listGroupMode = 'flat';
 const _collapsedListGroups = new Set();
 
