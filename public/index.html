@@ -1089,7 +1089,7 @@ body { background: var(--bg); color: var(--text); }
     display: flex; gap: 2px; perspective: 500px;
 }
 .splash-loader-letter {
-    font-size: clamp(2.5rem, 7vw, 5rem);
+    font-size: clamp(1.5rem, 4vw, 3rem);
     font-weight: 700;
     color: #fafafa;
     letter-spacing: -0.02em;
@@ -1098,10 +1098,24 @@ body { background: var(--bg); color: var(--text); }
     animation: splash-letter-anim 3s ease-in-out infinite;
 }
 .splash-loader-letter:nth-child(1) { animation-delay: 0s; }
-.splash-loader-letter:nth-child(2) { animation-delay: 0.1s; }
-.splash-loader-letter:nth-child(3) { animation-delay: 0.2s; }
-.splash-loader-letter:nth-child(4) { animation-delay: 0.3s; }
-.splash-loader-letter:nth-child(5) { animation-delay: 0.4s; }
+.splash-loader-letter:nth-child(2) { animation-delay: 0.06s; }
+.splash-loader-letter:nth-child(3) { animation-delay: 0.12s; }
+.splash-loader-letter:nth-child(4) { animation-delay: 0.18s; }
+.splash-loader-letter:nth-child(5) { animation-delay: 0.24s; }
+.splash-loader-letter:nth-child(6) { animation-delay: 0.30s; }
+.splash-loader-letter:nth-child(7) { animation-delay: 0.36s; }
+.splash-loader-letter:nth-child(8) { animation-delay: 0.42s; }
+.splash-loader-letter:nth-child(9) { animation-delay: 0.48s; }
+.splash-loader-letter:nth-child(10) { animation-delay: 0.54s; }
+.splash-loader-letter:nth-child(11) { animation-delay: 0.65s; }
+.splash-loader-letter:nth-child(12) { animation-delay: 0.71s; }
+.splash-loader-letter:nth-child(13) { animation-delay: 0.77s; }
+.splash-loader-letter:nth-child(14) { animation-delay: 0.83s; }
+.splash-loader-letter:nth-child(15) { animation-delay: 0.94s; }
+.splash-loader-letter:nth-child(16) { animation-delay: 1.0s; }
+.splash-loader-letter:nth-child(17) { animation-delay: 1.06s; }
+.splash-loader-letter:nth-child(18) { animation-delay: 1.12s; }
+.splash-loader-letter:nth-child(19) { animation-delay: 1.18s; }
 
 @keyframes splash-letter-anim {
     0% { opacity: 0; transform: translateY(20px) rotateX(-90deg); text-shadow: 0 0 0px rgba(255,255,255,0); }
@@ -1376,14 +1390,27 @@ body { background: var(--bg); color: var(--text); }
     <div class="floating-paths paths-dark" id="splashPaths2"></div>
     <div class="splash-loader-wrapper">
         <div class="splash-loader-text">
-            <span class="splash-loader-letter">S</span>
+            <span class="splash-loader-letter">G</span>
+            <span class="splash-loader-letter">e</span>
+            <span class="splash-loader-letter">n</span>
+            <span class="splash-loader-letter">e</span>
+            <span class="splash-loader-letter">r</span>
+            <span class="splash-loader-letter">a</span>
+            <span class="splash-loader-letter">t</span>
+            <span class="splash-loader-letter">i</span>
+            <span class="splash-loader-letter">n</span>
+            <span class="splash-loader-letter">g</span>
+            <span class="splash-loader-letter" style="margin-left:12px">i</span>
+            <span class="splash-loader-letter">n</span>
+            <span class="splash-loader-letter">t</span>
+            <span class="splash-loader-letter">o</span>
+            <span class="splash-loader-letter" style="margin-left:12px">S</span>
             <span class="splash-loader-letter">t</span>
             <span class="splash-loader-letter">l</span>
             <span class="splash-loader-letter">l</span>
             <span class="splash-loader-letter">a</span>
         </div>
         <div class="splash-loader-bar"></div>
-        <div class="splash-subtitle" id="welcomeSubtitle">Loading your workspace…</div>
     </div>
 </div>
 
@@ -2105,23 +2132,23 @@ function enterDashboard(email, name) {
     updateThemeIcon();
     loadTasks().then(() => {
         renderHome();
-        processRecurringTasks();
-        runAutomations();
-    });
+        try { processRecurringTasks(); } catch(e) { console.log('Recurring error:', e); }
+        try { runAutomations(); } catch(e) { console.log('Automation error:', e); }
+    }).catch(e => { console.log('Load error:', e); });
     startPresence();
     startTaskPoll();
     updateNotifBadge();
     resetSessionTimer();
 
-    // After 2.5s, fade out splash and show dashboard
+    // After 3s, fade out splash and show dashboard (always, even if tasks fail)
     setTimeout(() => {
         splash.classList.add('fade-out');
         setTimeout(() => {
             splash.classList.add('hidden');
             splash.classList.remove('fade-out');
             document.getElementById('dashboardWrap').classList.remove('hidden');
-        }, 600); // matches CSS transition duration
-    }, 2500);
+        }, 600);
+    }, 3000);
 }
 
 async function checkSession() {
