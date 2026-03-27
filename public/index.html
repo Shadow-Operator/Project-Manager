@@ -52,7 +52,7 @@ body { background: #000; color: var(--text); }
 
 /* Dotted surface background */
 .dotted-surface {
-    position: fixed; inset: 0; pointer-events: none; z-index: -1;
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
 }
 .dotted-surface canvas {
     width: 100%; height: 100%;
@@ -318,7 +318,7 @@ body { background: #000; color: var(--text); }
 /* ── Main Content ────────────────────────────────────────────── */
 .main-content {
     flex: 1; display: flex; flex-direction: column;
-    overflow: hidden; background: #000;
+    overflow: hidden; background: rgba(0,0,0,0.85);
     min-width: 0; position: relative; z-index: 2;
 }
 
