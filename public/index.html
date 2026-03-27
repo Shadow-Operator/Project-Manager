@@ -2404,7 +2404,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
                                 <th>Amount</th>
                                 <th>Status</th>
                                 <th>Category</th>
-                                <th style="text-align:right">Due Date</th>
+                                <th>Due Date</th>
+                                <th style="text-align:right">Actions</th>
                             </tr></thead>
                             <tbody id="invoiceBody"></tbody>
                         </table>
@@ -2747,6 +2748,74 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
             <div style="flex:1"></div>
             <button class="btn-cancel" onclick="closeNewTaskModal()">Cancel</button>
             <button class="btn-create" onclick="submitNewTask()">Create Task</button>
+        </div>
+    </div>
+</div>
+
+<!-- Invoice Modal -->
+<div id="invoiceModal" class="modal-overlay" onclick="if(event.target===this)closeInvoiceModal()">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 id="invoiceModalTitle">New Invoice</h3>
+            <button class="modal-close-btn" onclick="closeInvoiceModal()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="modal-field modal-field-title">
+                <label>Invoice Title</label>
+                <input id="invTitle" type="text" placeholder="e.g. Marco — Website Redesign">
+            </div>
+            <div class="modal-row">
+                <div class="modal-field">
+                    <label>Client</label>
+                    <input id="invClient" type="text" placeholder="Client name">
+                </div>
+                <div class="modal-field">
+                    <label>Amount (£)</label>
+                    <input id="invAmount" type="number" placeholder="0.00" min="0" step="0.01">
+                </div>
+            </div>
+            <div class="modal-row">
+                <div class="modal-field">
+                    <label>Issue Date</label>
+                    <input id="invIssueDate" type="date">
+                </div>
+                <div class="modal-field">
+                    <label>Due Date</label>
+                    <input id="invDueDate" type="date">
+                </div>
+            </div>
+            <div class="modal-row">
+                <div class="modal-field">
+                    <label>Status</label>
+                    <select id="invStatus">
+                        <option>Draft</option>
+                        <option>Sent</option>
+                        <option>Paid</option>
+                    </select>
+                </div>
+                <div class="modal-field">
+                    <label>Category</label>
+                    <select id="invCategory">
+                        <option value="">None</option>
+                        <option>Recast</option>
+                        <option>Shadow Operating</option>
+                        <option>Mulligan's Marketplace</option>
+                        <option>Agency</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-field">
+                <label>Notes</label>
+                <textarea id="invNotes" rows="2" placeholder="Payment terms, reference number, etc."></textarea>
+            </div>
+        </div>
+        <input type="hidden" id="invEditId" value="">
+        <div class="modal-footer">
+            <div style="flex:1"></div>
+            <button class="btn-cancel" onclick="closeInvoiceModal()">Cancel</button>
+            <button class="btn-create" onclick="submitInvoice()">Save Invoice</button>
         </div>
     </div>
 </div>
@@ -3733,6 +3802,7 @@ document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
         closeDetail();
         closeNewTaskModal();
+        closeInvoiceModal();
         closeSearchOverlay();
         closeContextMenu();
         closeShortcutsOverlay();
@@ -6201,35 +6271,123 @@ function renderInvoices() {
     const statusColors = { Draft: '#71717a', Sent: '#818cf8', Paid: '#4ade80', Overdue: '#f87171' };
     tbody.innerHTML = filtered.map(inv => {
         const color = statusColors[inv.status] || '#71717a';
-        return `<tr>
-            <td><span class="list-row-title" style="cursor:default">${esc(inv.title)}</span></td>
+        const invoiceNum = inv.id ? '#' + inv.id.replace('inv_','').slice(-4) : '';
+        const actionBtns = inv.status === 'Draft'
+            ? `<button onclick="updateInvoiceStatus('${inv.id}','Sent')" style="padding:3px 8px;border-radius:5px;border:1px solid #3f3f46;background:transparent;color:#818cf8;font-size:0.7rem;cursor:pointer;font-family:inherit" title="Mark as Sent">Send</button>`
+            : inv.status === 'Sent' || inv.status === 'Overdue'
+            ? `<button onclick="updateInvoiceStatus('${inv.id}','Paid')" style="padding:3px 8px;border-radius:5px;border:1px solid #3f3f46;background:transparent;color:#4ade80;font-size:0.7rem;cursor:pointer;font-family:inherit" title="Mark as Paid">Paid ✓</button>`
+            : '';
+        return `<tr style="cursor:default">
+            <td>
+                <div style="display:flex;flex-direction:column;gap:2px">
+                    <span class="list-row-title" style="cursor:pointer" onclick="openNewInvoiceModal('${inv.id}')">${esc(inv.title)}</span>
+                    <span style="font-size:0.68rem;color:#3f3f46">${invoiceNum}${inv.issue_date ? ' · ' + inv.issue_date : ''}</span>
+                </div>
+            </td>
             <td style="color:#a1a1aa">${esc(inv.client)}</td>
-            <td style="font-weight:600;color:#fafafa">£${parseFloat(inv.amount || 0).toLocaleString()}</td>
-            <td><span style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:0.72rem;font-weight:600;background:${color}15;color:${color}">${esc(inv.status)}</span></td>
+            <td style="font-weight:600;color:#fafafa">£${parseFloat(inv.amount || 0).toLocaleString('en-GB', {minimumFractionDigits:2, maximumFractionDigits:2})}</td>
+            <td><span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:0.72rem;font-weight:600;background:${color}15;color:${color}">${esc(inv.status)}</span></td>
             <td>${categoryBadge(inv.category)}</td>
-            <td style="text-align:right;color:#52525b">${esc(inv.due_date)}</td>
+            <td style="color:#52525b">${inv.due_date || '—'}</td>
+            <td style="text-align:right">
+                <div style="display:flex;align-items:center;gap:6px;justify-content:flex-end">
+                    ${actionBtns}
+                    <button onclick="openNewInvoiceModal('${inv.id}')" style="padding:3px 8px;border-radius:5px;border:1px solid #27272a;background:transparent;color:#71717a;font-size:0.7rem;cursor:pointer;font-family:inherit" title="Edit">Edit</button>
+                    <button onclick="deleteInvoice('${inv.id}')" style="padding:3px 8px;border-radius:5px;border:1px solid transparent;background:transparent;color:#3f3f46;font-size:0.7rem;cursor:pointer;font-family:inherit;transition:color 0.12s" onmouseover="this.style.color='#f87171'" onmouseout="this.style.color='#3f3f46'" title="Delete">✕</button>
+                </div>
+            </td>
         </tr>`;
     }).join('');
 }
 
-function openNewInvoiceModal() {
-    const title = prompt('Invoice title (e.g. "Marco — Combimaster"):');
-    if (!title) return;
-    const client = prompt('Client name:') || '';
-    const amount = prompt('Amount (£):') || '0';
-    const due = prompt('Due date (YYYY-MM-DD):') || '';
-    const cat = prompt('Category (Recast / Shadow Operating / Mulligan\'s Marketplace / Agency):') || '';
+function openNewInvoiceModal(editId) {
+    const modal = document.getElementById('invoiceModal');
+    const titleEl = document.getElementById('invoiceModalTitle');
+    if (!modal) return;
 
-    _invoices.push({
-        id: 'inv_' + Date.now(),
-        title, client, amount, due_date: due,
-        status: 'Draft', category: cat,
-        created: new Date().toISOString(),
-    });
+    if (editId) {
+        const inv = _invoices.find(i => i.id === editId);
+        if (!inv) return;
+        titleEl.textContent = 'Edit Invoice';
+        document.getElementById('invEditId').value = editId;
+        document.getElementById('invTitle').value = inv.title || '';
+        document.getElementById('invClient').value = inv.client || '';
+        document.getElementById('invAmount').value = inv.amount || '';
+        document.getElementById('invIssueDate').value = inv.issue_date || '';
+        document.getElementById('invDueDate').value = inv.due_date || '';
+        document.getElementById('invStatus').value = inv.status || 'Draft';
+        document.getElementById('invCategory').value = inv.category || '';
+        document.getElementById('invNotes').value = inv.notes || '';
+    } else {
+        titleEl.textContent = 'New Invoice';
+        document.getElementById('invEditId').value = '';
+        document.getElementById('invTitle').value = '';
+        document.getElementById('invClient').value = '';
+        document.getElementById('invAmount').value = '';
+        document.getElementById('invIssueDate').value = new Date().toISOString().slice(0,10);
+        document.getElementById('invDueDate').value = '';
+        document.getElementById('invStatus').value = 'Draft';
+        document.getElementById('invCategory').value = '';
+        document.getElementById('invNotes').value = '';
+    }
+    modal.classList.add('open');
+    setTimeout(() => document.getElementById('invTitle').focus(), 50);
+}
+
+function closeInvoiceModal() {
+    const modal = document.getElementById('invoiceModal');
+    if (modal) modal.classList.remove('open');
+}
+
+function submitInvoice() {
+    const title = document.getElementById('invTitle').value.trim();
+    if (!title) { showToast('Title is required', 'error'); return; }
+    const editId = document.getElementById('invEditId').value;
+
+    const data = {
+        title,
+        client: document.getElementById('invClient').value.trim(),
+        amount: document.getElementById('invAmount').value || '0',
+        issue_date: document.getElementById('invIssueDate').value,
+        due_date: document.getElementById('invDueDate').value,
+        status: document.getElementById('invStatus').value,
+        category: document.getElementById('invCategory').value,
+        notes: document.getElementById('invNotes').value.trim(),
+    };
+
+    if (editId) {
+        const idx = _invoices.findIndex(i => i.id === editId);
+        if (idx !== -1) Object.assign(_invoices[idx], data);
+        showToast('Invoice updated', 'success');
+    } else {
+        _invoices.push({ id: 'inv_' + Date.now(), ...data, created: new Date().toISOString() });
+        addActivity('created invoice', title);
+        showToast('Invoice created', 'success');
+    }
     saveInvoices();
-    addActivity('created invoice', title);
+    closeInvoiceModal();
     renderInvoices();
-    showToast('Invoice created', 'success');
+}
+
+function updateInvoiceStatus(id, status) {
+    const inv = _invoices.find(i => i.id === id);
+    if (inv) {
+        inv.status = status;
+        if (status === 'Paid') inv.paid_date = new Date().toISOString().slice(0,10);
+        saveInvoices();
+        renderInvoices();
+        showToast('Invoice marked as ' + status, 'success');
+    }
+}
+
+function deleteInvoice(id) {
+    const inv = _invoices.find(i => i.id === id);
+    if (!inv) return;
+    if (!confirm(`Delete invoice "${inv.title}"?`)) return;
+    _invoices = _invoices.filter(i => i.id !== id);
+    saveInvoices();
+    renderInvoices();
+    showToast('Invoice deleted');
 }
 
 /* ════════════════════════════════════════════════════════════════
