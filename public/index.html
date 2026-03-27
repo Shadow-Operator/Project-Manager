@@ -1044,13 +1044,19 @@ body { background: var(--bg); color: var(--text); }
 
 /* ── Home Dashboard ──────────────────────────────────────────── */
 .stat-card {
-    background: #0a0a0c; border: 1px solid #1a1a1f; border-radius: 12px;
-    padding: 16px 20px; transition: all 0.2s ease;
+    background: #0a0a0c; border: 1px solid #1a1a1f; border-radius: 14px;
+    padding: 20px 22px; transition: all 0.25s cubic-bezier(0.2, 0, 0, 1);
 }
-.stat-card:hover { border-color: #27272a; transform: translateY(-1px); }
-.stat-value { font-size: 1.8rem; font-weight: 700; color: #fafafa; letter-spacing: -0.03em; line-height: 1; }
-.stat-label { font-size: 0.78rem; color: #71717a; margin-top: 4px; font-weight: 500; }
-.stat-sub { font-size: 0.68rem; color: #3f3f46; margin-top: 2px; }
+.stat-card:hover { border-color: #27272a; transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
+.stat-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.stat-label { font-size: 0.82rem; color: #a1a1aa; font-weight: 500; }
+.stat-icon { color: #3f3f46; }
+.stat-value { font-size: 2rem; font-weight: 700; color: #fafafa; letter-spacing: -0.03em; line-height: 1; }
+.stat-trend { display: flex; align-items: center; gap: 4px; margin-top: 8px; font-size: 0.72rem; font-weight: 500; }
+.stat-trend.positive { color: #4ade80; }
+.stat-trend.negative { color: #f87171; }
+.stat-trend.neutral { color: #52525b; }
+.stat-trend svg { width: 12px; height: 12px; }
 
 .home-section {
     background: #0a0a0c; border: 1px solid #1a1a1f; border-radius: 12px;
@@ -3016,26 +3022,49 @@ function renderHome() {
         </div>
 
         <!-- Stats Cards -->
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:24px">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:24px">
             <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-label">Total Tasks</span>
+                    <svg class="stat-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                </div>
                 <div class="stat-value">${totalTasks}</div>
-                <div class="stat-label">Total Tasks</div>
-                <div class="stat-sub">${doneTasks} completed</div>
+                <div class="stat-trend positive">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+                    ${doneTasks} completed · ${totalTasks > 0 ? Math.round(doneTasks/totalTasks*100) : 0}% done
+                </div>
             </div>
-            <div class="stat-card" ${overdue.length > 0 ? 'style="border-color:rgba(239,68,68,0.3)"' : ''}>
+            <div class="stat-card" ${overdue.length > 0 ? 'style="border-color:rgba(239,68,68,0.2)"' : ''}>
+                <div class="stat-header">
+                    <span class="stat-label">Overdue</span>
+                    <svg class="stat-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                </div>
                 <div class="stat-value" ${overdue.length > 0 ? 'style="color:#f87171"' : ''}>${overdue.length}</div>
-                <div class="stat-label">Overdue</div>
-                <div class="stat-sub">${myOverdue.length} assigned to you</div>
+                <div class="stat-trend ${overdue.length > 0 ? 'negative' : 'positive'}">
+                    ${overdue.length > 0
+                        ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="7" y1="7" x2="17" y2="17"/><polyline points="17 7 17 17 7 17"/></svg> ${myOverdue.length} assigned to you`
+                        : 'All clear! No overdue tasks'}
+                </div>
             </div>
             <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-label">Due This Week</span>
+                    <svg class="stat-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                </div>
                 <div class="stat-value" style="color:#fbbf24">${dueThisWeek.length}</div>
-                <div class="stat-label">Due This Week</div>
-                <div class="stat-sub">${myDueWeek.length} assigned to you</div>
+                <div class="stat-trend neutral">
+                    ${myDueWeek.length} assigned to you
+                </div>
             </div>
             <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-label">In Progress</span>
+                    <svg class="stat-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                </div>
                 <div class="stat-value" style="color:#818cf8">${inProgress.length}</div>
-                <div class="stat-label">In Progress</div>
-                <div class="stat-sub">${myTasks.filter(t => t.status === 'In Progress').length} yours</div>
+                <div class="stat-trend neutral">
+                    ${myTasks.filter(t => t.status === 'In Progress').length} yours
+                </div>
             </div>
         </div>
 
