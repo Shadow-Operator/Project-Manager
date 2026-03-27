@@ -994,13 +994,18 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     border-bottom: 1px solid #1a1a1f;
 }
 .calendar-cell {
-    min-height: 110px; padding: 6px 8px;
+    height: 130px; padding: 6px 8px;
     border-right: 1px solid #1a1a1f;
     border-bottom: 1px solid #1a1a1f;
     background: #000;
     display: flex; flex-direction: column;
     transition: background 0.15s;
     position: relative;
+    overflow: hidden;
+}
+.calendar-cell.expanded {
+    height: auto; min-height: 130px; overflow: visible; z-index: 2;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.6);
 }
 .calendar-cell:nth-child(7n) { border-right: none; }
 .calendar-cell:hover { background: #0a0a0a; }
@@ -1039,6 +1044,18 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .calendar-event.status-todo { border-left-color: #71717a; }
 .calendar-event.status-inprogress { border-left-color: #818cf8; }
 .calendar-event.status-done { border-left-color: #4ade80; background: rgba(74,222,128,0.06); color: #86efac; }
+.cal-more-btn {
+    font-size: 0.65rem; font-weight: 600; color: #52525b; padding: 2px 6px;
+    cursor: pointer; border: none; background: none; text-align: left;
+    margin-top: 1px; border-radius: 4px; transition: color 0.15s;
+}
+.cal-more-btn:hover { color: #818cf8; }
+.cal-my-tasks-btn {
+    font-size: 0.75rem; font-weight: 600; padding: 5px 10px;
+    border: 1px solid #27272a; border-radius: 8px; cursor: pointer;
+    background: transparent; color: #71717a; transition: all 0.15s; white-space: nowrap;
+}
+.cal-my-tasks-btn.active { background: rgba(129,140,248,0.15); border-color: #818cf8; color: #818cf8; }
 
 /* Weekly calendar view */
 .weekly-grid {
@@ -1953,6 +1970,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
                         <button class="btn-icon" onclick="calNav(-1)">&larr;</button>
                         <h2 id="calMonthLabel" style="flex:1; text-align:center"></h2>
                         <button class="btn-icon" onclick="calNav(1)">&rarr;</button>
+                        <button class="cal-my-tasks-btn" id="calMyTasksBtn" onclick="toggleCalMyTasks()" style="margin-left:8px">My Tasks</button>
                         <div class="seg-tabs" style="margin-left:8px">
                             <button class="seg-tab active" id="calViewMonth" onclick="setCalView('month',this)">Month</button>
                             <button class="seg-tab" id="calViewWeek" onclick="setCalView('week',this)">Week</button>
@@ -4014,6 +4032,14 @@ let _calMonth = new Date().getMonth(); // 0-indexed
 let _calEvents = []; // Google Calendar events
 let _calView = 'month'; // 'month' or 'week' — default to month
 let _calWeekStart = (() => { const d = new Date(); d.setDate(d.getDate() - d.getDay()); d.setHours(0,0,0,0); return d; })();
+let _calMyTasksOnly = false;
+
+function toggleCalMyTasks() {
+    _calMyTasksOnly = !_calMyTasksOnly;
+    const btn = document.getElementById('calMyTasksBtn');
+    if (btn) btn.classList.toggle('active', _calMyTasksOnly);
+    renderCalendar();
+}
 
 function setCalView(view, btn) {
     _calView = view;
@@ -4111,28 +4137,49 @@ async function renderCalendar() {
         const dateStr = `${_calYear}-${String(_calMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
         const isToday = dateStr === today;
 
-        // Tasks with this due date (assigned to me or unassigned)
-        const dayTasks = DATA.filter(t => t.due_date === dateStr && !t.parent_task_id);
+        // Tasks — optionally filter to current user
+        let dayTasks = DATA.filter(t => t.due_date === dateStr && !t.parent_task_id);
+        if (_calMyTasksOnly) {
+            dayTasks = dayTasks.filter(t => t.assignee && t.assignee.toLowerCase() === currentUserId.toLowerCase());
+        }
         // Google Calendar events on this date (exclude Stlla-pushed events)
-        const dayGcal = _calEvents.filter(e => e.date === dateStr && !e.task_id);
+        const dayGcal = _calMyTasksOnly ? [] : _calEvents.filter(e => e.date === dateStr && !e.task_id);
+
+        // Combine and sort all events by start_time
+        const timeToMins = t => {
+            if (!t) return 9999;
+            const [h, m] = t.split(':').map(Number);
+            return h * 60 + (m || 0);
+        };
+        const allEvents = [
+            ...dayGcal.map(e => ({ type: 'gcal', data: e, mins: timeToMins(e.start_time) })),
+            ...dayTasks.map(t => ({ type: 'task', data: t, mins: timeToMins(t.start_time) }))
+        ].sort((a, b) => a.mins - b.mins);
+
+        const MAX_VISIBLE = 3;
+        const visible = allEvents.slice(0, MAX_VISIBLE);
+        const hidden = allEvents.length - MAX_VISIBLE;
 
         let eventsHtml = '';
-
-        // Stlla tasks — color by category
-        dayTasks.forEach(t => {
-            const color = CATEGORY_COLORS[t.category] || '#818cf8';
-            const isDone = t.status === 'Done';
-            const timeStr = t.start_time ? `<span style="opacity:0.7">${t.start_time}</span> ` : '';
-            eventsHtml += `<div class="calendar-event" style="background:${color}15;color:${color};border-left-color:${color};${isDone ? 'opacity:0.4;text-decoration:line-through;' : ''}" onclick="event.stopPropagation(); openDetail('${esc(t.task_id)}')" title="${esc(t.title)}${t.category ? ' — ' + esc(t.category) : ''}">${timeStr}${esc(t.title)}</div>`;
+        visible.forEach(ev => {
+            if (ev.type === 'task') {
+                const t = ev.data;
+                const color = CATEGORY_COLORS[t.category] || '#818cf8';
+                const isDone = t.status === 'Done';
+                const timeStr = t.start_time ? `<span style="opacity:0.7">${t.start_time} </span>` : '';
+                eventsHtml += `<div class="calendar-event" style="background:${color}15;color:${color};border-left-color:${color};${isDone ? 'opacity:0.4;text-decoration:line-through;' : ''}" onclick="event.stopPropagation();openDetail('${esc(t.task_id)}')" title="${esc(t.title)}${t.category ? ' — ' + esc(t.category) : ''}">${timeStr}${esc(t.title)}</div>`;
+            } else {
+                const e = ev.data;
+                const timeStr = e.start_time ? `<span style="opacity:0.7">${e.start_time} </span>` : '';
+                eventsHtml += `<div class="calendar-event gcal-event" title="${esc(e.title)}">${timeStr}${esc(e.title)}</div>`;
+            }
         });
 
-        // Google Calendar events — green
-        dayGcal.forEach(e => {
-            const timeStr = e.start_time ? `<span style="opacity:0.7">${e.start_time}</span> ` : '';
-            eventsHtml += `<div class="calendar-event gcal-event" title="${esc(e.title)}">${timeStr}${esc(e.title)}</div>`;
-        });
+        if (hidden > 0) {
+            eventsHtml += `<button class="cal-more-btn" onclick="event.stopPropagation();toggleCalDayExpand(this,'${dateStr}')">+${hidden} more</button>`;
+        }
 
-        html += `<div class="calendar-cell ${isToday ? 'today' : ''}" onclick="calClickDay('${dateStr}')">
+        html += `<div class="calendar-cell ${isToday ? 'today' : ''}" id="calday-${dateStr}" onclick="calClickDay('${dateStr}')">
             <div class="calendar-day-num">${d}</div>
             ${eventsHtml}
         </div>`;
@@ -4215,6 +4262,54 @@ function renderWeeklyView() {
     });
 
     grid.innerHTML = html;
+}
+
+function toggleCalDayExpand(btn, dateStr) {
+    const cell = document.getElementById('calday-' + dateStr);
+    if (!cell) return;
+    const isExpanded = cell.classList.toggle('expanded');
+    if (isExpanded) {
+        // Render all events
+        const dayTasks = DATA.filter(t => t.due_date === dateStr && !t.parent_task_id);
+        const filteredTasks = _calMyTasksOnly
+            ? dayTasks.filter(t => t.assignee && t.assignee.toLowerCase() === currentUserId.toLowerCase())
+            : dayTasks;
+        const dayGcal = _calMyTasksOnly ? [] : _calEvents.filter(e => e.date === dateStr && !e.task_id);
+        const timeToMins = t => { if (!t) return 9999; const [h,m] = t.split(':').map(Number); return h*60+(m||0); };
+        const allEvents = [
+            ...dayGcal.map(e => ({ type:'gcal', data:e, mins:timeToMins(e.start_time) })),
+            ...filteredTasks.map(t => ({ type:'task', data:t, mins:timeToMins(t.start_time) }))
+        ].sort((a,b) => a.mins - b.mins);
+
+        // Remove old events + more button, re-render all
+        cell.querySelectorAll('.calendar-event, .cal-more-btn').forEach(el => el.remove());
+        allEvents.forEach(ev => {
+            const div = document.createElement('div');
+            if (ev.type === 'task') {
+                const t = ev.data;
+                const color = CATEGORY_COLORS[t.category] || '#818cf8';
+                const isDone = t.status === 'Done';
+                div.className = 'calendar-event';
+                div.style.cssText = `background:${color}15;color:${color};border-left-color:${color};${isDone?'opacity:0.4;text-decoration:line-through;':''}`;
+                div.onclick = e => { e.stopPropagation(); openDetail(t.task_id); };
+                div.title = t.title + (t.category ? ' — ' + t.category : '');
+                div.innerHTML = (t.start_time ? `<span style="opacity:0.7">${t.start_time} </span>` : '') + esc(t.title);
+            } else {
+                const e = ev.data;
+                div.className = 'calendar-event gcal-event';
+                div.title = e.title;
+                div.innerHTML = (e.start_time ? `<span style="opacity:0.7">${e.start_time} </span>` : '') + esc(e.title);
+            }
+            cell.appendChild(div);
+        });
+        const collapseBtn = document.createElement('button');
+        collapseBtn.className = 'cal-more-btn';
+        collapseBtn.textContent = 'Show less';
+        collapseBtn.onclick = e => { e.stopPropagation(); toggleCalDayExpand(collapseBtn, dateStr); };
+        cell.appendChild(collapseBtn);
+    } else {
+        renderCalendar();
+    }
 }
 
 function calClickDay(dateStr) {
