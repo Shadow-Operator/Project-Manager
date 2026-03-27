@@ -44,13 +44,13 @@ body { background: #030303; color: var(--text); }
 
 /* Elegant floating shapes background */
 .bg-shapes {
-    position: fixed; inset: 0; pointer-events: none; z-index: 1;
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
     overflow: hidden;
 }
 .bg-shapes::before {
     content: ''; position: absolute; inset: 0;
-    background: radial-gradient(ellipse at 30% 20%, rgba(99,102,241,0.08), transparent 60%),
-                radial-gradient(ellipse at 70% 80%, rgba(244,63,94,0.08), transparent 60%);
+    background: radial-gradient(ellipse at 30% 20%, rgba(99,102,241,0.06), transparent 60%),
+                radial-gradient(ellipse at 70% 80%, rgba(244,63,94,0.06), transparent 60%);
     filter: blur(80px);
 }
 .bg-shape {
@@ -246,11 +246,12 @@ body { background: #030303; color: var(--text); }
 .login-card-footer a:hover { text-decoration: underline; }
 
 /* ── Sidebar ─────────────────────────────────────────────────── */
-.dashboard-layout { display: flex; height: 100vh; overflow: hidden; }
+.dashboard-layout { display: flex; height: 100vh; overflow: hidden; position: relative; z-index: 2; }
 
 .sidebar {
     width: 240px; min-width: 240px; height: 100vh;
-    background: #000; border-right: 1px solid #1a1a1f;
+    background: rgba(0,0,0,0.92); border-right: 1px solid #1a1a1f;
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
     display: flex; flex-direction: column;
     transition: width 0.2s ease, min-width 0.2s ease;
     overflow: hidden; z-index: 50;
@@ -305,9 +306,15 @@ body { background: #030303; color: var(--text); }
 }
 .sidebar-nav-item:hover { color: #fafafa; background: #18181b; }
 .sidebar-nav-item.active {
-    color: #fafafa; background: rgba(124,58,237,0.08);
+    color: #fafafa; background: rgba(124,58,237,0.12);
     border-left: 3px solid #7c3aed; padding-left: 7px;
-    box-shadow: inset 3px 0 12px rgba(124,58,237,0.06);
+    box-shadow: inset 3px 0 16px rgba(124,58,237,0.1), 0 0 0 1px rgba(124,58,237,0.06);
+    position: relative;
+}
+.sidebar-nav-item.active::after {
+    content: ''; position: absolute; left: -1px; top: 4px; bottom: 4px; width: 3px;
+    background: #7c3aed; border-radius: 0 2px 2px 0;
+    box-shadow: 0 0 8px rgba(124,58,237,0.4);
 }
 .sidebar-nav-item svg { width: 18px; height: 18px; flex-shrink: 0; opacity: 0.7; }
 .sidebar-nav-item.active svg { opacity: 1; }
@@ -374,16 +381,16 @@ body { background: #030303; color: var(--text); }
 /* ── Main Content ────────────────────────────────────────────── */
 .main-content {
     flex: 1; display: flex; flex-direction: column;
-    overflow: hidden; background: rgba(3,3,3,0.88);
-    min-width: 0; position: relative; z-index: 2;
+    overflow: hidden; background: rgba(3,3,3,0.95);
+    min-width: 0; position: relative;
 }
 
 /* ── Topbar ──────────────────────────────────────────────────── */
 .topbar {
     display: flex; align-items: center; gap: 12px;
-    padding: 10px 20px; border-bottom: 1px solid #27272a;
-    background: #000; backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    padding: 10px 20px; border-bottom: 1px solid #1a1a1f;
+    background: rgba(0,0,0,0.8); backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     min-height: 48px;
 }
 .topbar-title {
@@ -502,6 +509,7 @@ body { background: #030303; color: var(--text); }
     background: #0a0a0c; border: 1px solid #1a1a1f; border-radius: 12px;
     padding: 0; cursor: pointer; transition: all 0.25s cubic-bezier(0.2, 0, 0, 1);
     display: flex; flex-direction: column; overflow: hidden;
+    position: relative;
 }
 .task-card:hover {
     border-color: #27272a; background: #0f0f14;
@@ -510,10 +518,12 @@ body { background: #030303; color: var(--text); }
 }
 .task-card.done { opacity: 0.4; }
 .task-card.done:hover { opacity: 0.55; }
-.task-card.overdue-card { border-color: rgba(239,68,68,0.2); }
-.task-card.overdue-card:hover { border-color: rgba(239,68,68,0.35); box-shadow: 0 4px 16px rgba(239,68,68,0.08); }
-.task-card.due-today-card { border-color: rgba(251,191,36,0.2); }
-.task-card.due-today-card:hover { border-color: rgba(251,191,36,0.35); box-shadow: 0 4px 16px rgba(251,191,36,0.08); }
+.task-card.overdue-card { border-color: rgba(239,68,68,0.3); box-shadow: inset 0 0 0 1px rgba(239,68,68,0.06), 0 0 12px rgba(239,68,68,0.05); }
+.task-card.overdue-card:hover { border-color: rgba(239,68,68,0.45); box-shadow: 0 4px 20px rgba(239,68,68,0.12); }
+.task-card.overdue-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: #ef4444; border-radius: 8px 0 0 8px; }
+.task-card.due-today-card { border-color: rgba(251,191,36,0.25); box-shadow: inset 0 0 0 1px rgba(251,191,36,0.06), 0 0 12px rgba(251,191,36,0.05); }
+.task-card.due-today-card:hover { border-color: rgba(251,191,36,0.4); box-shadow: 0 4px 20px rgba(251,191,36,0.1); }
+.task-card.due-today-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: #fbbf24; border-radius: 8px 0 0 8px; }
 
 /* Drag and drop */
 .task-card.dragging {
@@ -1557,7 +1567,6 @@ body { background: #030303; color: var(--text); }
                 <kbd>⌘K</kbd>
             </button>
             <div id="teamPresence" class="team-presence"></div>
-            <button class="btn-icon" onclick="toggleTheme()" id="themeToggle" title="Toggle theme">&#x263E;</button>
             <span class="user-info" id="userInfo" style="display:none"></span>
         </header>
 
@@ -1668,8 +1677,8 @@ body { background: #030303; color: var(--text); }
                         <h2 id="calMonthLabel" style="flex:1; text-align:center"></h2>
                         <button class="btn-icon" onclick="calNav(1)">&rarr;</button>
                         <div class="seg-tabs" style="margin-left:8px">
-                            <button class="seg-tab" id="calViewMonth" onclick="setCalView('month',this)">Month</button>
-                            <button class="seg-tab active" id="calViewWeek" onclick="setCalView('week',this)">Week</button>
+                            <button class="seg-tab active" id="calViewMonth" onclick="setCalView('month',this)">Month</button>
+                            <button class="seg-tab" id="calViewWeek" onclick="setCalView('week',this)">Week</button>
                         </div>
                         <button class="btn-sm btn-outline" onclick="calGoToday()" style="margin-left:8px">Today</button>
                     </div>
@@ -3529,7 +3538,7 @@ function renderTeamPresence() {
 let _calYear = new Date().getFullYear();
 let _calMonth = new Date().getMonth(); // 0-indexed
 let _calEvents = []; // Google Calendar events
-let _calView = 'week'; // 'month' or 'week'
+let _calView = 'month'; // 'month' or 'week' — default to month
 let _calWeekStart = (() => { const d = new Date(); d.setDate(d.getDate() - d.getDay()); d.setHours(0,0,0,0); return d; })();
 
 function setCalView(view, btn) {
@@ -3863,6 +3872,42 @@ function renderHome() {
                     ${myTasks.filter(t => t.status === 'In Progress').length} yours
                 </div>
             </div>
+        </div>
+
+        <!-- My Tasks Section -->
+        <div class="home-section" style="margin-bottom:20px">
+            <div class="home-section-title" style="color:#818cf8">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                My Tasks (${myTasks.filter(t => t.status !== 'Done').length} active)
+            </div>
+            ${myTasks.filter(t => t.status !== 'Done').length === 0
+                ? '<div style="padding:20px;text-align:center;color:#27272a;font-size:0.82rem">No tasks assigned to you right now</div>'
+                : `<div style="display:grid;gap:1px">
+                    ${myTasks.filter(t => t.status !== 'Done').sort((a,b) => {
+                        // Overdue first, then due today, then by due date
+                        const today = new Date().toISOString().slice(0,10);
+                        const aOverdue = a.due_date && a.due_date < today ? 0 : a.due_date === today ? 1 : 2;
+                        const bOverdue = b.due_date && b.due_date < today ? 0 : b.due_date === today ? 1 : 2;
+                        if (aOverdue !== bOverdue) return aOverdue - bOverdue;
+                        return (a.due_date || 'z').localeCompare(b.due_date || 'z');
+                    }).slice(0, 8).map(t => {
+                        const dueCls = dueDateClass(t.due_date);
+                        const dueColor = dueCls === 'overdue' ? '#f87171' : dueCls === 'today' ? '#fbbf24' : '#52525b';
+                        const dueLabel = dueCls === 'overdue' ? 'Overdue' : dueCls === 'today' ? 'Due today' : (t.due_date ? formatDate(t.due_date) : '');
+                        return \`<div class="home-task-item" onclick="sidebarNav('board', document.querySelector('[data-tab=board]')); setTimeout(() => openDetail('\${esc(t.task_id)}'), 100)">
+                            <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0">
+                                <button class="task-check \${t.status === 'Done' ? 'checked' : ''}" onclick="event.stopPropagation(); quickToggleStatus('\${esc(t.task_id)}')" style="width:18px;height:18px;flex-shrink:0"></button>
+                                <div class="home-task-title">\${esc(t.title)}</div>
+                            </div>
+                            <div style="display:flex;gap:6px;align-items:center">
+                                \${categoryBadge(t.category)}
+                                <span class="subtask-status-pill \${statusClass(t.status)}">\${esc(t.status)}</span>
+                                \${dueLabel ? \`<span style="color:\${dueColor};font-size:0.7rem;font-weight:\${dueCls === 'overdue' ? '600' : '400'}">\${dueLabel}</span>\` : ''}
+                            </div>
+                        </div>\`;
+                    }).join('')}
+                </div>`
+            }
         </div>
 
         <!-- Two Column Layout -->
