@@ -742,67 +742,150 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
     pointer-events: auto;
 }
+/* ── Detail Panel ─────────────────────────────────────────────── */
 .detail-panel {
-    position: fixed; top: 0; right: 0; bottom: 0; width: 520px;
-    background: #000; border-left: 1px solid #1a1a1f;
+    position: fixed; top: 0; right: 0; bottom: 0; width: 540px;
+    background: #09090b; border-left: 1px solid #1a1a1f;
     z-index: 201; overflow-y: auto;
-    box-shadow: -8px 0 32px rgba(0,0,0,0.4);
+    box-shadow: -12px 0 40px rgba(0,0,0,0.5);
     transform: translateX(100%);
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex; flex-direction: column;
 }
 .detail-panel.open { transform: translateX(0); }
-.detail-panel-inner { padding: 24px; }
+.detail-panel-inner { padding: 0; flex: 1; display: flex; flex-direction: column; }
 
-.detail-header {
+.detail-topbar {
     display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 20px;
+    padding: 14px 20px 14px 24px; border-bottom: 1px solid #1a1a1f;
+    flex-shrink: 0;
 }
-.detail-close {
-    background: none; border: 1px solid #27272a; border-radius: 6px;
-    color: #71717a; font-size: 1.1rem; cursor: pointer; padding: 4px 10px;
-    transition: all 0.15s;
+.detail-breadcrumb-path {
+    font-size: 0.75rem; color: #52525b;
+    display: flex; align-items: center; gap: 5px; flex-wrap: wrap;
 }
-.detail-close:hover { color: #fafafa; border-color: #3f3f46; background: #18181b; }
+.detail-breadcrumb-path span { cursor: pointer; transition: color 0.15s; }
+.detail-breadcrumb-path span:hover { color: #a1a1aa; }
+.detail-topbar-actions { display: flex; gap: 4px; align-items: center; }
+.detail-action-btn {
+    background: none; border: none; color: #52525b; cursor: pointer;
+    padding: 6px; border-radius: 6px; transition: all 0.15s;
+    display: flex; align-items: center; justify-content: center;
+}
+.detail-action-btn:hover { color: #e4e4e7; background: #18181b; }
 
+/* Legacy breadcrumb still used for subtask stack navigation */
 .detail-breadcrumb {
     display: flex; align-items: center; gap: 6px; font-size: 0.78rem;
-    color: #52525b; margin-bottom: 16px; flex-wrap: wrap;
+    color: #52525b; padding: 10px 24px 0; flex-wrap: wrap;
 }
 .detail-breadcrumb span { cursor: pointer; transition: color 0.15s; }
 .detail-breadcrumb span:hover { color: #fafafa; }
 .detail-breadcrumb .sep { cursor: default; }
-.detail-breadcrumb .sep:hover { color: #52525b; }
 
+.detail-title-area { padding: 20px 24px 16px; border-bottom: 1px solid #1a1a1f; }
 .detail-title {
-    width: 100%; font-size: 1.2rem; font-weight: 600; background: none;
-    border: none; color: #fafafa; padding: 0 0 12px; outline: none;
-    border-bottom: 1px solid transparent; letter-spacing: -0.01em;
+    width: 100%; font-size: 1.35rem; font-weight: 700; background: none;
+    border: none; color: #fafafa; outline: none; line-height: 1.3;
+    letter-spacing: -0.02em; font-family: inherit;
 }
-.detail-title:focus { border-bottom-color: #3f3f46; }
+.detail-title::placeholder { color: #3f3f46; }
 
-.detail-fields { display: grid; grid-template-columns: 100px 1fr; gap: 10px; margin-bottom: 20px; }
-.detail-label { font-size: 0.82rem; color: #71717a; padding-top: 8px; }
-.detail-fields select, .detail-fields input {
-    padding: 8px 12px; background: #18181b; border: 1px solid #27272a;
-    border-radius: 8px; color: #e4e4e7; font-size: 0.875rem; width: 100%;
-    outline: none; transition: border-color 0.15s;
+/* ── Property rows ────────────────────────────────────────────── */
+.detail-props { padding: 4px 24px 8px; border-bottom: 1px solid #1a1a1f; }
+.detail-prop-row {
+    display: flex; align-items: center; min-height: 42px;
+    border-bottom: 1px solid #111114; gap: 0;
 }
-.detail-fields select:focus, .detail-fields input:focus { border-color: #3f3f46; }
+.detail-prop-row:last-child { border-bottom: none; }
+.detail-prop-icon { width: 32px; color: #3f3f46; flex-shrink: 0; display: flex; align-items: center; }
+.detail-prop-label { width: 90px; font-size: 0.78rem; color: #52525b; flex-shrink: 0; }
+.detail-prop-value { flex: 1; display: flex; align-items: center; gap: 6px; }
+.detail-prop-select {
+    background: none; border: none; color: #e4e4e7; font-size: 0.875rem;
+    outline: none; cursor: pointer; font-family: inherit; padding: 4px 0;
+    -webkit-appearance: none; appearance: none;
+}
+.detail-prop-select:hover { color: #fafafa; }
+.detail-prop-date {
+    background: none; border: none; color: #e4e4e7; font-size: 0.875rem;
+    outline: none; cursor: pointer; font-family: inherit; padding: 4px 0;
+    color-scheme: dark;
+}
+.detail-prop-date:hover { color: #fafafa; }
 
+/* Status dot in property row */
+.dprop-status-dot {
+    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+}
+.dprop-status-dot.todo { background: #52525b; }
+.dprop-status-dot.progress { background: #818cf8; }
+.dprop-status-dot.done { background: #4ade80; }
+
+/* Assignee chips */
+.detail-assignee-chips { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.detail-assignee-chip {
+    display: flex; align-items: center; gap: 5px;
+    padding: 3px 8px 3px 3px; background: #18181b; border: 1px solid #27272a;
+    border-radius: 20px; font-size: 0.75rem; color: #d4d4d8;
+}
+.detail-chip-avatar {
+    width: 20px; height: 20px; border-radius: 50%; object-fit: cover;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.55rem; font-weight: 700; color: #fff; flex-shrink: 0;
+}
+.detail-chip-select {
+    background: none; border: none; color: #52525b; font-size: 0.72rem;
+    outline: none; cursor: pointer; font-family: inherit; padding: 0;
+    -webkit-appearance: none; appearance: none; max-width: 20px;
+}
+
+/* ── Description area ─────────────────────────────────────────── */
+.detail-desc-area { padding: 14px 24px; border-bottom: 1px solid #1a1a1f; }
+.detail-desc-label {
+    font-size: 0.75rem; color: #52525b; margin-bottom: 8px;
+    display: flex; align-items: center; gap: 6px;
+}
+.detail-description {
+    width: 100%; min-height: 72px; padding: 0; background: none;
+    border: none; color: #a1a1aa; font-size: 0.875rem; resize: none;
+    font-family: inherit; outline: none; line-height: 1.6;
+}
+.detail-description:focus { color: #e4e4e7; }
+.detail-description::placeholder { color: #3f3f46; }
+
+/* ── Detail tabs ──────────────────────────────────────────────── */
+.detail-tabs-bar {
+    display: flex; padding: 0 24px; border-bottom: 1px solid #1a1a1f;
+    position: sticky; top: 0; background: #09090b; z-index: 2; flex-shrink: 0;
+}
+.detail-tab-btn {
+    background: none; border: none; border-bottom: 2px solid transparent;
+    color: #71717a; font-size: 0.8rem; font-weight: 500; cursor: pointer;
+    padding: 11px 14px 9px; transition: all 0.15s; font-family: inherit;
+    white-space: nowrap;
+}
+.detail-tab-btn:hover { color: #e4e4e7; }
+.detail-tab-btn.active { color: #fafafa; border-bottom-color: #818cf8; }
+.detail-tab-count {
+    background: #27272a; color: #a1a1aa; border-radius: 10px;
+    padding: 1px 6px; font-size: 0.65rem; margin-left: 4px; font-weight: 600;
+}
+
+.detail-tab-content { padding: 20px 24px; flex: 1; }
+
+/* ── Sections inside tab content ──────────────────────────────── */
 .detail-section { margin-bottom: 20px; }
 .detail-section-title {
-    font-size: 0.82rem; font-weight: 600; color: #71717a;
-    margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;
-    text-transform: uppercase; letter-spacing: 0.04em;
+    font-size: 0.78rem; font-weight: 600; color: #52525b;
+    margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between;
+    text-transform: uppercase; letter-spacing: 0.05em;
 }
-
-.detail-description {
-    width: 100%; min-height: 80px; padding: 12px; background: #18181b;
-    border: 1px solid #27272a; border-radius: 8px;
-    color: #e4e4e7; font-size: 0.875rem; resize: vertical; font-family: inherit;
-    outline: none;
+.detail-footer {
+    padding: 14px 24px; border-top: 1px solid #1a1a1f; margin-top: auto;
+    display: flex; align-items: center; gap: 12px; flex-shrink: 0;
 }
-.detail-description:focus { border-color: #3f3f46; }
+.detail-footer-meta { font-size: 0.72rem; color: #3f3f46; }
 
 /* ── Links Section ────────────────────────────────────────────── */
 .link-list { display: flex; flex-direction: column; gap: 4px; }
@@ -982,6 +1065,25 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 }
 .list-assignee-avatar img { width: 100%; height: 100%; object-fit: cover; }
 /* List footer row */
+.list-group-header td {
+    padding: 10px 14px 6px !important; background: transparent !important;
+    border-bottom: 1px solid #1a1a1f !important;
+}
+.list-group-label {
+    font-size: 0.75rem; font-weight: 700; color: #52525b;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    display: flex; align-items: center; gap: 8px;
+}
+.list-group-count {
+    background: #18181b; color: #52525b; border-radius: 10px;
+    padding: 1px 7px; font-size: 0.68rem; font-weight: 600;
+    text-transform: none; letter-spacing: 0;
+}
+.list-group-toggle-btn {
+    background: none; border: none; color: #52525b; cursor: pointer;
+    font-size: 0.65rem; padding: 0 4px; transition: color 0.15s;
+}
+.list-group-toggle-btn:hover { color: #a1a1aa; }
 .list-table tfoot td {
     padding: 12px 16px; border-top: 1px solid #1a1a1f; font-size: 0.75rem;
     color: #52525b; font-weight: 500; border-bottom: none;
@@ -1171,16 +1273,68 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .search-result-item .sr-parent { color: #52525b; font-size: 0.78rem; }
 
 /* ── Toasts ───────────────────────────────────────────────────── */
-#toastContainer { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+#toastContainer { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
 .toast {
     padding: 12px 24px; border-radius: 8px;
     background: #18181b; color: #e4e4e7; border: 1px solid #27272a;
     opacity: 0; transition: opacity 0.3s; font-size: 0.85rem; white-space: nowrap;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.3); pointer-events: auto;
 }
 .toast.visible { opacity: 1; }
 .toast-error { border-color: #f87171; }
 .toast-success { border-color: #4ade80; }
+
+/* ── Rich assignment notification card ───────────────────────── */
+#assignNotifContainer {
+    position: fixed; bottom: 24px; right: 24px; z-index: 9998;
+    display: flex; flex-direction: column; gap: 10px; pointer-events: none;
+}
+.assign-notif-card {
+    width: 340px; background: #111114; border: 1px solid #27272a;
+    border-radius: 16px; overflow: hidden; pointer-events: auto;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(129,140,248,0.08);
+    opacity: 0; transform: translateY(12px) scale(0.97);
+    transition: opacity 0.35s cubic-bezier(0.16,1,0.3,1), transform 0.35s cubic-bezier(0.16,1,0.3,1);
+}
+.assign-notif-card.visible { opacity: 1; transform: translateY(0) scale(1); }
+.assign-notif-header {
+    padding: 12px 16px 8px; font-size: 0.72rem; font-weight: 600;
+    color: #52525b; text-transform: uppercase; letter-spacing: 0.06em;
+    border-bottom: 1px solid #1a1a1f;
+}
+.assign-notif-body { padding: 14px 16px; display: flex; gap: 12px; align-items: flex-start; }
+.assign-notif-avatar-wrap { position: relative; flex-shrink: 0; }
+.assign-notif-avatar {
+    width: 42px; height: 42px; border-radius: 50%; object-fit: cover;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.85rem; font-weight: 700; color: #fff;
+    overflow: hidden;
+}
+.assign-notif-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.assign-notif-online {
+    position: absolute; bottom: 1px; right: 1px;
+    width: 11px; height: 11px; border-radius: 50%;
+    background: #4ade80; border: 2px solid #111114;
+}
+.assign-notif-content { flex: 1; min-width: 0; }
+.assign-notif-name { font-size: 0.82rem; font-weight: 600; color: #fafafa; margin-bottom: 1px; }
+.assign-notif-role { font-size: 0.68rem; font-weight: 600; color: #818cf8; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+.assign-notif-bubble {
+    background: #18181b; border-radius: 0 10px 10px 10px;
+    padding: 10px 12px; font-size: 0.8rem; color: #a1a1aa; line-height: 1.5;
+    margin-bottom: 8px;
+}
+.assign-notif-bubble strong { color: #e4e4e7; }
+.assign-notif-meta { display: flex; align-items: center; gap: 6px; font-size: 0.7rem; color: #52525b; }
+.assign-notif-dot { width: 3px; height: 3px; border-radius: 50%; background: #3f3f46; }
+.assign-notif-unread { color: #818cf8; font-weight: 500; }
+.assign-notif-reply {
+    flex-shrink: 0; background: none; border: none; color: #52525b;
+    cursor: pointer; padding: 6px; border-radius: 50%; transition: all 0.15s;
+    display: flex; align-items: center; justify-content: center;
+    align-self: center;
+}
+.assign-notif-reply:hover { background: rgba(129,140,248,0.1); color: #818cf8; }
 
 /* ── Empty State ──────────────────────────────────────────────── */
 .empty-state {
@@ -1697,6 +1851,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 
 <!-- Toast Container -->
 <div id="toastContainer"></div>
+<div id="assignNotifContainer"></div>
 
 <!-- Login Screen -->
 <div id="loginScreen" class="login-screen" role="dialog" aria-label="Sign in to Stlla">
@@ -1947,6 +2102,12 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
                             CSV
                         </button>
                         <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-left:auto">
+                            <div class="seg-tabs" id="listGroupToggle">
+                                <button class="seg-tab active" onclick="setListGroupMode('flat',this)">Flat</button>
+                                <button class="seg-tab" onclick="setListGroupMode('category',this)">By Project</button>
+                                <button class="seg-tab" onclick="setListGroupMode('time',this)">By Date</button>
+                            </div>
+                            <span style="color:#27272a;font-size:0.7rem">|</span>
                             <div class="seg-tabs">
                                 <button class="seg-tab active" onclick="setListStatusTab('all',this)">All</button>
                                 <button class="seg-tab" onclick="setListStatusTab('To Do',this)">To Do</button>
@@ -2416,6 +2577,48 @@ function esc(s) {
 function debounce(fn, ms) {
     let t;
     return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); };
+}
+
+function showAssignmentNotif(assignerEmail, taskTitle, taskId) {
+    const assigner = getTeamMember(assignerEmail);
+    if (!assigner) return;
+    const timeStr = 'Just now';
+    const avatarHtml = assigner.avatar
+        ? `<img src="${esc(assigner.avatar)}" alt="${esc(assigner.initials)}">`
+        : esc(assigner.initials);
+    const replyIcon = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>`;
+
+    const card = document.createElement('div');
+    card.className = 'assign-notif-card';
+    card.innerHTML = `
+        <div class="assign-notif-header">Notifications</div>
+        <div class="assign-notif-body">
+            <div class="assign-notif-avatar-wrap">
+                <div class="assign-notif-avatar" style="background:${assigner.color}">${avatarHtml}</div>
+                <span class="assign-notif-online"></span>
+            </div>
+            <div class="assign-notif-content">
+                <div class="assign-notif-name">${esc(assigner.name)}</div>
+                <div class="assign-notif-role">${esc(assigner.role || 'Team Member')}</div>
+                <div class="assign-notif-bubble">
+                    You've been assigned a task: <strong>${esc(taskTitle)}</strong>
+                </div>
+                <div class="assign-notif-meta">
+                    <span>${timeStr}</span>
+                    <span class="assign-notif-dot"></span>
+                    <span class="assign-notif-unread">Unread</span>
+                </div>
+            </div>
+            <button class="assign-notif-reply" title="Open task" onclick="openDetail('${esc(taskId)}')">${replyIcon}</button>
+        </div>`;
+
+    const container = document.getElementById('assignNotifContainer');
+    container.appendChild(card);
+    setTimeout(() => card.classList.add('visible'), 20);
+    setTimeout(() => {
+        card.classList.remove('visible');
+        setTimeout(() => card.remove(), 400);
+    }, 6000);
 }
 
 function showToast(msg, type = 'info') {
@@ -3493,7 +3696,7 @@ function closeDetail() {
     renderListView();
 }
 
-let _detailTab = 'details';
+let _detailTab = 'subtasks';
 
 function renderDetail(taskId) {
     const task = getTaskById(taskId);
@@ -3501,151 +3704,94 @@ function renderDetail(taskId) {
 
     const treeNode = findTreeNode(TREE, taskId);
     const children = treeNode ? treeNode.children : [];
-    let links = [];
+    let links = [], comments = [], files = [], deps = [];
     try { links = JSON.parse(task.links || '[]'); } catch(e) {}
-    let comments = [];
     try { comments = JSON.parse(task.comments || '[]'); } catch(e) {}
-    let files = [];
     try { files = JSON.parse(task.files || '[]'); } catch(e) {}
-    let timeSpent = parseInt(task.time_spent) || 0;
-    let deps = [];
     try { deps = JSON.parse(task.dependencies || '[]'); } catch(e) {}
 
-    // Breadcrumb
-    let breadcrumb = '';
-    if (_detailStack.length > 1) {
-        breadcrumb = '<div class="detail-breadcrumb">' +
-            _detailStack.map((id, i) => {
-                const t = getTaskById(id);
-                const name = t ? esc(t.title) : '...';
-                if (i < _detailStack.length - 1) {
-                    return `<span onclick="navigateBreadcrumb(${i})">${name}</span><span class="sep">/</span>`;
-                }
-                return `<span style="color:var(--text)">${name}</span>`;
-            }).join('') +
-        '</div>';
-    }
-
-    const tab = _detailTab;
-    const tabBtn = (id, label, count) => `<button class="seg-tab ${tab === id ? 'active' : ''}" onclick="_detailTab='${id}'; renderDetail('${esc(taskId)}')">${label}${count ? ` (${count})` : ''}</button>`;
-
-    // Time tracking display
+    let timeSpent = parseInt(task.time_spent) || 0;
     const hours = Math.floor(timeSpent / 3600);
     const mins = Math.floor((timeSpent % 3600) / 60);
     const timeDisplay = timeSpent > 0 ? `${hours}h ${mins}m` : '0h 0m';
     const isTracking = _activeTimer && _activeTimer.taskId === taskId;
 
+    // Migrate old 'details' tab
+    if (_detailTab === 'details') _detailTab = 'subtasks';
+    const tab = _detailTab;
+
+    // Breadcrumb (subtask stack navigation)
+    let breadcrumbHtml = '';
+    if (_detailStack.length > 1) {
+        breadcrumbHtml = '<div class="detail-breadcrumb">' +
+            _detailStack.map((id, i) => {
+                const t = getTaskById(id);
+                const name = t ? esc(t.title) : '...';
+                if (i < _detailStack.length - 1) {
+                    return `<span onclick="navigateBreadcrumb(${i})">${name}</span><span class="sep"> / </span>`;
+                }
+                return `<span style="color:#a1a1aa">${name}</span>`;
+            }).join('') +
+        '</div>';
+    }
+
+    // Top bar breadcrumb path
+    const topPath = [task.category, task.status].filter(Boolean).join(' / ') || 'Task';
+
+    // Status dot class
+    const statusDotCls = task.status === 'Done' ? 'done' : task.status === 'In Progress' ? 'progress' : 'todo';
+
+    // Assignee
+    const assigneeMember = task.assignee ? getTeamMember(task.assignee) : null;
+    const assigneeChipHtml = assigneeMember ? `
+        <div class="detail-assignee-chip">
+            ${assigneeMember.avatar
+                ? `<img src="${esc(assigneeMember.avatar)}" alt="${esc(assigneeMember.initials)}" class="detail-chip-avatar">`
+                : `<span class="detail-chip-avatar" style="background:${assigneeMember.color}">${esc(assigneeMember.initials)}</span>`}
+            ${esc(assigneeMember.name)}
+        </div>` : `<span style="color:#3f3f46;font-size:0.82rem">Unassigned</span>`;
+
+    // SVG icons for property rows
+    const iconStatus = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`;
+    const iconCal    = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`;
+    const iconPerson = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`;
+    const iconTag    = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>`;
+    const iconFolder = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>`;
+    const iconDoc    = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>`;
+    const iconClose  = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
+
+    const tabBtn = (id, label, count) => `
+        <button class="detail-tab-btn ${tab === id ? 'active' : ''}" onclick="_detailTab='${id}'; renderDetail('${esc(taskId)}')">
+            ${label}${count ? `<span class="detail-tab-count">${count}</span>` : ''}
+        </button>`;
+
+    // ── Tab content ────────────────────────────────────────────
     let tabContent = '';
 
-    if (tab === 'details') {
-        tabContent = `
-            <div class="detail-fields">
-                <div class="detail-label">Status</div>
-                <select onchange="updateDetailField('${esc(task.task_id)}','status',this.value); renderDetail('${esc(task.task_id)}')">
-                    ${STATUSES.map(s => `<option ${s === task.status ? 'selected' : ''}>${esc(s)}</option>`).join('')}
-                </select>
-                <div class="detail-label">Priority</div>
-                <select onchange="updateDetailField('${esc(task.task_id)}','priority',this.value); renderDetail('${esc(task.task_id)}')">
-                    ${PRIORITIES.map(p => `<option ${p === task.priority ? 'selected' : ''}>${esc(p)}</option>`).join('')}
-                </select>
-                <div class="detail-label">Assignee</div>
-                <select onchange="updateDetailField('${esc(task.task_id)}','assignee',this.value)">
-                    <option value="">Unassigned</option>
-                    ${TEAM_ROSTER.map(m => `<option value="${esc(m.email)}" ${task.assignee === m.email ? 'selected' : ''}>${esc(m.name)}</option>`).join('')}
-                </select>
-                <div class="detail-label">Due Date</div>
-                <input type="date" value="${esc(task.due_date)}" onchange="updateDetailField('${esc(task.task_id)}','due_date',this.value)">
-                <div class="detail-label">Category</div>
-                <select onchange="updateDetailField('${esc(task.task_id)}','category',this.value)">
-                    <option value="">None</option>
-                    ${CATEGORIES.map(c => `<option ${c === task.category ? 'selected' : ''}>${esc(c)}</option>`).join('')}
-                </select>
-                <div class="detail-label">Stage</div>
-                <select onchange="updateDetailField('${esc(task.task_id)}','stage',this.value)">
-                    <option value="">None</option>
-                    ${DEAL_STAGES.map(s => `<option ${s === task.stage ? 'selected' : ''}>${esc(s)}</option>`).join('')}
-                </select>
-                <div class="detail-label">Deal Value</div>
-                <input type="text" value="${esc(task.deal_value || '')}" placeholder="e.g. 5000" onblur="updateDetailField('${esc(task.task_id)}','deal_value',this.value)">
-            </div>
-            <div class="detail-section">
-                <div class="detail-section-title">Description</div>
-                <textarea class="detail-description" onblur="updateDetailField('${esc(task.task_id)}','description',this.value)">${esc(task.description)}</textarea>
-            </div>
-            <!-- Time Tracking -->
-            <div class="detail-section">
-                <div class="detail-section-title">
-                    Time Tracked
-                    <span style="font-size:0.82rem;font-weight:700;color:#fafafa;text-transform:none;letter-spacing:0">${timeDisplay}</span>
-                </div>
-                <div style="display:flex;gap:8px;align-items:center">
-                    <button class="btn-sm ${isTracking ? 'btn-danger' : ''}" onclick="toggleTimer('${esc(task.task_id)}')" id="timerBtn-${esc(task.task_id)}">
-                        ${isTracking ? '⏹ Stop' : '▶ Start Timer'}
-                    </button>
-                    ${isTracking ? `<span style="color:#4ade80;font-size:0.78rem;font-weight:600" id="timerDisplay-${esc(task.task_id)}">Running...</span>` : ''}
-                    <button class="btn-sm btn-outline" onclick="addManualTime('${esc(task.task_id)}')" style="font-size:0.72rem;padding:3px 10px">+ Add Manual</button>
-                </div>
-            </div>
-            <!-- Dependencies -->
-            <div class="detail-section">
-                <div class="detail-section-title">
-                    Dependencies
-                    <button class="btn-sm btn-outline" onclick="addDependency('${esc(task.task_id)}')" style="font-size:0.72rem;padding:3px 10px">+ Add</button>
-                </div>
-                ${deps.length === 0 ? '<div style="font-size:0.82rem;color:#3f3f46">No dependencies</div>' : ''}
-                <div class="link-list">
-                    ${deps.map((depId, i) => {
-                        const depTask = getTaskById(depId);
-                        if (!depTask) return '';
-                        const isBlocked = depTask.status !== 'Done';
-                        return `<div class="link-item">
-                            <span style="font-size:0.72rem;padding:2px 8px;border-radius:12px;background:${isBlocked ? 'rgba(239,68,68,0.1);color:#f87171' : 'rgba(74,222,128,0.1);color:#4ade80'}">${isBlocked ? 'Blocked by' : 'Resolved'}</span>
-                            <span style="flex:1;font-size:0.82rem;color:#d4d4d8;cursor:pointer" onclick="openDetail('${esc(depId)}')">${esc(depTask.title)}</span>
-                            <button class="link-remove" onclick="removeDependency('${esc(task.task_id)}', ${i})">&times;</button>
-                        </div>`;
-                    }).join('')}
-                </div>
-            </div>
-            <!-- Recurring -->
-            ${task.recurring ? `<div class="detail-section">
-                <div class="detail-section-title">
-                    Recurring
-                    <span style="font-size:0.78rem;font-weight:500;color:#818cf8;text-transform:none;letter-spacing:0">🔄 ${esc(task.recurring)}</span>
-                </div>
-                <button class="btn-sm btn-outline" onclick="updateDetailField('${esc(task.task_id)}','recurring',''); renderDetail('${esc(task.task_id)}')" style="font-size:0.72rem">Remove recurrence</button>
-            </div>` : ''}
-            <!-- Google Calendar -->
-            <div class="detail-section">
-                <div class="detail-section-title">Google Calendar</div>
-                ${task.due_date
-                    ? `<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-                        <input type="time" id="calStart-${esc(task.task_id)}" value="09:00" style="padding:6px 10px;background:#18181b;border:1px solid #27272a;border-radius:8px;color:#e4e4e7;font-size:0.82rem;outline:none;width:100px">
-                        <span style="color:#3f3f46">to</span>
-                        <input type="time" id="calEnd-${esc(task.task_id)}" value="10:00" style="padding:6px 10px;background:#18181b;border:1px solid #27272a;border-radius:8px;color:#e4e4e7;font-size:0.82rem;outline:none;width:100px">
-                        <button class="cal-push-btn" onclick="pushToCalendar('${esc(task.task_id)}')" id="calBtn-${esc(task.task_id)}">&#x1F4C5; Push</button>
-                      </div>`
-                    : '<div style="font-size:0.82rem;color:#3f3f46">Set a due date first</div>'
-                }
-            </div>
-        `;
-    } else if (tab === 'subtasks') {
+    if (tab === 'subtasks') {
+        const doneCount = children.filter(c => c.status === 'Done').length;
         tabContent = `
             <div class="detail-section">
-                <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
-                    <button class="btn-sm" onclick="openNewTaskModal('To Do','${esc(task.task_id)}')">+ Add Subtask</button>
+                <div class="detail-section-title">
+                    ${children.length > 0 ? `<span>${doneCount} / ${children.length} complete</span>` : '<span>Subtasks</span>'}
+                    <button class="btn-sm" onclick="openNewTaskModal('To Do','${esc(task.task_id)}')">+ Add</button>
                 </div>
+                ${children.length > 0 ? `
+                <div style="height:3px;background:#1a1a1f;border-radius:2px;margin-bottom:14px;overflow:hidden">
+                    <div style="height:100%;width:${Math.round(doneCount/children.length*100)}%;background:#818cf8;border-radius:2px;transition:width 0.3s"></div>
+                </div>` : ''}
                 <div class="subtask-list">
                     ${renderSubtaskTree(children)}
                     ${children.length === 0 ? '<div style="padding:20px;text-align:center;color:#27272a;font-size:0.82rem">No subtasks yet</div>' : ''}
                 </div>
-            </div>
-        `;
+            </div>`;
+
     } else if (tab === 'comments') {
         tabContent = `
             <div class="detail-section">
                 <div class="comment-list" id="commentList-${esc(task.task_id)}">
-                    ${comments.length === 0 ? '<div style="padding:20px;text-align:center;color:#27272a;font-size:0.82rem">No comments yet — start the conversation</div>' : ''}
-                    ${comments.map((c, i) => {
+                    ${comments.length === 0 ? '<div style="padding:20px;text-align:center;color:#3f3f46;font-size:0.82rem">No comments yet</div>' : ''}
+                    ${comments.map((c) => {
                         const member = getTeamMember(c.user) || {};
                         return `<div class="comment-item">
                             <div class="notif-avatar" style="background:${member.color || '#7c3aed'};width:28px;height:28px;font-size:0.6rem;flex-shrink:0">${esc((member.initials || c.user || '?').slice(0, 2))}</div>
@@ -3663,39 +3809,41 @@ function renderDetail(taskId) {
                     <input type="text" id="commentInput-${esc(task.task_id)}" placeholder="Write a comment..." style="flex:1;padding:10px 14px;background:#18181b;border:1px solid #27272a;border-radius:8px;color:#e4e4e7;font-size:0.82rem;outline:none" onkeydown="if(event.key==='Enter')addComment('${esc(task.task_id)}')">
                     <button class="btn-sm" onclick="addComment('${esc(task.task_id)}')">Send</button>
                 </div>
-            </div>
-        `;
+            </div>`;
+
     } else if (tab === 'files') {
         tabContent = `
             <div class="detail-section">
+                <div class="detail-section-title">
+                    Files
+                    <span style="font-size:0.72rem;color:#52525b;text-transform:none;font-weight:400">${files.length} attached</span>
+                </div>
                 <div class="link-list">
                     ${files.map((f, i) => `
                         <div class="link-item">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;color:#71717a"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>
                             <a href="${esc(f.url)}" target="_blank" rel="noopener">${esc(f.name || f.url)}</a>
                             <button class="link-remove" onclick="removeFile('${esc(task.task_id)}', ${i})">&times;</button>
-                        </div>
-                    `).join('')}
-                    ${files.length === 0 ? '<div style="padding:20px;text-align:center;color:#27272a;font-size:0.82rem">No files attached</div>' : ''}
+                        </div>`).join('')}
+                    ${files.length === 0 ? '<div style="padding:12px 0;color:#3f3f46;font-size:0.82rem">No files attached</div>' : ''}
                 </div>
                 <div style="display:flex;gap:8px;margin-top:12px">
-                    <input type="url" id="fileUrl-${esc(task.task_id)}" placeholder="Google Drive link..." style="flex:1;padding:10px 14px;background:#18181b;border:1px solid #27272a;border-radius:8px;color:#e4e4e7;font-size:0.82rem;outline:none">
-                    <input type="text" id="fileName-${esc(task.task_id)}" placeholder="File name" style="width:120px;padding:10px 14px;background:#18181b;border:1px solid #27272a;border-radius:8px;color:#e4e4e7;font-size:0.82rem;outline:none">
+                    <input type="url" id="fileUrl-${esc(task.task_id)}" placeholder="Google Drive / Dropbox link..." style="flex:1;padding:8px 12px;background:#18181b;border:1px solid #27272a;border-radius:8px;color:#e4e4e7;font-size:0.82rem;outline:none">
+                    <input type="text" id="fileName-${esc(task.task_id)}" placeholder="Label" style="width:110px;padding:8px 12px;background:#18181b;border:1px solid #27272a;border-radius:8px;color:#e4e4e7;font-size:0.82rem;outline:none">
                     <button class="btn-sm" onclick="addFile('${esc(task.task_id)}')">Add</button>
                 </div>
             </div>
             <div class="detail-section">
                 <div class="detail-section-title">
                     Links
-                    <button class="btn-sm btn-outline" onclick="toggleLinkForm('${esc(task.task_id)}')" style="font-size:0.75rem;padding:3px 10px">+ Add</button>
+                    <button class="btn-sm btn-outline" onclick="toggleLinkForm('${esc(task.task_id)}')" style="font-size:0.72rem;padding:3px 10px">+ Add</button>
                 </div>
                 <div class="link-list">
                     ${links.map((l, i) => `
                         <div class="link-item">
                             <a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label || l.url)}</a>
                             <button class="link-remove" onclick="removeLink('${esc(task.task_id)}', ${i})">&times;</button>
-                        </div>
-                    `).join('')}
+                        </div>`).join('')}
                     ${links.length === 0 ? '<div style="font-size:0.82rem;color:#3f3f46">No links</div>' : ''}
                 </div>
                 <div class="link-add-form hidden" id="linkForm-${esc(task.task_id)}">
@@ -3703,34 +3851,157 @@ function renderDetail(taskId) {
                     <input type="text" placeholder="Label" id="linkLabel-${esc(task.task_id)}" style="max-width:140px">
                     <button class="btn-sm" onclick="addLink('${esc(task.task_id)}')">Add</button>
                 </div>
+            </div>`;
+
+    } else if (tab === 'time') {
+        tabContent = `
+            <div class="detail-section">
+                <div class="detail-section-title">
+                    Time Tracked
+                    <span style="color:#fafafa;font-size:0.875rem;font-weight:700;text-transform:none;letter-spacing:0">${timeDisplay}</span>
+                </div>
+                <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                    <button class="btn-sm ${isTracking ? 'btn-danger' : ''}" onclick="toggleTimer('${esc(task.task_id)}')" id="timerBtn-${esc(task.task_id)}">
+                        ${isTracking ? '⏹ Stop' : '▶ Start Timer'}
+                    </button>
+                    ${isTracking ? `<span style="color:#4ade80;font-size:0.78rem;font-weight:600" id="timerDisplay-${esc(task.task_id)}">Running...</span>` : ''}
+                    <button class="btn-sm btn-outline" onclick="addManualTime('${esc(task.task_id)}')" style="font-size:0.72rem;padding:3px 10px">+ Manual</button>
+                </div>
             </div>
-        `;
+            <div class="detail-section">
+                <div class="detail-section-title">
+                    Dependencies
+                    <button class="btn-sm btn-outline" onclick="addDependency('${esc(task.task_id)}')" style="font-size:0.72rem;padding:3px 10px">+ Add</button>
+                </div>
+                ${deps.length === 0 ? '<div style="font-size:0.82rem;color:#3f3f46">No dependencies</div>' : ''}
+                <div class="link-list">
+                    ${deps.map((depId, i) => {
+                        const depTask = getTaskById(depId);
+                        if (!depTask) return '';
+                        const isBlocked = depTask.status !== 'Done';
+                        return `<div class="link-item">
+                            <span style="font-size:0.72rem;padding:2px 8px;border-radius:12px;background:${isBlocked ? 'rgba(239,68,68,0.1)' : 'rgba(74,222,128,0.1)'};color:${isBlocked ? '#f87171' : '#4ade80'}">${isBlocked ? 'Blocked' : 'Resolved'}</span>
+                            <span style="flex:1;font-size:0.82rem;color:#d4d4d8;cursor:pointer" onclick="openDetail('${esc(depId)}')">${esc(depTask.title)}</span>
+                            <button class="link-remove" onclick="removeDependency('${esc(task.task_id)}', ${i})">&times;</button>
+                        </div>`;
+                    }).join('')}
+                </div>
+            </div>
+            ${task.recurring ? `
+            <div class="detail-section">
+                <div class="detail-section-title">
+                    Recurring
+                    <button class="btn-sm btn-outline" onclick="updateDetailField('${esc(task.task_id)}','recurring',''); renderDetail('${esc(task.task_id)}')" style="font-size:0.72rem">Remove</button>
+                </div>
+                <span style="font-size:0.82rem;color:#818cf8">🔄 ${esc(task.recurring)}</span>
+            </div>` : ''}
+            <div class="detail-section">
+                <div class="detail-section-title">Google Calendar</div>
+                ${task.due_date
+                    ? `<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                        <input type="time" id="calStart-${esc(task.task_id)}" value="09:00" style="padding:6px 10px;background:#18181b;border:1px solid #27272a;border-radius:8px;color:#e4e4e7;font-size:0.82rem;outline:none;width:100px">
+                        <span style="color:#3f3f46">to</span>
+                        <input type="time" id="calEnd-${esc(task.task_id)}" value="10:00" style="padding:6px 10px;background:#18181b;border:1px solid #27272a;border-radius:8px;color:#e4e4e7;font-size:0.82rem;outline:none;width:100px">
+                        <button class="cal-push-btn" onclick="pushToCalendar('${esc(task.task_id)}')" id="calBtn-${esc(task.task_id)}">📅 Push</button>
+                      </div>`
+                    : '<div style="font-size:0.82rem;color:#3f3f46">Set a due date first</div>'}
+            </div>`;
     }
 
+    // ── Build full HTML ────────────────────────────────────────
     const html = `
-        <div class="detail-header">
-            <div style="display:flex;align-items:center;gap:8px">
-                ${task.category ? categoryBadge(task.category) : ''}
-                <span style="font-size:0.72rem;color:#3f3f46">${esc(task.task_id)}</span>
+        <!-- Top bar -->
+        <div class="detail-topbar">
+            <span class="detail-breadcrumb-path">${esc(topPath)}</span>
+            <div class="detail-topbar-actions">
+                <button class="detail-action-btn" onclick="closeDetail()" title="Close">${iconClose}</button>
             </div>
-            <button class="detail-close" onclick="closeDetail()">&times;</button>
-        </div>
-        ${breadcrumb}
-        <input class="detail-title" value="${esc(task.title)}" onblur="updateDetailField('${esc(task.task_id)}','title',this.value)">
-
-        <!-- Detail Tabs -->
-        <div class="seg-tabs" style="margin-bottom:16px">
-            ${tabBtn('details', 'Details')}
-            ${tabBtn('subtasks', 'Subtasks', children.length)}
-            ${tabBtn('comments', 'Comments', comments.length)}
-            ${tabBtn('files', 'Files', files.length + links.length)}
         </div>
 
-        ${tabContent}
+        ${breadcrumbHtml}
 
-        <div style="margin-top:24px;padding-top:16px;border-top:1px solid #1a1a1f">
-            <button class="btn-sm btn-danger" onclick="confirmDeleteTask('${esc(task.task_id)}', ${children.length})">Delete Task</button>
-            <span style="font-size:0.72rem;color:#3f3f46;margin-left:12px">Created by ${esc(task.created_by)} · ${esc(task.created_at ? task.created_at.slice(0,10) : '')}</span>
+        <!-- Title -->
+        <div class="detail-title-area">
+            <input class="detail-title" value="${esc(task.title)}" placeholder="Task title"
+                onblur="updateDetailField('${esc(task.task_id)}','title',this.value)">
+        </div>
+
+        <!-- Property rows -->
+        <div class="detail-props">
+            <div class="detail-prop-row">
+                <span class="detail-prop-icon">${iconStatus}</span>
+                <span class="detail-prop-label">Status</span>
+                <div class="detail-prop-value">
+                    <span class="dprop-status-dot ${statusDotCls}"></span>
+                    <select class="detail-prop-select" onchange="updateDetailField('${esc(task.task_id)}','status',this.value); renderDetail('${esc(task.task_id)}')">
+                        ${STATUSES.map(s => `<option ${s === task.status ? 'selected' : ''}>${esc(s)}</option>`).join('')}
+                    </select>
+                </div>
+            </div>
+            <div class="detail-prop-row">
+                <span class="detail-prop-icon">${iconTag}</span>
+                <span class="detail-prop-label">Priority</span>
+                <div class="detail-prop-value">
+                    <select class="detail-prop-select" onchange="updateDetailField('${esc(task.task_id)}','priority',this.value); renderDetail('${esc(task.task_id)}')">
+                        <option value="">No priority</option>
+                        ${PRIORITIES.map(p => `<option ${p === task.priority ? 'selected' : ''}>${esc(p)}</option>`).join('')}
+                    </select>
+                </div>
+            </div>
+            <div class="detail-prop-row">
+                <span class="detail-prop-icon">${iconCal}</span>
+                <span class="detail-prop-label">Due date</span>
+                <div class="detail-prop-value">
+                    <input type="date" class="detail-prop-date" value="${esc(task.due_date || '')}"
+                        onchange="updateDetailField('${esc(task.task_id)}','due_date',this.value)">
+                </div>
+            </div>
+            <div class="detail-prop-row">
+                <span class="detail-prop-icon">${iconPerson}</span>
+                <span class="detail-prop-label">Assignee</span>
+                <div class="detail-prop-value" style="gap:8px">
+                    <div class="detail-assignee-chips">${assigneeChipHtml}</div>
+                    <select class="detail-chip-select" onchange="updateDetailField('${esc(task.task_id)}','assignee',this.value); renderDetail('${esc(task.task_id)}')" title="Change assignee">
+                        <option value="">Unassigned</option>
+                        ${TEAM_ROSTER.map(m => `<option value="${esc(m.email)}" ${task.assignee === m.email ? 'selected' : ''}>${esc(m.name)}</option>`).join('')}
+                    </select>
+                </div>
+            </div>
+            <div class="detail-prop-row">
+                <span class="detail-prop-icon">${iconFolder}</span>
+                <span class="detail-prop-label">Category</span>
+                <div class="detail-prop-value">
+                    ${task.category ? categoryBadge(task.category) : ''}
+                    <select class="detail-prop-select" onchange="updateDetailField('${esc(task.task_id)}','category',this.value); renderDetail('${esc(task.task_id)}')" style="${task.category ? 'width:20px;opacity:0.4' : ''}">
+                        <option value="">None</option>
+                        ${CATEGORIES.map(c => `<option ${c === task.category ? 'selected' : ''}>${esc(c)}</option>`).join('')}
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Description -->
+        <div class="detail-desc-area">
+            <div class="detail-desc-label">${iconDoc} Description</div>
+            <textarea class="detail-description" placeholder="Add a description..."
+                onblur="updateDetailField('${esc(task.task_id)}','description',this.value)">${esc(task.description || '')}</textarea>
+        </div>
+
+        <!-- Tabs -->
+        <div class="detail-tabs-bar">
+            ${tabBtn('subtasks', 'Subtasks', children.length || '')}
+            ${tabBtn('comments', 'Comments', comments.length || '')}
+            ${tabBtn('files', 'Files', (files.length + links.length) || '')}
+            ${tabBtn('time', 'Time & More')}
+        </div>
+
+        <!-- Tab content -->
+        <div class="detail-tab-content">${tabContent}</div>
+
+        <!-- Footer -->
+        <div class="detail-footer">
+            <button class="btn-sm btn-danger" onclick="confirmDeleteTask('${esc(task.task_id)}', ${children.length})">Delete</button>
+            <span class="detail-footer-meta">Created by ${esc(task.created_by)} · ${esc(task.created_at ? task.created_at.slice(0,10) : '')}</span>
         </div>
     `;
 
@@ -3773,6 +4044,12 @@ function findTreeNode(nodes, taskId) {
 }
 
 function updateDetailField(taskId, field, value) {
+    // Show assignment notification when assignee changes to someone else
+    if (field === 'assignee' && value && value !== currentUserId) {
+        const task = getTaskById(taskId);
+        const assigner = currentUserId;
+        if (task) showAssignmentNotif(assigner, task.title, taskId);
+    }
     apiUpdateField(taskId, field, value);
 }
 
@@ -3888,6 +4165,22 @@ function confirmDeleteTask(taskId, childCount) {
 /* ════════════════════════════════════════════════════════════════
    LIST VIEW
    ════════════════════════════════════════════════════════════════ */
+let _listGroupMode = 'flat';
+const _collapsedListGroups = new Set();
+
+function setListGroupMode(mode, btn) {
+    _listGroupMode = mode;
+    document.querySelectorAll('#listGroupToggle .seg-tab').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    renderListView();
+}
+
+function toggleListGroup(key) {
+    if (_collapsedListGroups.has(key)) _collapsedListGroups.delete(key);
+    else _collapsedListGroups.add(key);
+    renderListView();
+}
+
 function renderListView() {
     const flat = flattenTree(TREE);
     const q = (document.getElementById('listSearch')?.value || '').toLowerCase();
@@ -3900,7 +4193,6 @@ function renderListView() {
         return true;
     });
 
-    // Sort
     filtered.sort((a, b) => {
         let av = a[listSort.col] || '', bv = b[listSort.col] || '';
         return listSort.asc ? String(av).localeCompare(String(bv)) : String(bv).localeCompare(String(av));
@@ -3920,7 +4212,7 @@ function renderListView() {
     const statusLabel = s => s === 'Done' ? 'Completed' : (s || 'To Do');
     const priorityDot = p => p === 'High' ? 'dot-high' : p === 'Medium' ? 'dot-medium' : 'dot-low';
 
-    tbody.innerHTML = filtered.map((t, idx) => {
+    const taskRow = (t, idx) => {
         const member = getTeamMember(t.assignee);
         const depthCls = t._depth > 0 ? `depth-${Math.min(t._depth, 3)}` : '';
         const dueCls = dueDateClass(t.due_date);
@@ -3938,9 +4230,64 @@ function renderListView() {
             <td><span class="list-assignee">${avatarHtml}${member ? esc(member.name) : (t.assignee ? esc(t.assignee.split('@')[0]) : '<span style="color:#3f3f46">—</span>')}</span></td>
             <td style="text-align:right"><span class="due-date ${dueCls}">${formatDate(t.due_date)}</span></td>
         </tr>`;
-    }).join('');
+    };
 
-    // Footer: task count summary
+    const groupHeader = (key, label, count) => {
+        const collapsed = _collapsedListGroups.has(key);
+        return `<tr class="list-group-header">
+            <td colspan="7">
+                <div class="list-group-label">
+                    <button class="list-group-toggle-btn" onclick="toggleListGroup('${esc(key)}')">${collapsed ? '▶' : '▼'}</button>
+                    ${esc(label)}
+                    <span class="list-group-count">${count}</span>
+                </div>
+            </td>
+        </tr>`;
+    };
+
+    let html = '';
+
+    if (_listGroupMode === 'flat') {
+        html = filtered.map((t, i) => taskRow(t, i)).join('');
+
+    } else if (_listGroupMode === 'category') {
+        const groups = {};
+        filtered.forEach(t => {
+            const key = t.category || 'No Project';
+            if (!groups[key]) groups[key] = [];
+            groups[key].push(t);
+        });
+        let globalIdx = 0;
+        Object.entries(groups).forEach(([key, tasks]) => {
+            const collapsed = _collapsedListGroups.has(key);
+            html += groupHeader(key, key, tasks.length);
+            if (!collapsed) tasks.forEach(t => { html += taskRow(t, ++globalIdx); });
+        });
+
+    } else if (_listGroupMode === 'time') {
+        const now = new Date(); now.setHours(0,0,0,0);
+        const endWeek = new Date(now); endWeek.setDate(now.getDate() + 7);
+        const groups = { 'Overdue': [], 'Today': [], 'This Week': [], 'Later': [], 'No Date': [] };
+        filtered.forEach(t => {
+            if (!t.due_date) { groups['No Date'].push(t); return; }
+            const d = new Date(t.due_date); d.setHours(0,0,0,0);
+            if (d < now) groups['Overdue'].push(t);
+            else if (d.getTime() === now.getTime()) groups['Today'].push(t);
+            else if (d <= endWeek) groups['This Week'].push(t);
+            else groups['Later'].push(t);
+        });
+        let globalIdx = 0;
+        Object.entries(groups).forEach(([key, tasks]) => {
+            if (tasks.length === 0) return;
+            const collapsed = _collapsedListGroups.has(key);
+            html += groupHeader(key, key, tasks.length);
+            if (!collapsed) tasks.forEach(t => { html += taskRow(t, ++globalIdx); });
+        });
+    }
+
+    tbody.innerHTML = html;
+
+    // Footer summary
     const done = filtered.filter(t => t.status === 'Done').length;
     const inProgress = filtered.filter(t => t.status === 'In Progress').length;
     const listTable = tbody.closest('table');
