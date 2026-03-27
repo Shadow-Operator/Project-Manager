@@ -369,6 +369,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     width: 100%; height: 100%; object-fit: cover; border-radius: 8px;
 }
 .sidebar.collapsed .sidebar-logo span { display: none; }
+.sidebar.collapsed .sidebar-header { justify-content: center; padding: 10px 8px; }
+.sidebar.collapsed .sidebar-logo { display: none; }
 .sidebar-collapse-btn {
     background: none; border: none; color: #52525b; cursor: pointer;
     padding: 4px; border-radius: 6px; display: flex; align-items: center;
@@ -570,6 +572,21 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     .topbar-search-btn { padding: 6px 10px; }
 }
 
+.board-animated-bg {
+    position: absolute; inset: 0; pointer-events: none; z-index: 0;
+    background:
+        radial-gradient(ellipse 70% 55% at 15% 25%, rgba(99,102,241,0.10), transparent 65%),
+        radial-gradient(ellipse 55% 45% at 85% 75%, rgba(139,92,246,0.07), transparent 65%),
+        radial-gradient(ellipse 45% 35% at 50% 50%, rgba(244,63,94,0.04), transparent 60%);
+    animation: boardBgPulse 10s ease-in-out infinite alternate;
+}
+@keyframes boardBgPulse {
+    0%   { opacity: 0.55; transform: scale(1); }
+    50%  { opacity: 0.85; transform: scale(1.04); }
+    100% { opacity: 0.65; transform: scale(1.02); }
+}
+#tab-board .board-view, #tab-board #boardLoading, #tab-board #boardCategoryFilter { position: relative; z-index: 1; }
+
 /* ── Kanban Board ─────────────────────────────────────────────── */
 .board {
     display: flex; gap: 14px; padding: 16px 20px;
@@ -710,13 +727,22 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .task-card-footer-right { flex-shrink: 0; }
 
 /* Task select checkbox (bulk actions) */
-.task-select-cb { position:absolute; top:8px; right:8px; width:16px; height:16px; opacity:0; transition:opacity 0.15s; cursor:pointer; accent-color:#818cf8; z-index:2; }
+.task-select-cb { position:absolute; top:6px; right:6px; width:16px; height:16px; opacity:0; transition:opacity 0.15s; cursor:pointer; accent-color:#818cf8; z-index:5; }
 .task-card:hover .task-select-cb { opacity:1; }
 .task-select-cb:checked { opacity:1; }
 
 /* Bulk action bar */
 .bulk-bar { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:#18181b; border:1px solid #3f3f46; border-radius:12px; padding:10px 16px; display:flex; align-items:center; gap:10px; z-index:200; box-shadow:0 8px 32px rgba(0,0,0,0.5); font-size:0.82rem; color:#d4d4d8; }
 .bulk-bar select, .bulk-bar button { background:#27272a; border:1px solid #3f3f46; color:#d4d4d8; border-radius:6px; padding:5px 10px; font-size:0.8rem; cursor:pointer; font-family:inherit; }
+
+@keyframes notifPopupIn {
+    from { opacity: 0; transform: translateY(20px) scale(0.95); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes notifPopupOut {
+    from { opacity: 1; transform: translateY(0); }
+    to   { opacity: 0; transform: translateY(10px); }
+}
 
 /* Notification banner */
 .notif-request-banner { background:#18181b; border-bottom:1px solid #27272a; padding:8px 20px; display:flex; align-items:center; gap:10px; font-size:0.8rem; color:#a1a1aa; }
@@ -1686,65 +1712,88 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     50% { box-shadow: 0 0 0 4px rgba(239,68,68,0); }
 }
 
-/* Notification panel — purple theme */
 .notif-panel {
-    position: fixed; top: 56px; right: 20px; width: 380px; max-height: 480px;
-    background: rgba(15, 10, 40, 0.95);
-    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(129, 140, 248, 0.2); border-radius: 16px;
+    position: fixed; top: 56px; right: 20px; width: 400px; max-height: 520px;
+    background: #0a0a0c;
+    border: 1px solid #27272a; border-radius: 16px;
     z-index: 101; overflow: hidden;
-    box-shadow: 0 8px 40px rgba(99,102,241,0.1), 0 -4px 24px rgba(0,0,0,0.4);
+    box-shadow: 0 8px 40px rgba(0,0,0,0.5);
     display: none;
 }
 .notif-panel.open { display: flex; flex-direction: column; }
 .notif-panel-header {
-    padding: 14px 16px; border-bottom: 1px solid rgba(129, 140, 248, 0.12);
+    padding: 14px 16px 0; border-bottom: none;
     display: flex; align-items: center; justify-content: space-between;
-    font-size: 0.9rem; font-weight: 600; color: #fafafa;
 }
-.notif-panel-header .notif-header-left {
-    display: flex; align-items: center; gap: 8px;
+.notif-panel-title { font-size: 0.95rem; font-weight: 600; color: #fafafa; }
+.notif-panel-actions { display: flex; align-items: center; gap: 6px; }
+.notif-panel-btn {
+    background: none; border: none; color: #52525b; cursor: pointer;
+    padding: 4px; border-radius: 6px; display: flex; align-items: center;
+    transition: all 0.12s; font-size: 0.75rem; font-family: inherit;
 }
-.notif-panel-header .mark-read-link {
-    font-size: 0.72rem; color: #818cf8; cursor: pointer; background: none;
-    border: none; font-weight: 500; transition: color 0.15s;
+.notif-panel-btn:hover { color: #a1a1aa; background: #18181b; }
+.notif-tabs { display: flex; gap: 0; padding: 10px 16px 0; border-bottom: 1px solid #1a1a1f; }
+.notif-tab-btn {
+    padding: 6px 12px; font-size: 0.78rem; color: #71717a; cursor: pointer;
+    border: none; border-bottom: 2px solid transparent; background: none;
+    font-family: inherit; font-weight: 500; transition: all 0.12s;
+    display: flex; align-items: center; gap: 5px;
 }
-.notif-panel-header .mark-read-link:hover { color: #a5b4fc; }
+.notif-tab-btn:hover { color: #d4d4d8; }
+.notif-tab-btn.active { color: #fafafa; border-bottom-color: #fafafa; }
+.notif-tab-count {
+    background: #27272a; color: #a1a1aa; border-radius: 8px;
+    padding: 0 5px; font-size: 0.65rem; font-weight: 600;
+}
 .notif-panel-body { flex: 1; overflow-y: auto; }
 .notif-item {
     display: flex; align-items: flex-start; gap: 10px;
-    padding: 12px 16px; border-bottom: 1px solid rgba(129, 140, 248, 0.08);
+    padding: 12px 16px; border-bottom: 1px solid #1a1a1f;
     transition: background 0.12s; position: relative;
 }
-.notif-item:hover { background: rgba(129, 140, 248, 0.04); }
+.notif-item:hover { background: rgba(255,255,255,0.02); }
 .notif-item:last-child { border-bottom: none; }
 .notif-item.unread::after {
-    content: ''; position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
-    width: 8px; height: 8px; border-radius: 50%; background: #818cf8;
+    content: ''; position: absolute; right: 40px; top: 50%; transform: translateY(-50%);
+    width: 6px; height: 6px; border-radius: 50%; background: #4ade80;
 }
 .notif-avatar {
-    width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+    width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
     display: flex; align-items: center; justify-content: center;
-    font-size: 0.65rem; font-weight: 700; color: #fff;
+    font-size: 0.7rem; font-weight: 700; color: #fff; overflow: hidden;
 }
+.notif-avatar img { width: 100%; height: 100%; object-fit: cover; }
 .notif-content { flex: 1; min-width: 0; }
 .notif-text { font-size: 0.82rem; color: #d4d4d8; line-height: 1.4; }
 .notif-text strong { color: #fafafa; font-weight: 600; }
-.notif-time { font-size: 0.68rem; color: #52525b; margin-top: 2px; }
+.notif-meta { display: flex; align-items: center; justify-content: space-between; margin-top: 2px; }
+.notif-time { font-size: 0.68rem; color: #52525b; }
+.notif-time-ago { font-size: 0.68rem; color: #3f3f46; }
+.notif-preview { background: #18181b; border-radius: 6px; padding: 8px 10px; margin-top: 6px; font-size: 0.78rem; color: #a1a1aa; line-height: 1.45; }
+.notif-delete-btn {
+    flex-shrink: 0; background: none; border: none; color: #3f3f46;
+    cursor: pointer; padding: 2px 4px; border-radius: 4px; font-size: 0.8rem;
+    opacity: 0; transition: all 0.12s; align-self: flex-start; margin-top: 2px;
+}
+.notif-item:hover .notif-delete-btn { opacity: 1; color: #71717a; }
+.notif-delete-btn:hover { color: #f87171 !important; background: rgba(248,113,113,0.08); }
 .notif-panel-footer {
-    padding: 10px 16px; border-top: 1px solid rgba(129, 140, 248, 0.12);
-    display: flex; gap: 8px; justify-content: flex-end;
+    padding: 10px 16px; border-top: 1px solid #1a1a1f;
+    display: flex; gap: 8px; align-items: center;
 }
-.notif-panel-footer .btn-notif-close {
-    padding: 6px 16px; border-radius: 8px; border: 1px solid rgba(129,140,248,0.2);
-    background: transparent; color: #a1a1aa; font-size: 0.78rem; cursor: pointer; transition: all 0.15s;
+.btn-notif-clearall {
+    padding: 6px 14px; border-radius: 8px; border: 1px solid #27272a;
+    background: transparent; color: #71717a; font-size: 0.78rem; cursor: pointer;
+    transition: all 0.15s; font-family: inherit;
 }
-.notif-panel-footer .btn-notif-close:hover { background: rgba(129,140,248,0.08); color: #fafafa; }
-.notif-panel-footer .btn-notif-viewall {
-    padding: 6px 16px; border-radius: 8px; border: none;
-    background: #7c3aed; color: #fff; font-size: 0.78rem; font-weight: 500; cursor: pointer; transition: all 0.15s;
+.btn-notif-clearall:hover { border-color: #3f3f46; color: #a1a1aa; }
+.btn-notif-close {
+    padding: 6px 14px; border-radius: 8px; border: 1px solid #27272a;
+    background: transparent; color: #a1a1aa; font-size: 0.78rem; cursor: pointer;
+    transition: all 0.15s; font-family: inherit; margin-left: auto;
 }
-.notif-panel-footer .btn-notif-viewall:hover { background: #6d28d9; }
+.btn-notif-close:hover { background: #18181b; color: #fafafa; }
 
 /* Page content bottom padding */
 .page-content { padding-bottom: 20px; }
@@ -2177,7 +2226,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
             </div>
 
             <!-- Board Tab -->
-            <div id="tab-board" class="tab-pane">
+            <div id="tab-board" class="tab-pane" style="position:relative">
+                <div class="board-animated-bg"></div>
                 <div id="boardLoading" class="spinner">
                     <div class="spinner-dots"><div class="spinner-dot"></div><div class="spinner-dot"></div><div class="spinner-dot"></div></div>
                     <div class="spinner-text">Loading tasks...</div>
@@ -2589,21 +2639,27 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     <!-- Dock removed -->
 </div>
 
-<!-- Notification Panel (purple theme) -->
+<!-- Notification Panel -->
 <div class="notif-panel" id="notifPanel">
     <div class="notif-panel-header">
-        <span class="notif-header-left">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-            Notifications
-        </span>
-        <button class="mark-read-link" onclick="markAllNotificationsRead()">Mark all as read</button>
+        <span class="notif-panel-title">Notifications</span>
+        <div class="notif-panel-actions">
+            <button class="notif-panel-btn" onclick="markAllNotificationsRead()" title="Mark all read">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </button>
+        </div>
+    </div>
+    <div class="notif-tabs">
+        <button class="notif-tab-btn active" onclick="switchNotifTab('all',this)" id="notifTabAll">All <span class="notif-tab-count" id="notifCountAll">0</span></button>
+        <button class="notif-tab-btn" onclick="switchNotifTab('assigned',this)" id="notifTabAssigned">Assigned <span class="notif-tab-count" id="notifCountAssigned">0</span></button>
+        <button class="notif-tab-btn" onclick="switchNotifTab('overdue',this)" id="notifTabOverdue">Overdue <span class="notif-tab-count" id="notifCountOverdue">0</span></button>
     </div>
     <div class="notif-panel-body" id="notifBody">
         <div style="padding:24px;text-align:center;color:#3f3f46;font-size:0.82rem">No notifications yet</div>
     </div>
     <div class="notif-panel-footer">
+        <button class="btn-notif-clearall" onclick="clearAllNotifications()">Clear all</button>
         <button class="btn-notif-close" onclick="toggleNotificationPanel()">Close</button>
-        <button class="btn-notif-viewall" onclick="sidebarNav('activity', document.querySelector('[data-tab=activity]')); toggleNotificationPanel()">View All</button>
     </div>
 </div>
 
@@ -4561,6 +4617,22 @@ async function submitNewTask() {
     if (created) {
         showToast('Task created', 'success');
         addActivity('created', created.title);
+        // Notify assignee in-app
+        if (created.assignee && created.assignee.toLowerCase() !== currentUserId.toLowerCase()) {
+            addInAppNotification({
+                type: 'assignment',
+                text: `<strong>You</strong> assigned a task to <strong>${esc(created.assignee.split('@')[0])}</strong>: "${esc(created.title)}"`,
+                from: currentUserId,
+                taskId: created.task_id
+            });
+        } else if (created.assignee && created.assignee.toLowerCase() === currentUserId.toLowerCase()) {
+            addInAppNotification({
+                type: 'assignment',
+                text: `New task assigned to you: <strong>${esc(created.title)}</strong>`,
+                from: created.created_by,
+                taskId: created.task_id
+            });
+        }
         renderBoard();
         renderListView();
         // Auto-sync to Google Calendar if due date is set
@@ -5596,6 +5668,8 @@ function renderHome() {
    ACTIVITY / NOTIFICATIONS
    ════════════════════════════════════════════════════════════════ */
 let _activityLog = JSON.parse(localStorage.getItem('stlla_activity') || '[]');
+let NOTIFICATIONS = JSON.parse(localStorage.getItem('app_notifications') || '[]');
+function saveNotifications() { localStorage.setItem('app_notifications', JSON.stringify(NOTIFICATIONS)); }
 
 function addActivity(action, taskTitle, user) {
     const entry = {
@@ -5613,13 +5687,48 @@ function addActivity(action, taskTitle, user) {
 
 function updateNotifBadge() {
     const badge = document.getElementById('notifBadge');
-    const unread = _activityLog.filter(a => !a.read).length;
-    if (unread > 0) {
-        badge.textContent = unread > 9 ? '9+' : unread;
-        badge.classList.remove('hidden');
-    } else {
-        badge.classList.add('hidden');
-    }
+    const unread = NOTIFICATIONS.filter(n => !n.read).length;
+    if (badge) { badge.textContent = unread > 9 ? '9+' : unread; badge.classList.toggle('hidden', unread === 0); }
+}
+
+function addInAppNotification(data) {
+    const notif = {
+        id: 'n_' + Date.now(),
+        type: data.type || 'info',
+        text: data.text,
+        from: data.from || '',
+        taskId: data.taskId || '',
+        preview: data.preview || '',
+        time: new Date().toISOString(),
+        read: false
+    };
+    NOTIFICATIONS.unshift(notif);
+    if (NOTIFICATIONS.length > 50) NOTIFICATIONS = NOTIFICATIONS.slice(0, 50);
+    saveNotifications();
+    updateNotifBadge();
+    renderNotifPanel();
+    // Show in-app toast popup
+    showNotifPopup(notif);
+}
+
+function showNotifPopup(notif) {
+    const existing = document.getElementById('notifPopup');
+    if (existing) existing.remove();
+    const popup = document.createElement('div');
+    popup.id = 'notifPopup';
+    popup.style.cssText = 'position:fixed;bottom:28px;right:24px;background:#18181b;border:1px solid #27272a;border-radius:12px;padding:14px 16px;max-width:320px;z-index:9999;box-shadow:0 8px 32px rgba(0,0,0,0.5);display:flex;align-items:flex-start;gap:10px;animation:notifPopupIn 0.35s cubic-bezier(0.16,1,0.3,1);font-family:inherit';
+    popup.innerHTML = `
+        <div style="width:32px;height:32px;border-radius:50%;background:#27272a;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a1a1aa" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        </div>
+        <div style="flex:1;min-width:0">
+            <div style="font-size:0.78rem;color:#d4d4d8;line-height:1.4">${notif.text}</div>
+            <div style="font-size:0.68rem;color:#52525b;margin-top:3px">just now</div>
+        </div>
+        <button onclick="this.parentElement.remove()" style="background:none;border:none;color:#52525b;cursor:pointer;padding:0;font-size:1rem;line-height:1;flex-shrink:0">×</button>
+    `;
+    document.body.appendChild(popup);
+    setTimeout(() => { if (popup.parentNode) { popup.style.animation = 'notifPopupOut 0.25s ease forwards'; setTimeout(() => popup.remove(), 250); } }, 5000);
 }
 
 function toggleNotificationPanel() {
@@ -5635,25 +5744,51 @@ function toggleNotificationPanel() {
 }
 
 function renderNotifPanel() {
-    var body = document.getElementById('notifBody');
-    if (_activityLog.length === 0) {
-        body.innerHTML = '<div style="padding:24px;text-align:center;color:#3f3f46;font-size:0.82rem">No notifications yet</div>';
+    const body = document.getElementById('notifBody');
+    if (!body) return;
+
+    let filtered = NOTIFICATIONS;
+    if (_notifTab === 'assigned') filtered = NOTIFICATIONS.filter(n => n.type === 'assignment');
+    if (_notifTab === 'overdue') filtered = NOTIFICATIONS.filter(n => n.type === 'overdue');
+
+    // Update tab counts
+    const allCount = NOTIFICATIONS.length;
+    const assignedCount = NOTIFICATIONS.filter(n => n.type === 'assignment').length;
+    const overdueCount = NOTIFICATIONS.filter(n => n.type === 'overdue').length;
+    const ca = document.getElementById('notifCountAll');
+    const cas = document.getElementById('notifCountAssigned');
+    const co = document.getElementById('notifCountOverdue');
+    if (ca) ca.textContent = allCount;
+    if (cas) cas.textContent = assignedCount;
+    if (co) co.textContent = overdueCount;
+
+    if (!filtered.length) {
+        body.innerHTML = '<div style="padding:32px;text-align:center;color:#3f3f46;font-size:0.82rem">No notifications</div>';
         return;
     }
-    body.innerHTML = _activityLog.slice(0, 20).map(function(a) {
-        var member = getTeamMember(a.user) || TEAM_ROSTER.find(function(m) { return a.user && a.user.includes(m.name.toLowerCase()); });
-        var color = member ? member.color : '#7c3aed';
-        var initials = member ? member.initials : (a.user || '?').slice(0, 2).toUpperCase();
-        var name = member ? member.name : (a.user || 'Someone').split('@')[0];
-        var ago = timeAgo(a.time);
-        var unreadCls = !a.read ? ' unread' : '';
-        return '<div class="notif-item' + unreadCls + '">' +
-            '<div class="notif-avatar" style="background:' + color + '">' + esc(initials) + '</div>' +
-            '<div class="notif-content">' +
-                '<div class="notif-text"><strong>' + esc(name) + '</strong> ' + esc(a.action) + ' <strong>' + esc(a.task) + '</strong></div>' +
-                '<div class="notif-time">' + ago + '</div>' +
-            '</div>' +
-        '</div>';
+
+    body.innerHTML = filtered.map(n => {
+        const member = getTeamMember(n.from || '');
+        const avatarHtml = member
+            ? (member.avatar
+                ? `<div class="notif-avatar"><img src="${member.avatar}" alt="${esc(member.name)}"></div>`
+                : `<div class="notif-avatar" style="background:${member.color}">${esc(member.initials)}</div>`)
+            : `<div class="notif-avatar" style="background:#27272a">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+               </div>`;
+        const previewHtml = n.preview ? `<div class="notif-preview">${esc(n.preview)}</div>` : '';
+        const timeAgo = formatTimeAgo(n.time);
+        return `<div class="notif-item ${n.read ? '' : 'unread'}" onclick="markNotifRead('${n.id}')">
+            ${avatarHtml}
+            <div class="notif-content">
+                <div class="notif-text">${n.text}</div>
+                ${previewHtml}
+                <div class="notif-meta">
+                    <span class="notif-time">${timeAgo}</span>
+                </div>
+            </div>
+            <button class="notif-delete-btn" onclick="event.stopPropagation();deleteNotification('${n.id}')" title="Dismiss">×</button>
+        </div>`;
     }).join('');
 }
 
@@ -6375,7 +6510,48 @@ function renderActivityFeed() {
     }).join('');
 }
 
+let _notifTab = 'all';
+
+function switchNotifTab(tab, btn) {
+    _notifTab = tab;
+    document.querySelectorAll('.notif-tab-btn').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    renderNotifPanel();
+}
+
+function clearAllNotifications() {
+    NOTIFICATIONS = [];
+    saveNotifications();
+    renderNotifPanel();
+    updateNotifBadge();
+}
+
+function deleteNotification(id) {
+    NOTIFICATIONS = NOTIFICATIONS.filter(n => n.id !== id);
+    saveNotifications();
+    renderNotifPanel();
+    updateNotifBadge();
+}
+
+function formatTimeAgo(ts) {
+    if (!ts) return '';
+    const diff = Date.now() - new Date(ts).getTime();
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return 'just now';
+    if (mins < 60) return mins + 'm ago';
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return hrs + 'h ago';
+    return Math.floor(hrs / 24) + 'd ago';
+}
+
+function markNotifRead(id) {
+    const n = NOTIFICATIONS.find(n => n.id === id);
+    if (n) { n.read = true; saveNotifications(); renderNotifPanel(); updateNotifBadge(); }
+}
+
 function markAllNotificationsRead() {
+    NOTIFICATIONS.forEach(function(n) { n.read = true; });
+    saveNotifications();
     _activityLog.forEach(function(a) { a.read = true; });
     localStorage.setItem('stlla_activity', JSON.stringify(_activityLog));
     updateNotifBadge();
