@@ -1235,7 +1235,9 @@ body { background: var(--bg); color: var(--text); }
             <!-- Board Tab -->
             <div id="tab-board" class="tab-pane active">
                 <div id="boardLoading" class="spinner">Loading tasks...</div>
-                <div id="boardCategoryFilter" class="filter-chips hidden" style="padding:12px 20px 0;display:flex;gap:6px;flex-wrap:wrap">
+                <div id="boardCategoryFilter" class="filter-chips hidden" style="padding:12px 20px 0;display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+                    <button class="filter-chip" id="myTasksFilter" onclick="toggleMyTasks(this)" style="border-color:rgba(124,58,237,0.3);color:#a78bfa">My Tasks</button>
+                    <span style="width:1px;height:20px;background:#1a1a1f"></span>
                     <button class="filter-chip" onclick="toggleBoardCategory('Recast',this)">Recast</button>
                     <button class="filter-chip" onclick="toggleBoardCategory('Shadow Operating',this)">Shadow Op</button>
                     <button class="filter-chip" onclick="toggleBoardCategory('Mulligan\\'s Marketplace',this)">Mulligan's</button>
@@ -2018,8 +2020,37 @@ async function apiUpdateField(taskId, field, value) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ task_id: taskId, field, value })
         });
+
+        // Auto-sync to Google Calendar when due_date is set or changed
+        if (field === 'due_date' && value && task) {
+            autoSyncToCalendar(task);
+        }
     } catch (e) {
         showToast('Failed to save — will retry on sync', 'error');
+    }
+}
+
+// Auto-sync task to Google Calendar
+async function autoSyncToCalendar(task) {
+    if (!task.due_date) return;
+    try {
+        await fetch('/api/calendar', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'add',
+                task_id: task.task_id,
+                title: task.title,
+                due_date: task.due_date,
+                description: task.description || '',
+                assignee: task.assignee || '',
+                start_time: '09:00',
+                end_time: '10:00',
+            })
+        });
+    } catch (e) {
+        // Silent fail — calendar sync is best-effort
+        console.log('[Calendar] Auto-sync failed:', e);
     }
 }
 
@@ -2056,6 +2087,10 @@ async function apiDeleteTask(taskId, cascade = true) {
    ════════════════════════════════════════════════════════════════ */
 function renderBoard() {
     let roots = TREE;
+    // Apply My Tasks filter
+    if (_myTasksOnly) {
+        roots = roots.filter(t => t.assignee && t.assignee.toLowerCase() === currentUserId.toLowerCase());
+    }
     // Apply category filter
     if (_boardCategoryFilter.size) {
         roots = roots.filter(t => _boardCategoryFilter.has(t.category || ''));
@@ -2400,6 +2435,10 @@ async function submitNewTask() {
         showToast('Task created', 'success');
         renderBoard();
         renderListView();
+        // Auto-sync to Google Calendar if due date is set
+        if (created.due_date) {
+            autoSyncToCalendar(created);
+        }
         // If detail panel is open and this is a subtask, re-render detail
         if (_detailStack.length > 0) {
             renderDetail(_detailStack[_detailStack.length - 1]);
@@ -2791,6 +2830,14 @@ async function pushToCalendar(taskId) {
 /* ════════════════════════════════════════════════════════════════
    BOARD CATEGORY FILTER
    ════════════════════════════════════════════════════════════════ */
+let _myTasksOnly = false;
+
+function toggleMyTasks(btn) {
+    _myTasksOnly = !_myTasksOnly;
+    btn.classList.toggle('active');
+    renderBoard();
+}
+
 function toggleBoardCategory(cat, btn) {
     if (_boardCategoryFilter.has(cat)) { _boardCategoryFilter.delete(cat); btn.classList.remove('active'); }
     else { _boardCategoryFilter.add(cat); btn.classList.add('active'); }
