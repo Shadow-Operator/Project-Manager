@@ -346,7 +346,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
     display: flex; flex-direction: column;
     transition: width 0.2s ease, min-width 0.2s ease;
-    overflow: hidden; z-index: 50;
+    overflow: visible; z-index: 50;
 }
 .sidebar.collapsed { width: 48px; min-width: 48px; }
 
@@ -1767,6 +1767,10 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     margin-bottom: 8px; overflow: hidden;
     box-shadow: 0 -8px 32px rgba(0,0,0,0.4);
     animation: popoverIn 0.15s ease;
+}
+.sidebar.collapsed .sidebar-profile-popover {
+    left: 52px; right: auto; min-width: 220px;
+    bottom: 4px; margin-bottom: 0;
 }
 .sidebar-profile-popover .popover-profile-header {
     padding: 14px; border-bottom: 1px solid #1a1a1f;
