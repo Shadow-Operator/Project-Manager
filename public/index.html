@@ -543,9 +543,10 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .user-info { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: #a1a1aa; }
 
 /* ── Tab Panes (no tab buttons, switched via sidebar) ─────── */
-.page-content { flex: 1; overflow-y: auto; }
+.page-content { flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
 .tab-pane { display: none; }
 .tab-pane.active { display: block; }
+#tab-telegram.active { display: flex; }
 
 /* ── Mobile Sidebar ──────────────────────────────────────────── */
 .sidebar-mobile-overlay {
@@ -2469,21 +2470,32 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
             </div>
 
             <!-- Telegram Tab -->
-            <div id="tab-telegram" class="tab-pane">
-                <div style="padding:24px;display:flex;flex-direction:column;align-items:center;gap:16px;height:calc(100vh - 80px)">
-                    <div style="background:#18181b;border:1px solid #27272a;border-radius:12px;padding:20px;width:100%;max-width:600px;text-align:center">
-                        <h3 style="font-size:1rem;font-weight:600;color:#fafafa;margin-bottom:8px">Telegram Chat</h3>
-                        <p style="font-size:0.85rem;color:#71717a;margin-bottom:16px">Connect with your team via Telegram</p>
-                        <a href="https://web.telegram.org" target="_blank" rel="noopener" class="btn-sm" style="display:inline-flex;align-items:center;gap:8px;text-decoration:none;padding:10px 20px">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
-                            Open Telegram Web
-                        </a>
+            <div id="tab-telegram" class="tab-pane" style="height:calc(100vh - 48px);display:none;flex-direction:column">
+                <!-- Chat Header -->
+                <div style="padding:12px 20px;border-bottom:1px solid #1a1a1f;display:flex;align-items:center;gap:12px;background:rgba(0,0,0,0.6);backdrop-filter:blur(12px);flex-shrink:0">
+                    <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#2AABEE,#229ED9);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248l-2.022 9.531c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.48 14.697l-2.95-.924c-.642-.196-.657-.642.136-.953l11.526-4.445c.535-.194 1.002.131.37.873z"/></svg>
                     </div>
-                    <!-- Telegram iframe removed - was causing Chrome security errors -->
-                    <div style="width:100%;max-width:600px;flex:1;border:1px solid #27272a;border-radius:12px;background:#09090b;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px">
-                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#71717a" stroke-width="1.5"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
-                        <p style="color:#71717a;font-size:0.85rem">Click "Open Telegram Web" above to chat with your team</p>
+                    <div style="flex:1">
+                        <div style="font-size:0.9rem;font-weight:600;color:#fafafa">Stlla</div>
+                        <div style="font-size:0.72rem;color:#52525b" id="tgOnlineCount">Team group</div>
                     </div>
+                    <div style="display:flex;gap:8px">
+                        <button onclick="tgRefresh()" title="Refresh" style="background:none;border:none;color:#52525b;cursor:pointer;padding:6px;border-radius:6px;transition:color 0.15s" onmouseover="this.style.color='#a1a1aa'" onmouseout="this.style.color='#52525b'">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                        </button>
+                    </div>
+                </div>
+                <!-- Messages -->
+                <div id="tgMessages" style="flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:8px;scroll-behavior:smooth"></div>
+                <!-- Typing indicator -->
+                <div id="tgTyping" style="padding:0 20px 4px;font-size:0.72rem;color:#52525b;min-height:18px"></div>
+                <!-- Input -->
+                <div style="padding:12px 20px;border-top:1px solid #1a1a1f;display:flex;gap:10px;align-items:flex-end;background:rgba(0,0,0,0.4);flex-shrink:0">
+                    <textarea id="tgInput" placeholder="Message Stlla group…" rows="1" onkeydown="tgHandleKey(event)" oninput="tgAutoResize(this)" style="flex:1;background:#18181b;border:1px solid #27272a;border-radius:12px;padding:10px 14px;color:#fafafa;font-size:0.85rem;font-family:inherit;resize:none;outline:none;max-height:120px;line-height:1.45;transition:border-color 0.15s" onfocus="this.style.borderColor='#3f3f46'" onblur="this.style.borderColor='#27272a'"></textarea>
+                    <button onclick="tgSend()" style="width:38px;height:38px;border-radius:50%;background:#2AABEE;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background 0.15s" onmouseover="this.style.background='#229ED9'" onmouseout="this.style.background='#2AABEE'">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                    </button>
                 </div>
             </div>
 
@@ -3407,6 +3419,7 @@ function enterDashboard(email, name) {
     }).catch(e => { console.log('Load error:', e); });
     try { startPresence(); } catch(e) {}
     try { startTaskPoll(); } catch(e) {}
+    try { startTelegramPoll(); } catch(e) {}
     try { updateNotifBadge(); } catch(e) {}
     try { initPushNotifications(); } catch(e) {}
     loadProfiles();
@@ -3913,6 +3926,7 @@ function sidebarNav(tabId, btn) {
     if (tabId === 'activity') renderActivityFeed();
     if (tabId === 'plan') renderPlanView();
     if (tabId === 'workload') renderWorkload();
+    if (tabId === 'telegram') startTelegramPoll();
     if (tabId === 'settings') switchSettingsTab('account', null);
     // Close mobile sidebar
     if (window.innerWidth <= 768) {
@@ -4829,6 +4843,7 @@ async function submitNewTask() {
     if (created) {
         showToast('Task created', 'success');
         addActivity('created', created.title);
+        tgNotifyTask('created', created);
         // Notify in-app — always fire so user always sees the popup
         if (created.assignee && created.assignee.toLowerCase() !== currentUserId.toLowerCase()) {
             const assigneeName = created.assignee.split('@')[0];
@@ -7078,6 +7093,141 @@ function checkAndNotify() {
 
     localStorage.setItem(firedKey, JSON.stringify(fired));
     localStorage.setItem('notif_last_check', today);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   TELEGRAM INTEGRATION
+   ════════════════════════════════════════════════════════════════ */
+const TG_TOKEN  = '8611146483:AAHSqMuxdHaK18KPRmiSvHRl_i0BrNVeSvw';
+const TG_CHAT   = '-4850514243';
+const TG_API    = 'https://api.telegram.org/bot' + TG_TOKEN;
+
+let _tgOffset   = parseInt(localStorage.getItem('tg_offset') || '0');
+let _tgPollTimer = null;
+let _tgMessages  = [];
+let _tgSeenIds   = new Set();
+
+async function tgCall(method, params = {}) {
+    try {
+        const url = TG_API + '/' + method;
+        const r = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(params)
+        });
+        return await r.json();
+    } catch(e) { return { ok: false }; }
+}
+
+async function tgSend() {
+    const input = document.getElementById('tgInput');
+    const text  = (input ? input.value : '').trim();
+    if (!text) return;
+    const auth  = JSON.parse(sessionStorage.getItem('app_auth') || '{}');
+    const sender = auth.name || auth.username || 'User';
+    const full  = '👤 ' + sender + ':\n' + text;
+    input.value = '';
+    tgAutoResize(input);
+    // Optimistic local display
+    tgAddMessage({ id: 'local_' + Date.now(), from: sender, text, time: new Date(), isMe: true });
+    await tgCall('sendMessage', { chat_id: TG_CHAT, text: full });
+}
+
+function tgHandleKey(e) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); tgSend(); }
+}
+
+function tgAutoResize(el) {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+async function tgFetchMessages() {
+    const data = await tgCall('getUpdates', {
+        offset: _tgOffset,
+        limit: 100,
+        allowed_updates: ['message']
+    });
+    if (!data.ok || !data.result) return;
+    data.result.forEach(upd => {
+        _tgOffset = upd.update_id + 1;
+        localStorage.setItem('tg_offset', _tgOffset);
+        const msg = upd.message;
+        if (!msg || !msg.text) return;
+        if (_tgSeenIds.has(msg.message_id)) return;
+        _tgSeenIds.add(msg.message_id);
+        // Skip bot-sent task notifications (they start with our emoji markers)
+        const isBot = msg.from && msg.from.is_bot;
+        const auth  = JSON.parse(sessionStorage.getItem('app_auth') || '{}');
+        const myName = auth.name || '';
+        // Parse sender — our bot sends "👤 Name:\nMessage" format
+        let from = msg.from ? (msg.from.first_name || msg.from.username || 'Unknown') : 'Unknown';
+        let text = msg.text;
+        if (isBot && text.startsWith('👤 ')) {
+            const nl = text.indexOf('\n');
+            from = nl > -1 ? text.slice(2, nl).replace(':', '').trim() : from;
+            text = nl > -1 ? text.slice(nl + 1) : text;
+        }
+        const isMe = from === myName;
+        tgAddMessage({ id: msg.message_id, from, text, time: new Date(msg.date * 1000), isMe });
+    });
+}
+
+function tgAddMessage(msg) {
+    if (typeof msg.id === 'number' && _tgSeenIds.has(msg.id)) return;
+    _tgMessages.push(msg);
+    if (_tgMessages.length > 200) _tgMessages.shift();
+    const container = document.getElementById('tgMessages');
+    if (!container) return;
+    const el = document.createElement('div');
+    el.style.cssText = 'display:flex;flex-direction:column;align-items:' + (msg.isMe ? 'flex-end' : 'flex-start') + ';gap:2px';
+    const timeStr = msg.time ? msg.time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+    const bubble  = msg.isMe
+        ? `<div style="background:#2AABEE;color:#fff;padding:8px 12px;border-radius:16px 16px 4px 16px;font-size:0.83rem;max-width:70%;line-height:1.45;word-break:break-word">${esc(msg.text)}</div>`
+        : `<div style="display:flex;align-items:flex-end;gap:8px">
+               <div style="width:28px;height:28px;border-radius:50%;background:#27272a;display:flex;align-items:center;justify-content:center;font-size:0.6rem;font-weight:700;color:#a1a1aa;flex-shrink:0">${esc((msg.from||'?')[0].toUpperCase())}</div>
+               <div>
+                   <div style="font-size:0.68rem;color:#52525b;margin-bottom:2px;padding-left:2px">${esc(msg.from)}</div>
+                   <div style="background:#18181b;border:1px solid #27272a;color:#e4e4e7;padding:8px 12px;border-radius:4px 16px 16px 16px;font-size:0.83rem;max-width:70%;line-height:1.45;word-break:break-word">${esc(msg.text)}</div>
+               </div>
+           </div>`;
+    el.innerHTML = bubble + `<div style="font-size:0.65rem;color:#3f3f46;margin-top:1px;padding:0 4px">${timeStr}</div>`;
+    container.appendChild(el);
+    container.scrollTop = container.scrollHeight;
+}
+
+function tgRefresh() {
+    tgFetchMessages();
+}
+
+function startTelegramPoll() {
+    if (_tgPollTimer) return;
+    tgFetchMessages();
+    _tgPollTimer = setInterval(tgFetchMessages, 4000);
+}
+
+function stopTelegramPoll() {
+    if (_tgPollTimer) { clearInterval(_tgPollTimer); _tgPollTimer = null; }
+}
+
+// Send task notification to Telegram group
+async function tgNotifyTask(action, task) {
+    const icons = { created: '✅', assigned: '👤', done: '🎉', overdue: '⚠️', updated: '✏️' };
+    const icon = icons[action] || '📋';
+    const auth = JSON.parse(sessionStorage.getItem('app_auth') || '{}');
+    const actor = auth.name || currentUserId || 'Someone';
+    let text = '';
+    if (action === 'created') {
+        text = `${icon} *New task created*\n📌 ${task.title}`;
+        if (task.assignee) text += `\n👤 Assigned to: ${task.assignee.split('@')[0]}`;
+        if (task.due_date)  text += `\n📅 Due: ${task.due_date}`;
+        if (task.priority)  text += `\n🔴 Priority: ${task.priority}`;
+    } else if (action === 'done') {
+        text = `${icon} *Task completed!*\n📌 ${task.title}\n✔ Marked done by ${actor}`;
+    } else if (action === 'overdue') {
+        text = `${icon} *Overdue task*\n📌 ${task.title}\n📅 Was due: ${task.due_date}`;
+    }
+    if (text) await tgCall('sendMessage', { chat_id: TG_CHAT, text, parse_mode: 'Markdown' });
 }
 
 /* ════════════════════════════════════════════════════════════════
