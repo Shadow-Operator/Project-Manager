@@ -477,6 +477,10 @@ body { background: var(--bg); color: var(--text); }
 }
 .task-card.done { opacity: 0.4; }
 .task-card.done:hover { opacity: 0.55; }
+.task-card.overdue-card { border-color: rgba(239,68,68,0.2); }
+.task-card.overdue-card:hover { border-color: rgba(239,68,68,0.35); box-shadow: 0 4px 16px rgba(239,68,68,0.08); }
+.task-card.due-today-card { border-color: rgba(251,191,36,0.2); }
+.task-card.due-today-card:hover { border-color: rgba(251,191,36,0.35); box-shadow: 0 4px 16px rgba(251,191,36,0.08); }
 
 .task-card-main {
     display: flex; align-items: flex-start; gap: 12px; padding: 14px 16px;
@@ -514,6 +518,18 @@ body { background: var(--bg); color: var(--text); }
 
 .task-card-row {
     display: flex; align-items: center; gap: 6px; margin-top: 4px; flex-wrap: wrap;
+}
+
+/* Quick status checkbox */
+.task-check {
+    width: 20px; height: 20px; border-radius: 6px; flex-shrink: 0;
+    border: 2px solid #27272a; background: transparent;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s ease; color: transparent; padding: 0;
+}
+.task-check:hover { border-color: #4ade80; background: rgba(74,222,128,0.08); }
+.task-check.checked {
+    border-color: #4ade80; background: rgba(74,222,128,0.15); color: #4ade80;
 }
 
 /* Card footer bar */
@@ -1007,6 +1023,41 @@ body { background: var(--bg); color: var(--text); }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
+/* ── Home Dashboard ──────────────────────────────────────────── */
+.stat-card {
+    background: #0a0a0c; border: 1px solid #1a1a1f; border-radius: 12px;
+    padding: 16px 20px; transition: all 0.2s ease;
+}
+.stat-card:hover { border-color: #27272a; transform: translateY(-1px); }
+.stat-value { font-size: 1.8rem; font-weight: 700; color: #fafafa; letter-spacing: -0.03em; line-height: 1; }
+.stat-label { font-size: 0.78rem; color: #71717a; margin-top: 4px; font-weight: 500; }
+.stat-sub { font-size: 0.68rem; color: #3f3f46; margin-top: 2px; }
+
+.home-section {
+    background: #0a0a0c; border: 1px solid #1a1a1f; border-radius: 12px;
+    overflow: hidden;
+}
+.home-section-title {
+    display: flex; align-items: center; gap: 8px;
+    padding: 14px 16px; font-size: 0.82rem; font-weight: 600; color: #a1a1aa;
+    border-bottom: 1px solid #1a1a1f;
+}
+.home-task-item {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    padding: 10px 16px; cursor: pointer; transition: background 0.12s;
+    border-bottom: 1px solid rgba(26,26,31,0.4);
+}
+.home-task-item:last-child { border-bottom: none; }
+.home-task-item:hover { background: rgba(255,255,255,0.02); }
+.home-task-title {
+    font-size: 0.82rem; color: #d4d4d8; font-weight: 500;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; min-width: 0;
+}
+
+@media (max-width: 768px) {
+    #homeContent > div:last-child { grid-template-columns: 1fr !important; }
+}
+
 /* ── Bottom Dock ─────────────────────────────────────────────── */
 .dock-wrapper {
     position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%);
@@ -1148,8 +1199,13 @@ body { background: var(--bg); color: var(--text); }
             </button>
         </div>
         <nav class="sidebar-nav">
+            <button class="sidebar-nav-item active" onclick="sidebarNav('home', this)" data-tab="home">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                <span>Home</span>
+            </button>
+            <div class="sidebar-separator"></div>
             <div class="sidebar-nav-label">Workspace</div>
-            <button class="sidebar-nav-item active" onclick="sidebarNav('board', this)" data-tab="board">
+            <button class="sidebar-nav-item" onclick="sidebarNav('board', this)" data-tab="board">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
                 <span>Board</span>
             </button>
@@ -1232,8 +1288,13 @@ body { background: var(--bg); color: var(--text); }
 
         <!-- Page Content -->
         <div class="page-content">
+            <!-- Home Tab -->
+            <div id="tab-home" class="tab-pane active">
+                <div id="homeContent" style="padding:20px;max-width:1000px;margin:0 auto"></div>
+            </div>
+
             <!-- Board Tab -->
-            <div id="tab-board" class="tab-pane active">
+            <div id="tab-board" class="tab-pane">
                 <div id="boardLoading" class="spinner">Loading tasks...</div>
                 <div id="boardCategoryFilter" class="filter-chips hidden" style="padding:12px 20px 0;display:flex;gap:6px;flex-wrap:wrap;align-items:center">
                     <button class="filter-chip" id="myTasksFilter" onclick="toggleMyTasks(this)" style="border-color:rgba(124,58,237,0.3);color:#a78bfa">My Tasks</button>
@@ -1371,7 +1432,11 @@ body { background: var(--bg); color: var(--text); }
     <!-- Bottom Dock -->
     <div class="dock-wrapper" id="bottomDock">
         <div class="dock">
-            <button class="dock-item active" onclick="dockNav('board')" id="dock-board" title="Board">
+            <button class="dock-item active" onclick="dockNav('home')" id="dock-home" title="Home">
+                <span class="dock-tooltip">Home</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            </button>
+            <button class="dock-item" onclick="dockNav('board')" id="dock-board" title="Board">
                 <span class="dock-tooltip">Board</span>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
             </button>
@@ -1763,7 +1828,7 @@ function enterDashboard(email, name) {
         document.documentElement.classList.add('light');
     }
     updateThemeIcon();
-    loadTasks();
+    loadTasks().then(() => renderHome());
     startPresence();
     startTaskPoll();
     resetSessionTimer();
@@ -1898,7 +1963,7 @@ function updateThemeIcon() {
 /* ════════════════════════════════════════════════════════════════
    SIDEBAR & NAVIGATION
    ════════════════════════════════════════════════════════════════ */
-const PAGE_TITLES = { board: 'Board', list: 'List', calendar: 'Calendar', dealflow: 'Deal Flow', telegram: 'Telegram', settings: 'Settings' };
+const PAGE_TITLES = { home: 'Home', board: 'Board', list: 'List', calendar: 'Calendar', dealflow: 'Deal Flow', telegram: 'Telegram', settings: 'Settings' };
 const CATEGORIES = ['Recast', 'Shadow Operating', "Mulligan's Marketplace", 'Agency'];
 const DEAL_STAGES = ['Lead', 'Contact Made', 'Proposal', 'Negotiation', 'Won', 'Lost'];
 let _boardCategoryFilter = new Set();
@@ -1927,6 +1992,7 @@ function sidebarNav(tabId, btn) {
     document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
     document.getElementById('tab-' + tabId).classList.add('active');
     // Trigger renders
+    if (tabId === 'home') renderHome();
     if (tabId === 'list') renderListView();
     if (tabId === 'calendar') renderCalendar();
     if (tabId === 'dealflow') renderDealFlow();
@@ -2103,6 +2169,12 @@ function renderBoard() {
         if (cols[t.status]) cols[t.status].push(t);
     });
 
+    // Priority auto-sort: High → Medium → Low
+    const priorityOrder = { High: 0, Medium: 1, Low: 2, '': 3 };
+    Object.values(cols).forEach(arr => {
+        arr.sort((a, b) => (priorityOrder[a.priority] ?? 3) - (priorityOrder[b.priority] ?? 3));
+    });
+
     document.getElementById('count-todo').textContent = cols['To Do'].length;
     document.getElementById('count-inprogress').textContent = cols['In Progress'].length;
     document.getElementById('count-done').textContent = cols['Done'].length;
@@ -2138,9 +2210,14 @@ function renderTaskCard(task) {
     // Footer items
     const footerItems = [dueHtml, subHtml, assigneeHtml].filter(Boolean);
 
-    return `<div class="task-card ${task.status === 'Done' ? 'done' : ''}" onclick="openDetail('${esc(task.task_id)}')">
+    const isDone = task.status === 'Done';
+    const dueCls2 = !isDone && dueDateClass(task.due_date);
+    const cardCls = isDone ? 'done' : dueCls2 === 'overdue' ? 'overdue-card' : dueCls2 === 'today' ? 'due-today-card' : '';
+    return `<div class="task-card ${cardCls}" onclick="openDetail('${esc(task.task_id)}')">
         <div class="task-card-main">
-            <div class="task-card-icon priority-${esc(task.priority || '')}">${esc(priorityLetter)}</div>
+            <button class="task-check ${isDone ? 'checked' : ''}" onclick="event.stopPropagation(); quickToggleStatus('${esc(task.task_id)}')" title="${isDone ? 'Mark incomplete' : 'Mark done'}">
+                ${isDone ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' : ''}
+            </button>
             <div class="task-card-body">
                 <div class="task-card-title">${esc(task.title)}</div>
                 ${task.description ? `<div style="font-size:0.72rem;color:#3f3f46;line-height:1.4;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(task.description)}</div>` : ''}
@@ -2151,6 +2228,16 @@ function renderTaskCard(task) {
         </div>
         ${footerItems.length > 0 ? `<div class="task-card-footer">${footerItems.join('<span style="color:#1a1a1f">·</span>')}</div>` : ''}
     </div>`;
+}
+
+function quickToggleStatus(taskId) {
+    const task = getTaskById(taskId);
+    if (!task) return;
+    const newStatus = task.status === 'Done' ? 'To Do' : 'Done';
+    apiUpdateField(taskId, 'status', newStatus);
+    renderBoard();
+    renderListView();
+    showToast(newStatus === 'Done' ? 'Task completed ✓' : 'Task reopened', 'success');
 }
 
 function changeCardStatus(taskId, newStatus) {
@@ -2825,6 +2912,153 @@ async function pushToCalendar(taskId) {
         showToast('Failed to connect to calendar', 'error');
         if (btn) { btn.innerHTML = '&#x1F4C5; Push to Google Calendar'; btn.disabled = false; }
     }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   HOME DASHBOARD
+   ════════════════════════════════════════════════════════════════ */
+function renderHome() {
+    const today = new Date().toISOString().slice(0, 10);
+    const weekEnd = new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10);
+
+    const myTasks = DATA.filter(t => t.assignee && t.assignee.toLowerCase() === currentUserId.toLowerCase());
+    const totalTasks = DATA.length;
+    const doneTasks = DATA.filter(t => t.status === 'Done').length;
+    const overdue = DATA.filter(t => t.due_date && t.due_date < today && t.status !== 'Done');
+    const dueThisWeek = DATA.filter(t => t.due_date && t.due_date >= today && t.due_date <= weekEnd && t.status !== 'Done');
+    const inProgress = DATA.filter(t => t.status === 'In Progress');
+    const myOverdue = myTasks.filter(t => t.due_date && t.due_date < today && t.status !== 'Done');
+    const myDueWeek = myTasks.filter(t => t.due_date && t.due_date >= today && t.due_date <= weekEnd && t.status !== 'Done');
+
+    // Category breakdown
+    const catCounts = {};
+    CATEGORIES.forEach(c => catCounts[c] = { total: 0, done: 0 });
+    DATA.forEach(t => {
+        if (t.category && catCounts[t.category]) {
+            catCounts[t.category].total++;
+            if (t.status === 'Done') catCounts[t.category].done++;
+        }
+    });
+
+    // Recent tasks (last 5 created)
+    const recent = [...DATA].sort((a, b) => (b.created_at || '').localeCompare(a.created_at || '')).slice(0, 5);
+
+    const auth = JSON.parse(sessionStorage.getItem('app_auth') || localStorage.getItem('app_auth') || '{}');
+    const firstName = (auth.name || 'User').split(' ')[0];
+
+    const html = `
+        <div style="margin-bottom:24px">
+            <h1 style="font-size:1.5rem;font-weight:700;color:#fafafa;letter-spacing:-0.02em">Good ${new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 18 ? 'afternoon' : 'evening'}, ${esc(firstName)}</h1>
+            <p style="font-size:0.85rem;color:#52525b;margin-top:4px">Here's your workspace overview</p>
+        </div>
+
+        <!-- Stats Cards -->
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:24px">
+            <div class="stat-card">
+                <div class="stat-value">${totalTasks}</div>
+                <div class="stat-label">Total Tasks</div>
+                <div class="stat-sub">${doneTasks} completed</div>
+            </div>
+            <div class="stat-card" ${overdue.length > 0 ? 'style="border-color:rgba(239,68,68,0.3)"' : ''}>
+                <div class="stat-value" ${overdue.length > 0 ? 'style="color:#f87171"' : ''}>${overdue.length}</div>
+                <div class="stat-label">Overdue</div>
+                <div class="stat-sub">${myOverdue.length} assigned to you</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" style="color:#fbbf24">${dueThisWeek.length}</div>
+                <div class="stat-label">Due This Week</div>
+                <div class="stat-sub">${myDueWeek.length} assigned to you</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" style="color:#818cf8">${inProgress.length}</div>
+                <div class="stat-label">In Progress</div>
+                <div class="stat-sub">${myTasks.filter(t => t.status === 'In Progress').length} yours</div>
+            </div>
+        </div>
+
+        <!-- Two Column Layout -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+
+            <!-- Overdue Tasks -->
+            <div class="home-section">
+                <div class="home-section-title" style="color:#f87171">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    Overdue Tasks (${overdue.length})
+                </div>
+                ${overdue.length === 0 ? '<div style="padding:16px;text-align:center;color:#27272a;font-size:0.82rem">No overdue tasks 🎉</div>' :
+                overdue.slice(0, 5).map(t => `
+                    <div class="home-task-item" onclick="sidebarNav('board', document.querySelector('[data-tab=board]')); setTimeout(() => openDetail('${esc(t.task_id)}'), 100)">
+                        <div class="home-task-title">${esc(t.title)}</div>
+                        <div style="display:flex;gap:6px;align-items:center">
+                            ${categoryBadge(t.category)}
+                            <span style="color:#f87171;font-size:0.7rem;font-weight:600">${esc(t.due_date)}</span>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+
+            <!-- Due This Week -->
+            <div class="home-section">
+                <div class="home-section-title" style="color:#fbbf24">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    Due This Week (${dueThisWeek.length})
+                </div>
+                ${dueThisWeek.length === 0 ? '<div style="padding:16px;text-align:center;color:#27272a;font-size:0.82rem">Nothing due this week</div>' :
+                dueThisWeek.slice(0, 5).map(t => `
+                    <div class="home-task-item" onclick="sidebarNav('board', document.querySelector('[data-tab=board]')); setTimeout(() => openDetail('${esc(t.task_id)}'), 100)">
+                        <div class="home-task-title">${esc(t.title)}</div>
+                        <div style="display:flex;gap:6px;align-items:center">
+                            ${categoryBadge(t.category)}
+                            <span style="color:#fbbf24;font-size:0.7rem">${esc(t.due_date)}</span>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+
+            <!-- Category Progress -->
+            <div class="home-section">
+                <div class="home-section-title">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                    Project Progress
+                </div>
+                ${CATEGORIES.map(cat => {
+                    const c = catCounts[cat];
+                    const pct = c.total > 0 ? Math.round((c.done / c.total) * 100) : 0;
+                    const color = CATEGORY_COLORS[cat] || '#71717a';
+                    return `<div style="padding:8px 12px">
+                        <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+                            <span style="font-size:0.82rem;color:#d4d4d8">${esc(cat)}</span>
+                            <span style="font-size:0.72rem;color:#52525b">${c.done}/${c.total} · ${pct}%</span>
+                        </div>
+                        <div style="height:6px;background:#1a1a1f;border-radius:3px;overflow:hidden">
+                            <div style="height:100%;width:${pct}%;background:${color};border-radius:3px;transition:width 0.5s ease"></div>
+                        </div>
+                    </div>`;
+                }).join('')}
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="home-section">
+                <div class="home-section-title">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    Recent Tasks
+                </div>
+                ${recent.length === 0 ? '<div style="padding:16px;text-align:center;color:#27272a;font-size:0.82rem">No tasks yet — create your first one!</div>' :
+                recent.map(t => {
+                    const member = getTeamMember(t.created_by);
+                    return `<div class="home-task-item" onclick="sidebarNav('board', document.querySelector('[data-tab=board]')); setTimeout(() => openDetail('${esc(t.task_id)}'), 100)">
+                        <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0">
+                            ${member ? `<span class="assignee-badge" style="background:${member.color};width:20px;height:20px;font-size:0.55rem;flex-shrink:0">${esc(member.initials)}</span>` : ''}
+                            <div class="home-task-title">${esc(t.title)}</div>
+                        </div>
+                        <span class="subtask-status-pill ${statusClass(t.status)}">${esc(t.status)}</span>
+                    </div>`;
+                }).join('')}
+            </div>
+        </div>
+    `;
+
+    document.getElementById('homeContent').innerHTML = html;
 }
 
 /* ════════════════════════════════════════════════════════════════
