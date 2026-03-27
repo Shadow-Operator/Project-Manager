@@ -709,6 +709,29 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .task-card-footer-left { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; min-width: 0; }
 .task-card-footer-right { flex-shrink: 0; }
 
+/* Task select checkbox (bulk actions) */
+.task-select-cb { position:absolute; top:8px; right:8px; width:16px; height:16px; opacity:0; transition:opacity 0.15s; cursor:pointer; accent-color:#818cf8; z-index:2; }
+.task-card:hover .task-select-cb { opacity:1; }
+.task-select-cb:checked { opacity:1; }
+
+/* Bulk action bar */
+.bulk-bar { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:#18181b; border:1px solid #3f3f46; border-radius:12px; padding:10px 16px; display:flex; align-items:center; gap:10px; z-index:200; box-shadow:0 8px 32px rgba(0,0,0,0.5); font-size:0.82rem; color:#d4d4d8; }
+.bulk-bar select, .bulk-bar button { background:#27272a; border:1px solid #3f3f46; color:#d4d4d8; border-radius:6px; padding:5px 10px; font-size:0.8rem; cursor:pointer; font-family:inherit; }
+
+/* Notification banner */
+.notif-request-banner { background:#18181b; border-bottom:1px solid #27272a; padding:8px 20px; display:flex; align-items:center; gap:10px; font-size:0.8rem; color:#a1a1aa; }
+.notif-request-banner button { background:#27272a; border:1px solid #3f3f46; color:#d4d4d8; border-radius:6px; padding:3px 10px; font-size:0.78rem; cursor:pointer; font-family:inherit; }
+
+/* Nav badge */
+.nav-badge { background:#ef4444; color:#fff; border-radius:8px; padding:0 5px; font-size:0.6rem; font-weight:700; min-width:16px; text-align:center; display:none; }
+
+/* Shortcuts overlay */
+.shortcuts-grid { display:flex; flex-direction:column; gap:4px; }
+.shortcut-row { display:flex; align-items:center; gap:12px; padding:6px 0; border-bottom:1px solid #1a1a1f; }
+.shortcut-row:last-child { border-bottom:none; }
+.shortcut-row kbd { background:#27272a; border:1px solid #3f3f46; border-radius:5px; padding:2px 7px; font-size:0.75rem; color:#e4e4e7; font-family:'JetBrains Mono',monospace; min-width:32px; text-align:center; flex-shrink:0; }
+.shortcut-row span { font-size:0.82rem; color:#a1a1aa; }
+
 .priority-badge {
     display: inline-flex; align-items: center; gap: 4px;
     padding: 2px 10px; border-radius: 20px; font-size: 0.68rem; font-weight: 600;
@@ -1769,8 +1792,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     animation: popoverIn 0.15s ease;
 }
 .sidebar.collapsed .sidebar-profile-popover {
-    left: 52px; right: auto; min-width: 220px;
-    bottom: 4px; margin-bottom: 0;
+    position: fixed; left: 52px; right: auto;
+    min-width: 220px; bottom: 8px; margin-bottom: 0;
 }
 .sidebar-profile-popover .popover-profile-header {
     padding: 14px; border-bottom: 1px solid #1a1a1f;
@@ -2036,6 +2059,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
             <button class="sidebar-nav-item" onclick="sidebarNav('board', this)" data-tab="board">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
                 <span>Board</span>
+                <span class="nav-badge" id="boardOverdueBadge"></span>
             </button>
             <button class="sidebar-nav-item" onclick="sidebarNav('list', this)" data-tab="list">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
@@ -2048,6 +2072,10 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
             <button class="sidebar-nav-item" onclick="sidebarNav('plan', this)" data-tab="plan">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
                 <span>Plan</span>
+            </button>
+            <button class="sidebar-nav-item" onclick="sidebarNav('workload', this)" data-tab="workload">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                <span>Workload</span>
             </button>
             <button class="sidebar-nav-item" onclick="sidebarNav('dealflow', this)" data-tab="dealflow">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
@@ -2132,7 +2160,14 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
                 <span class="notif-badge hidden" id="notifBadge">0</span>
             </button>
             <span class="user-info" id="userInfo" style="display:none"></span>
+            <button onclick="exportToSheets()" title="Export to Google Sheets" class="topbar-search-btn" style="margin-left:4px">↓ Export</button>
         </header>
+        <div id="notifBanner" class="notif-request-banner hidden">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            <span>Enable notifications for overdue and assignment alerts</span>
+            <button onclick="requestNotifPermission()">Enable</button>
+            <button onclick="document.getElementById('notifBanner').classList.add('hidden')" style="background:none;border:none;color:#71717a;font-size:1rem;padding:0 4px;cursor:pointer">×</button>
+        </div>
 
         <!-- Page Content -->
         <div class="page-content">
@@ -2147,7 +2182,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
                     <div class="spinner-dots"><div class="spinner-dot"></div><div class="spinner-dot"></div><div class="spinner-dot"></div></div>
                     <div class="spinner-text">Loading tasks...</div>
                 </div>
-                <div id="boardCategoryFilter" class="hidden" style="padding:12px 20px 0">
+                <div id="boardCategoryFilter" class="hidden" style="padding:12px 20px 0;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
                     <div class="seg-tabs">
                         <button class="seg-tab active" onclick="setBoardCategoryTab('all',this)">All</button>
                         <button class="seg-tab" onclick="setBoardCategoryTab('mine',this)">My Tasks</button>
@@ -2156,6 +2191,12 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
                         <button class="seg-tab" onclick="setBoardCategoryTab('Mulligan\\'s Marketplace',this)">Mulligan's</button>
                         <button class="seg-tab" onclick="setBoardCategoryTab('Agency',this)">Agency</button>
                     </div>
+                    <select id="boardSortSelect" onchange="setBoardSort(this.value)" style="background:#18181b;border:1px solid #27272a;color:#a1a1aa;border-radius:6px;padding:4px 8px;font-size:0.75rem;font-family:inherit">
+                        <option value="priority">Sort: Priority</option>
+                        <option value="due_date">Sort: Due Date</option>
+                        <option value="created">Sort: Created</option>
+                        <option value="alpha">Sort: A–Z</option>
+                    </select>
                 </div>
                 <div id="boardContent" class="board hidden">
                     <div class="board-column" id="col-todo">
@@ -2193,9 +2234,9 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
                 <div class="list-view">
                     <div class="list-toolbar">
                         <input type="text" class="search-input" id="listSearch" placeholder="Search tasks..." oninput="debouncedListFilter()">
-                        <button onclick="exportCSV()" style="padding:5px 12px;border-radius:8px;border:1px solid #27272a;background:#18181b;color:#a1a1aa;font-size:0.72rem;cursor:pointer;display:inline-flex;align-items:center;gap:5px;white-space:nowrap;transition:all 0.2s;" onmouseover="this.style.borderColor='#818cf8';this.style.color='#818cf8'" onmouseout="this.style.borderColor='#27272a';this.style.color='#a1a1aa'">
+                        <button onclick="exportToSheets()" style="padding:5px 12px;border-radius:8px;border:1px solid #27272a;background:#18181b;color:#a1a1aa;font-size:0.72rem;cursor:pointer;display:inline-flex;align-items:center;gap:5px;white-space:nowrap;transition:all 0.2s;" onmouseover="this.style.borderColor='#818cf8';this.style.color='#818cf8'" onmouseout="this.style.borderColor='#27272a';this.style.color='#a1a1aa'">
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                            CSV
+                            Export → Sheets
                         </button>
                         <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-left:auto">
                             <div class="seg-tabs" id="listGroupToggle">
@@ -2383,6 +2424,9 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
                 </div>
             </div>
 
+            <!-- Workload Tab -->
+            <div id="tab-workload" class="tab-pane"><div id="workloadContent" style="padding:20px;max-width:900px;margin:0 auto"></div></div>
+
             <!-- Settings Tab -->
             <div id="tab-settings" class="tab-pane">
                 <div style="padding: 24px; max-width: 720px;">
@@ -2525,6 +2569,20 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
             </div>
         </div>
     </main>
+
+    <!-- Bulk Action Bar -->
+    <div id="bulkBar" class="bulk-bar hidden">
+        <span class="bulk-count" id="bulkCount">0 selected</span>
+        <select id="bulkStatusSelect" onchange="bulkChangeStatus(this.value)">
+            <option value="">Change Status...</option>
+            <option>To Do</option><option>In Progress</option><option>Done</option>
+        </select>
+        <select id="bulkPrioritySelect" onchange="bulkChangePriority(this.value)">
+            <option value="">Change Priority...</option>
+            <option>High</option><option>Medium</option><option>Low</option>
+        </select>
+        <button onclick="bulkClearSelection()">✕ Clear</button>
+    </div>
 
     </div><!-- end dashboard-layout -->
 
@@ -2690,6 +2748,8 @@ let _detailStack = [];            // Breadcrumb stack of task_ids
 let _collapsedSubtasks = new Set(); // task_ids whose children are collapsed
 let listFilters = { status: new Set(), priority: new Set(), category: new Set() };
 let listSort = { col: 'title', asc: true };
+let _selectedTasks = new Set();
+let _boardSort = 'priority';
 
 const SESSION_TIMEOUT = 30 * 60 * 1000;
 
@@ -3192,6 +3252,7 @@ function enterDashboard(email, name) {
     try { startPresence(); } catch(e) {}
     try { startTaskPoll(); } catch(e) {}
     try { updateNotifBadge(); } catch(e) {}
+    try { initPushNotifications(); } catch(e) {}
     loadProfiles();
     resetSessionTimer();
 }
@@ -3606,6 +3667,7 @@ document.addEventListener('keydown', function(e) {
     if (e.key === 'c' || e.key === 'C') {
         if (!e.metaKey && !e.ctrlKey) { e.preventDefault(); openNewTaskModal(); }
     }
+    if (e.key === '?') { e.preventDefault(); toggleShortcutsOverlay(); }
     if (e.key === '1') { e.preventDefault(); sidebarNav('home'); }
     if (e.key === '2') { e.preventDefault(); sidebarNav('board'); }
     if (e.key === '3') { e.preventDefault(); sidebarNav('list'); }
@@ -3617,6 +3679,7 @@ document.addEventListener('keydown', function(e) {
         closeNewTaskModal();
         closeSearchOverlay();
         closeContextMenu();
+        closeShortcutsOverlay();
         var confirmOverlay = document.querySelector('.confirm-dialog-overlay');
         if (confirmOverlay) confirmOverlay.remove();
     }
@@ -3641,10 +3704,15 @@ function exportCSV() {
     showToast('CSV exported');
 }
 
+function exportToSheets() {
+    exportCSV();
+    showToast('CSV downloaded — open sheets.new to import it into Google Sheets', 'success');
+}
+
 /* ════════════════════════════════════════════════════════════════
    SIDEBAR & NAVIGATION
    ════════════════════════════════════════════════════════════════ */
-const PAGE_TITLES = { home: 'Home', board: 'Board', list: 'List', calendar: 'Calendar', plan: 'Plan', dealflow: 'Deal Flow', invoices: 'Invoices', telegram: 'Telegram', activity: 'Activity', settings: 'Settings' };
+const PAGE_TITLES = { home: 'Home', board: 'Board', list: 'List', calendar: 'Calendar', plan: 'Plan', workload: 'Workload', dealflow: 'Deal Flow', invoices: 'Invoices', telegram: 'Telegram', activity: 'Activity', settings: 'Settings' };
 const CATEGORIES = ['Recast', 'Shadow Operating', "Mulligan's Marketplace", 'Agency'];
 const DEAL_STAGES = ['Lead', 'Contact Made', 'Proposal', 'Negotiation', 'Won', 'Lost'];
 let _boardCategoryFilter = new Set();
@@ -3687,6 +3755,7 @@ function sidebarNav(tabId, btn) {
     if (tabId === 'invoices') renderInvoices();
     if (tabId === 'activity') renderActivityFeed();
     if (tabId === 'plan') renderPlanView();
+    if (tabId === 'workload') renderWorkload();
     if (tabId === 'settings') switchSettingsTab('account', null);
     // Close mobile sidebar
     if (window.innerWidth <= 768) {
@@ -3847,10 +3916,13 @@ function renderBoard() {
         if (cols[t.status]) cols[t.status].push(t);
     });
 
-    // Priority auto-sort: High → Medium → Low
+    // Dynamic sort based on _boardSort
     const priorityOrder = { High: 0, Medium: 1, Low: 2, '': 3 };
     Object.values(cols).forEach(arr => {
-        arr.sort((a, b) => (priorityOrder[a.priority] ?? 3) - (priorityOrder[b.priority] ?? 3));
+        if (_boardSort === 'priority') arr.sort((a,b) => (priorityOrder[a.priority]??3)-(priorityOrder[b.priority]??3));
+        else if (_boardSort === 'due_date') arr.sort((a,b) => (a.due_date||'9999')>(b.due_date||'9999')?1:-1);
+        else if (_boardSort === 'created') arr.sort((a,b) => (b.created_at||'')>(a.created_at||'')?1:-1);
+        else if (_boardSort === 'alpha') arr.sort((a,b) => (a.title||'').localeCompare(b.title||''));
     });
 
     document.getElementById('count-todo').textContent = cols['To Do'].length;
@@ -3860,6 +3932,12 @@ function renderBoard() {
     document.getElementById('body-todo').innerHTML = cols['To Do'].map(t => renderTaskCard(t)).join('');
     document.getElementById('body-inprogress').innerHTML = cols['In Progress'].map(t => renderTaskCard(t)).join('');
     document.getElementById('body-done').innerHTML = cols['Done'].map(t => renderTaskCard(t)).join('');
+
+    // Update overdue badge
+    const today = new Date().toISOString().slice(0,10);
+    const overdueCount = DATA.filter(t => t.due_date && t.due_date < today && t.status !== 'Done').length;
+    const badge = document.getElementById('boardOverdueBadge');
+    if (badge) { badge.textContent = overdueCount; badge.style.display = overdueCount > 0 ? 'inline' : 'none'; }
 }
 
 function renderTaskCard(task) {
@@ -3901,13 +3979,19 @@ function renderTaskCard(task) {
     const cardCls = isDone ? 'done' : dueCls2 === 'overdue' ? 'overdue-card' : dueCls2 === 'today' ? 'due-today-card' : '';
     const prioCls = task.priority ? `prio-${task.priority}` : '';
     const leftFooter = [blockedHtml, dueHtml, subHtml].filter(Boolean);
+    const isSelected = _selectedTasks.has(task.task_id);
+    const progressBar = sub.total > 0
+        ? `<div style="height:3px;background:#1a1a1f;border-radius:2px;margin-top:4px;overflow:hidden"><div style="height:100%;width:${Math.round(sub.done/sub.total*100)}%;background:${sub.done===sub.total?'#4ade80':'#818cf8'};border-radius:2px;transition:width 0.3s"></div></div>`
+        : '';
     return `<div class="task-card ${cardCls} ${prioCls}" draggable="true" ondragstart="handleDragStart(event,'${esc(task.task_id)}')" ondragend="handleDragEnd(event)" onclick="openDetail('${esc(task.task_id)}')" oncontextmenu="showContextMenu(event,'${esc(task.task_id)}')">
+        <input type="checkbox" class="task-select-cb" ${isSelected ? 'checked' : ''} onclick="event.stopPropagation(); toggleTaskSelection('${esc(task.task_id)}', this.checked)">
         <div class="task-card-main">
             <button class="task-check ${isDone ? 'checked' : ''}" onclick="event.stopPropagation(); quickToggleStatus('${esc(task.task_id)}')" title="${isDone ? 'Mark incomplete' : 'Mark done'}">
                 ${isDone ? '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5.252 12.7 10.2 18.63 18.748 5.37"/></svg>' : ''}
             </button>
             <div class="task-card-body">
                 <div class="task-card-title">${esc(task.title)}</div>
+                ${progressBar}
                 ${task.description ? `<div style="font-size:0.72rem;color:#3f3f46;line-height:1.4;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(task.description)}</div>` : ''}
                 ${task.category ? `<div class="task-card-meta">${categoryBadge(task.category)}
                     ${task.recurring ? '<span style="font-size:0.62rem;color:#818cf8" title="Recurring">🔄</span>' : ''}
@@ -6299,6 +6383,166 @@ function markAllNotificationsRead() {
 }
 
 /* ════════════════════════════════════════════════════════════════
+   BULK ACTIONS
+   ════════════════════════════════════════════════════════════════ */
+function toggleTaskSelection(taskId, checked) {
+    if (checked) _selectedTasks.add(taskId);
+    else _selectedTasks.delete(taskId);
+    const count = _selectedTasks.size;
+    const countEl = document.getElementById('bulkCount');
+    if (countEl) countEl.textContent = count + ' selected';
+    const bar = document.getElementById('bulkBar');
+    if (bar) bar.classList.toggle('hidden', count === 0);
+}
+
+function bulkClearSelection() {
+    _selectedTasks.clear();
+    const bar = document.getElementById('bulkBar');
+    if (bar) bar.classList.add('hidden');
+    const countEl = document.getElementById('bulkCount');
+    if (countEl) countEl.textContent = '0 selected';
+    const ss = document.getElementById('bulkStatusSelect');
+    if (ss) ss.selectedIndex = 0;
+    const ps = document.getElementById('bulkPrioritySelect');
+    if (ps) ps.selectedIndex = 0;
+    renderBoard();
+}
+
+function bulkChangeStatus(status) {
+    if (!status) return;
+    _selectedTasks.forEach(id => updateTaskField(id, 'status', status));
+    bulkClearSelection();
+}
+
+function bulkChangePriority(priority) {
+    if (!priority) return;
+    _selectedTasks.forEach(id => updateTaskField(id, 'priority', priority));
+    bulkClearSelection();
+}
+
+/* ════════════════════════════════════════════════════════════════
+   BOARD SORT
+   ════════════════════════════════════════════════════════════════ */
+function setBoardSort(val) {
+    _boardSort = val;
+    renderBoard();
+}
+
+/* ════════════════════════════════════════════════════════════════
+   WORKLOAD VIEW
+   ════════════════════════════════════════════════════════════════ */
+function renderWorkload() {
+    const el = document.getElementById('workloadContent');
+    if (!el) return;
+    const cards = TEAM_ROSTER.map(member => {
+        const tasks = DATA.filter(t => t.assignee && t.assignee.toLowerCase() === member.email.toLowerCase());
+        const total = tasks.length;
+        const done = tasks.filter(t => t.status === 'Done').length;
+        const inProgress = tasks.filter(t => t.status === 'In Progress').length;
+        const todo = tasks.filter(t => t.status === 'To Do').length;
+        const pct = total > 0 ? Math.round(done / total * 100) : 0;
+        const avatarHtml = member.avatar
+            ? `<img src="${member.avatar}" style="width:40px;height:40px;border-radius:50%;object-fit:cover" alt="${esc(member.initials)}">`
+            : `<div style="width:40px;height:40px;border-radius:50%;background:${member.color};display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85rem;color:#fff">${esc(member.initials)}</div>`;
+        return `<div style="background:#111113;border:1px solid #27272a;border-radius:12px;padding:16px">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+                ${avatarHtml}
+                <div>
+                    <div style="font-weight:600;color:#e4e4e7;font-size:0.9rem">${esc(member.name)}</div>
+                    <div style="font-size:0.72rem;color:#52525b">${esc(member.email)}</div>
+                </div>
+            </div>
+            <div style="display:flex;gap:8px;margin-bottom:10px;font-size:0.75rem">
+                <span style="color:#a1a1aa"><span style="color:#fafafa;font-weight:600">${total}</span> total</span>
+                <span style="color:#52525b">·</span>
+                <span style="color:#a1a1aa"><span style="color:#818cf8;font-weight:600">${inProgress}</span> in progress</span>
+                <span style="color:#52525b">·</span>
+                <span style="color:#a1a1aa"><span style="color:#4ade80;font-weight:600">${done}</span> done</span>
+            </div>
+            <div style="background:#1a1a1f;border-radius:4px;height:6px;overflow:hidden">
+                <div style="height:100%;width:${pct}%;background:#818cf8;border-radius:4px;transition:width 0.3s"></div>
+            </div>
+            <div style="font-size:0.7rem;color:#52525b;margin-top:4px">${pct}% complete</div>
+        </div>`;
+    }).join('');
+    el.innerHTML = `<h2 style="font-size:1.2rem;font-weight:700;color:#fafafa;letter-spacing:-0.02em;margin-bottom:16px">Team Workload</h2>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px">${cards}</div>`;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   PUSH NOTIFICATIONS
+   ════════════════════════════════════════════════════════════════ */
+function initPushNotifications() {
+    if (!('Notification' in window)) return;
+    if (Notification.permission === 'granted') {
+        startNotificationChecks();
+    } else if (Notification.permission === 'default') {
+        const banner = document.getElementById('notifBanner');
+        if (banner) banner.classList.remove('hidden');
+    }
+}
+
+function requestNotifPermission() {
+    if (!('Notification' in window)) return;
+    Notification.requestPermission().then(perm => {
+        if (perm === 'granted') {
+            const banner = document.getElementById('notifBanner');
+            if (banner) banner.classList.add('hidden');
+            startNotificationChecks();
+        }
+    });
+}
+
+function startNotificationChecks() {
+    checkAndNotify();
+    setInterval(checkAndNotify, 60000);
+}
+
+function checkAndNotify() {
+    if (!currentUserId) return;
+    const today = new Date().toISOString().slice(0,10);
+    const tomorrow = new Date(Date.now() + 86400000).toISOString().slice(0,10);
+    const lastCheck = localStorage.getItem('notif_last_check');
+    const firedKey = 'notif_fired_' + today;
+    const fired = JSON.parse(localStorage.getItem(firedKey) || '{}');
+
+    const myTasks = DATA.filter(t =>
+        t.assignee && t.assignee.toLowerCase() === currentUserId.toLowerCase() && t.status !== 'Done'
+    );
+
+    myTasks.forEach(task => {
+        if (!task.due_date) return;
+        const overdueKey = 'overdue_' + task.task_id;
+        const tomorrowKey = 'tomorrow_' + task.task_id;
+        if (task.due_date < today && !fired[overdueKey]) {
+            new Notification('⏰ Overdue: ' + task.title, { body: 'Was due ' + task.due_date, icon: '/favicon.svg' });
+            fired[overdueKey] = true;
+        }
+        if (task.due_date === tomorrow && !fired[tomorrowKey]) {
+            new Notification('📅 Due Tomorrow: ' + task.title, { body: 'Due date: ' + task.due_date, icon: '/favicon.svg' });
+            fired[tomorrowKey] = true;
+        }
+    });
+
+    localStorage.setItem(firedKey, JSON.stringify(fired));
+    localStorage.setItem('notif_last_check', today);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   KEYBOARD SHORTCUTS OVERLAY
+   ════════════════════════════════════════════════════════════════ */
+function toggleShortcutsOverlay() {
+    const el = document.getElementById('shortcutsOverlay');
+    if (!el) return;
+    el.classList.toggle('open');
+}
+
+function closeShortcutsOverlay() {
+    const el = document.getElementById('shortcutsOverlay');
+    if (el) el.classList.remove('open');
+}
+
+/* ════════════════════════════════════════════════════════════════
    SKELETON LOADING
    ════════════════════════════════════════════════════════════════ */
 function showSkeletonCards() {
@@ -6322,5 +6566,30 @@ function showSkeletonCards() {
    ════════════════════════════════════════════════════════════════ */
 checkSession();
 </script>
+
+<!-- Shortcuts Overlay -->
+<div id="shortcutsOverlay" class="modal-overlay" onclick="if(event.target===this)closeShortcutsOverlay()">
+  <div class="modal" style="max-width:460px">
+    <div class="modal-header">
+      <h3>Keyboard Shortcuts</h3>
+      <button class="modal-close-btn" onclick="closeShortcutsOverlay()">×</button>
+    </div>
+    <div class="modal-body" style="padding-bottom:20px">
+      <div class="shortcuts-grid">
+        <div class="shortcut-row"><kbd>C</kbd><span>New task</span></div>
+        <div class="shortcut-row"><kbd>?</kbd><span>Show shortcuts</span></div>
+        <div class="shortcut-row"><kbd>Esc</kbd><span>Close panel / modal</span></div>
+        <div class="shortcut-row"><kbd>⌘K</kbd><span>Search</span></div>
+        <div class="shortcut-row"><kbd>⌘B</kbd><span>Toggle sidebar</span></div>
+        <div class="shortcut-row"><kbd>1</kbd><span>Go to Home</span></div>
+        <div class="shortcut-row"><kbd>2</kbd><span>Go to Board</span></div>
+        <div class="shortcut-row"><kbd>3</kbd><span>Go to List</span></div>
+        <div class="shortcut-row"><kbd>4</kbd><span>Go to Calendar</span></div>
+        <div class="shortcut-row"><kbd>5</kbd><span>Go to Deal Flow</span></div>
+        <div class="shortcut-row"><kbd>6</kbd><span>Go to Activity</span></div>
+      </div>
+    </div>
+  </div>
+</div>
 </body>
 </html>
