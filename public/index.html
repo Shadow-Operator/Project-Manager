@@ -573,17 +573,19 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 }
 
 .board-animated-bg {
-    position: absolute; inset: 0; pointer-events: none; z-index: 0;
+    position: absolute; inset: 0; width: 100%; min-height: 100vh;
+    pointer-events: none; z-index: 0;
     background:
-        radial-gradient(ellipse 70% 55% at 15% 25%, rgba(99,102,241,0.10), transparent 65%),
-        radial-gradient(ellipse 55% 45% at 85% 75%, rgba(139,92,246,0.07), transparent 65%),
-        radial-gradient(ellipse 45% 35% at 50% 50%, rgba(244,63,94,0.04), transparent 60%);
-    animation: boardBgPulse 10s ease-in-out infinite alternate;
+        radial-gradient(ellipse 80% 60% at 10% 20%, rgba(99,102,241,0.22), transparent 60%),
+        radial-gradient(ellipse 65% 55% at 90% 80%, rgba(139,92,246,0.18), transparent 60%),
+        radial-gradient(ellipse 55% 45% at 55% 10%, rgba(244,63,94,0.10), transparent 55%),
+        radial-gradient(ellipse 40% 30% at 30% 70%, rgba(99,102,241,0.12), transparent 50%);
+    animation: boardBgPulse 8s ease-in-out infinite alternate;
 }
 @keyframes boardBgPulse {
-    0%   { opacity: 0.55; transform: scale(1); }
-    50%  { opacity: 0.85; transform: scale(1.04); }
-    100% { opacity: 0.65; transform: scale(1.02); }
+    0%   { opacity: 0.75; transform: scale(1); }
+    50%  { opacity: 1; transform: scale(1.05); }
+    100% { opacity: 0.85; transform: scale(1.02); }
 }
 #tab-board .board-view, #tab-board #boardLoading, #tab-board #boardCategoryFilter { position: relative; z-index: 1; }
 
@@ -1531,7 +1533,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 }
 .assign-notif-content { flex: 1; min-width: 0; }
 .assign-notif-name { font-size: 0.82rem; font-weight: 600; color: #fafafa; margin-bottom: 1px; }
-.assign-notif-role { font-size: 0.68rem; font-weight: 600; color: #818cf8; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+.assign-notif-role { font-size: 0.68rem; font-weight: 600; color: #f59e0b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
 .assign-notif-bubble {
     background: #18181b; border-radius: 0 10px 10px 10px;
     padding: 10px 12px; font-size: 0.8rem; color: #a1a1aa; line-height: 1.5;
@@ -1540,14 +1542,14 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .assign-notif-bubble strong { color: #e4e4e7; }
 .assign-notif-meta { display: flex; align-items: center; gap: 6px; font-size: 0.7rem; color: #52525b; }
 .assign-notif-dot { width: 3px; height: 3px; border-radius: 50%; background: #3f3f46; }
-.assign-notif-unread { color: #818cf8; font-weight: 500; }
+.assign-notif-unread { color: #f59e0b; font-weight: 500; }
 .assign-notif-reply {
     flex-shrink: 0; background: none; border: none; color: #52525b;
     cursor: pointer; padding: 6px; border-radius: 50%; transition: all 0.15s;
     display: flex; align-items: center; justify-content: center;
     align-self: center;
 }
-.assign-notif-reply:hover { background: rgba(129,140,248,0.1); color: #818cf8; }
+.assign-notif-reply:hover { background: rgba(245,158,11,0.1); color: #f59e0b; }
 
 /* ── Empty State ──────────────────────────────────────────────── */
 .empty-state {
@@ -1888,8 +1890,9 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     animation: popoverIn 0.15s ease;
 }
 .sidebar.collapsed .sidebar-profile-popover {
-    position: fixed; left: 52px; right: auto;
-    min-width: 220px; bottom: 8px; margin-bottom: 0;
+    position: absolute; left: 52px; right: auto;
+    min-width: 220px; bottom: 0; margin-bottom: 0; top: auto;
+    z-index: 200;
 }
 .sidebar-profile-popover .popover-profile-header {
     padding: 14px; border-bottom: 1px solid #1a1a1f;
@@ -2285,7 +2288,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
                         <button class="seg-tab" onclick="setBoardCategoryTab('mine',this)">My Tasks</button>
                         <button class="seg-tab" onclick="setBoardCategoryTab('Recast',this)">Recast</button>
                         <button class="seg-tab" onclick="setBoardCategoryTab('Shadow Operating',this)">Shadow Op</button>
-                        <button class="seg-tab" onclick="setBoardCategoryTab('Mulligan\\'s Marketplace',this)">Mulligan's</button>
+                        <button class="seg-tab" onclick="setBoardCategoryTab(&quot;Mulligan's Marketplace&quot;,this)">Mulligan's</button>
                         <button class="seg-tab" onclick="setBoardCategoryTab('Agency',this)">Agency</button>
                     </div>
                     <select id="boardSortSelect" onchange="setBoardSort(this.value)" style="background:#18181b;border:1px solid #27272a;color:#a1a1aa;border-radius:6px;padding:4px 8px;font-size:0.75rem;font-family:inherit">
@@ -4866,21 +4869,27 @@ async function submitNewTask() {
     if (created) {
         showToast('Task created', 'success');
         addActivity('created', created.title);
-        // Notify assignee in-app
+        // Notify in-app — always fire so user always sees the popup
         if (created.assignee && created.assignee.toLowerCase() !== currentUserId.toLowerCase()) {
+            const assigneeName = created.assignee.split('@')[0];
             addInAppNotification({
                 type: 'assignment',
-                text: `<strong>You</strong> assigned a task to <strong>${esc(created.assignee.split('@')[0])}</strong>: "${esc(created.title)}"`,
+                text: `<strong>You</strong> assigned <strong>${esc(created.title)}</strong> to <strong>${esc(assigneeName)}</strong>`,
                 from: currentUserId,
                 taskId: created.task_id
             });
-        } else if (created.assignee && created.assignee.toLowerCase() === currentUserId.toLowerCase()) {
+        } else {
+            const assigneeLabel = created.assignee ? `<strong>${esc(created.assignee.split('@')[0])}</strong>` : 'unassigned';
             addInAppNotification({
-                type: 'assignment',
-                text: `New task assigned to you: <strong>${esc(created.title)}</strong>`,
-                from: created.created_by,
+                type: 'created',
+                text: `Task created: <strong>${esc(created.title)}</strong> · ${assigneeLabel}`,
+                from: currentUserId,
                 taskId: created.task_id
             });
+        }
+        // Browser push notification if permission granted
+        if (Notification && Notification.permission === 'granted') {
+            try { new Notification('Task created: ' + created.title, { icon: '/favicon.svg', body: created.assignee ? 'Assigned to ' + created.assignee.split('@')[0] : 'No assignee' }); } catch(e) {}
         }
         renderBoard();
         renderListView();
@@ -6472,6 +6481,8 @@ function renderInvoices() {
                 <div style="display:flex;align-items:center;gap:6px;justify-content:flex-end">
                     ${actionBtns}
                     <button onclick="openNewInvoiceModal('${inv.id}')" style="padding:3px 8px;border-radius:5px;border:1px solid #27272a;background:transparent;color:#71717a;font-size:0.7rem;cursor:pointer;font-family:inherit" title="Edit">Edit</button>
+                    <button onclick="printInvoice('${inv.id}')" style="padding:3px 8px;border-radius:5px;border:1px solid #27272a;background:transparent;color:#71717a;font-size:0.7rem;cursor:pointer;font-family:inherit" title="Print/Download PDF">⬇ PDF</button>
+                    <button onclick="copyInvoiceLink('${inv.id}')" style="padding:3px 8px;border-radius:5px;border:1px solid #27272a;background:transparent;color:#71717a;font-size:0.7rem;cursor:pointer;font-family:inherit" title="Copy shareable link">🔗</button>
                     <button onclick="deleteInvoice('${inv.id}')" style="padding:3px 8px;border-radius:5px;border:1px solid transparent;background:transparent;color:#3f3f46;font-size:0.7rem;cursor:pointer;font-family:inherit;transition:color 0.12s" onmouseover="this.style.color='#f87171'" onmouseout="this.style.color='#3f3f46'" title="Delete">✕</button>
                 </div>
             </td>
@@ -6567,6 +6578,74 @@ function deleteInvoice(id) {
     saveInvoices();
     renderInvoices();
     showToast('Invoice deleted');
+}
+
+function printInvoice(id) {
+    const inv = _invoices.find(i => i.id === id);
+    if (!inv) return;
+    const statusColors = { Draft: '#71717a', Sent: '#818cf8', Paid: '#4ade80', Overdue: '#f87171' };
+    const color = statusColors[inv.status] || '#71717a';
+    const w = window.open('', '_blank');
+    w.document.write(`<!DOCTYPE html><html><head><title>Invoice – ${esc(inv.title)}</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background:#fff; color:#111; padding:60px; }
+        .inv-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:48px; }
+        .inv-brand { font-size:1.5rem; font-weight:700; letter-spacing:-0.02em; }
+        .inv-meta { text-align:right; }
+        .inv-meta h1 { font-size:2rem; font-weight:700; letter-spacing:-0.03em; color:#111; }
+        .inv-meta .inv-num { font-size:0.85rem; color:#888; margin-top:4px; }
+        .inv-status { display:inline-block; padding:4px 12px; border-radius:20px; font-size:0.78rem; font-weight:600; background:${color}22; color:${color}; margin-top:8px; }
+        .inv-parties { display:grid; grid-template-columns:1fr 1fr; gap:32px; margin-bottom:40px; padding:28px; background:#f9f9f9; border-radius:12px; }
+        .inv-party-label { font-size:0.72rem; font-weight:600; color:#aaa; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:6px; }
+        .inv-party-name { font-size:1rem; font-weight:600; color:#111; }
+        .inv-dates { display:flex; gap:32px; margin-bottom:40px; }
+        .inv-date-block label { font-size:0.72rem; color:#aaa; text-transform:uppercase; letter-spacing:0.06em; display:block; margin-bottom:4px; }
+        .inv-date-block span { font-size:0.9rem; font-weight:500; color:#111; }
+        .inv-amount-box { background:#111; color:#fff; border-radius:12px; padding:24px 28px; display:flex; justify-content:space-between; align-items:center; margin-bottom:32px; }
+        .inv-amount-box .label { font-size:0.78rem; opacity:0.6; text-transform:uppercase; letter-spacing:0.06em; }
+        .inv-amount-box .amount { font-size:2rem; font-weight:700; letter-spacing:-0.03em; }
+        .inv-notes { background:#f9f9f9; border-radius:10px; padding:20px; }
+        .inv-notes label { font-size:0.72rem; color:#aaa; text-transform:uppercase; letter-spacing:0.06em; display:block; margin-bottom:8px; font-weight:600; }
+        .inv-notes p { font-size:0.88rem; color:#555; line-height:1.6; }
+        .inv-footer { margin-top:48px; padding-top:20px; border-top:1px solid #eee; font-size:0.75rem; color:#bbb; text-align:center; }
+        @media print { body { padding:40px; } }
+    </style></head><body>
+    <div class="inv-header">
+        <div class="inv-brand">Stlla</div>
+        <div class="inv-meta">
+            <h1>Invoice</h1>
+            <div class="inv-num">#${id.replace('inv_','').slice(-6).toUpperCase()}</div>
+            <div class="inv-status">${esc(inv.status)}</div>
+        </div>
+    </div>
+    <div class="inv-parties">
+        <div><div class="inv-party-label">From</div><div class="inv-party-name">Stlla</div></div>
+        <div><div class="inv-party-label">To</div><div class="inv-party-name">${esc(inv.client || '—')}</div></div>
+    </div>
+    <div class="inv-dates">
+        <div class="inv-date-block"><label>Issue Date</label><span>${inv.issue_date || '—'}</span></div>
+        <div class="inv-date-block"><label>Due Date</label><span>${inv.due_date || '—'}</span></div>
+        ${inv.category ? `<div class="inv-date-block"><label>Category</label><span>${esc(inv.category)}</span></div>` : ''}
+    </div>
+    <div class="inv-amount-box">
+        <div class="label">${esc(inv.title)}</div>
+        <div class="amount">£${parseFloat(inv.amount||0).toLocaleString('en-GB',{minimumFractionDigits:2,maximumFractionDigits:2})}</div>
+    </div>
+    ${inv.notes ? `<div class="inv-notes"><label>Notes</label><p>${esc(inv.notes)}</p></div>` : ''}
+    <div class="inv-footer">Generated by Stlla · ${new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'})}</div>
+    <script>window.onload=()=>{window.print();}<\/script>
+    </body></html>`);
+    w.document.close();
+}
+
+function copyInvoiceLink(id) {
+    const url = window.location.origin + window.location.pathname + '#invoice-' + id;
+    navigator.clipboard.writeText(url).then(() => {
+        showToast('Invoice link copied to clipboard', 'success');
+    }).catch(() => {
+        showToast('Copy: ' + url);
+    });
 }
 
 /* ════════════════════════════════════════════════════════════════
