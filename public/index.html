@@ -828,9 +828,9 @@ body { background: #030303; color: var(--text); font-size: 14px; line-height: 1.
 
 /* ── List View ────────────────────────────────────────────────── */
 .list-view { padding: 20px; }
-.list-toolbar { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+.list-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 20px; }
 .search-input {
-    width: 100%; max-width: 420px; padding: 10px 14px 10px 38px;
+    width: 100%; max-width: 320px; padding: 10px 14px 10px 38px;
     background: #000; border: 1px solid #1a1a1f; border-radius: 10px;
     color: #e4e4e7; font-size: 0.85rem; outline: none;
     transition: border-color 0.15s;
@@ -1285,58 +1285,7 @@ body { background: #030303; color: var(--text); font-size: 14px; line-height: 1.
     #homeContent > div:last-child { grid-template-columns: 1fr !important; }
 }
 
-/* ── Bottom Dock ─────────────────────────────────────────────── */
-.dock-wrapper {
-    position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%);
-    z-index: 100; pointer-events: none;
-}
-.dock {
-    display: flex; align-items: flex-end; gap: 10px;
-    padding: 10px 20px; border-radius: 18px;
-    background: rgba(0,0,0,0.6); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255,255,255,0.08);
-    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-    pointer-events: auto;
-    transition: transform 0.3s ease;
-}
-.dock:hover { transform: scale(1.02); }
-
-.dock-item {
-    position: relative; display: flex; align-items: center; justify-content: center;
-    width: 42px; height: 42px; border-radius: 10px;
-    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
-    color: #fff; cursor: pointer;
-    transition: all 0.25s cubic-bezier(0.2, 0, 0, 1);
-}
-.dock-item:hover {
-    transform: translateY(-6px) scale(1.15);
-    background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.18);
-    box-shadow: 0 6px 20px rgba(255,255,255,0.08);
-}
-.dock-item.active {
-    background: rgba(124,58,237,0.2); border-color: rgba(124,58,237,0.4);
-}
-.dock-item svg { width: 18px; height: 18px; opacity: 0.85; }
-.dock-item:hover svg { opacity: 1; }
-
-.dock-tooltip {
-    position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
-    padding: 4px 10px; margin-bottom: 8px; border-radius: 6px;
-    background: rgba(0,0,0,0.8); backdrop-filter: blur(8px);
-    border: 1px solid rgba(255,255,255,0.06);
-    color: #fff; font-size: 0.7rem; white-space: nowrap;
-    opacity: 0; pointer-events: none;
-    transition: opacity 0.15s, transform 0.15s;
-    transform: translateX(-50%) translateY(4px);
-}
-.dock-item:hover .dock-tooltip {
-    opacity: 1; transform: translateX(-50%) translateY(0);
-}
-
-.dock-separator {
-    width: 1px; height: 28px; background: rgba(255,255,255,0.08);
-    margin: 0 2px; align-self: center;
-}
+/* ── Bottom Dock (removed) ── */
 
 /* Notification badge */
 .notif-badge {
@@ -1354,7 +1303,7 @@ body { background: #030303; color: var(--text); font-size: 14px; line-height: 1.
 
 /* Notification panel */
 .notif-panel {
-    position: fixed; bottom: 80px; right: 20px; width: 380px; max-height: 480px;
+    position: fixed; top: 56px; right: 20px; width: 380px; max-height: 480px;
     background: #0a0a0c; border: 1px solid #1a1a1f; border-radius: 14px;
     z-index: 101; overflow: hidden;
     box-shadow: 0 -8px 32px rgba(0,0,0,0.4);
@@ -1384,8 +1333,8 @@ body { background: #030303; color: var(--text); font-size: 14px; line-height: 1.
 .notif-text strong { color: #fafafa; font-weight: 600; }
 .notif-time { font-size: 0.68rem; color: #3f3f46; margin-top: 2px; }
 
-/* Add padding at bottom of page content so dock doesn't cover content */
-.page-content { padding-bottom: 80px; }
+/* Page content bottom padding */
+.page-content { padding-bottom: 20px; }
 </style>
 </head>
 <body>
@@ -1582,6 +1531,10 @@ body { background: #030303; color: var(--text); font-size: 14px; line-height: 1.
                 <kbd>⌘K</kbd>
             </button>
             <div id="teamPresence" class="team-presence"></div>
+            <button class="topbar-notif-btn" onclick="toggleNotificationPanel()" title="Notifications" style="position:relative;display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;background:#18181b;border:1px solid #27272a;color:#71717a;cursor:pointer;transition:all 0.15s;flex-shrink:0" onmouseover="this.style.borderColor='#3f3f46';this.style.color='#a1a1aa'" onmouseout="this.style.borderColor='#27272a';this.style.color='#71717a'">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                <span class="notif-badge hidden" id="notifBadge">0</span>
+            </button>
             <span class="user-info" id="userInfo" style="display:none"></span>
         </header>
 
@@ -1632,17 +1585,18 @@ body { background: #030303; color: var(--text); font-size: 14px; line-height: 1.
                 <div class="list-view">
                     <div class="list-toolbar">
                         <input type="text" class="search-input" id="listSearch" placeholder="Search tasks..." oninput="debouncedListFilter()">
-                        <button onclick="exportCSV()" style="padding:6px 14px;border-radius:8px;border:1px solid #27272a;background:#18181b;color:#a1a1aa;font-size:0.8rem;cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap;transition:all 0.2s;" onmouseover="this.style.borderColor='#818cf8';this.style.color='#818cf8'" onmouseout="this.style.borderColor='#27272a';this.style.color='#a1a1aa'">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                            Export CSV
+                        <button onclick="exportCSV()" style="padding:5px 12px;border-radius:8px;border:1px solid #27272a;background:#18181b;color:#a1a1aa;font-size:0.72rem;cursor:pointer;display:inline-flex;align-items:center;gap:5px;white-space:nowrap;transition:all 0.2s;" onmouseover="this.style.borderColor='#818cf8';this.style.color='#818cf8'" onmouseout="this.style.borderColor='#27272a';this.style.color='#a1a1aa'">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            CSV
                         </button>
-                        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+                        <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-left:auto">
                             <div class="seg-tabs">
                                 <button class="seg-tab active" onclick="setListStatusTab('all',this)">All</button>
                                 <button class="seg-tab" onclick="setListStatusTab('To Do',this)">To Do</button>
                                 <button class="seg-tab" onclick="setListStatusTab('In Progress',this)">In Progress</button>
                                 <button class="seg-tab" onclick="setListStatusTab('Done',this)">Done</button>
                             </div>
+                            <span style="color:#27272a;font-size:0.7rem">|</span>
                             <div class="seg-tabs">
                                 <button class="seg-tab active" onclick="setListCategoryTab('all',this)">All</button>
                                 <button class="seg-tab" onclick="setListCategoryTab('Recast',this)">Recast</button>
@@ -1929,24 +1883,7 @@ body { background: #030303; color: var(--text); font-size: 14px; line-height: 1.
 
     </div><!-- end dashboard-layout -->
 
-    <!-- Bottom Dock (slim: 3 actions only) -->
-    <div class="dock-wrapper" id="bottomDock">
-        <div class="dock">
-            <button class="dock-item" onclick="openNewTaskModal('To Do')" title="New Task" style="background:rgba(124,58,237,0.15);border-color:rgba(124,58,237,0.3)">
-                <span class="dock-tooltip">New Task</span>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            </button>
-            <button class="dock-item" onclick="openSearchOverlay()" title="Search (⌘K)">
-                <span class="dock-tooltip">Search</span>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            </button>
-            <button class="dock-item" onclick="toggleNotificationPanel()" title="Notifications" id="dock-notifications" style="position:relative">
-                <span class="dock-tooltip">Notifications</span>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-                <span class="notif-badge hidden" id="notifBadge">0</span>
-            </button>
-        </div>
-    </div>
+    <!-- Dock removed -->
 </div>
 
 <!-- Notification Panel -->
@@ -2743,23 +2680,7 @@ function sidebarNav(tabId, btn) {
 // Keep backward compatibility
 function switchTab(id, btn) { sidebarNav(id, document.querySelector('.sidebar-nav-item[data-tab="' + id + '"]')); }
 
-// Dock navigation — syncs with sidebar
-function dockNav(tabId) {
-    sidebarNav(tabId, document.querySelector('.sidebar-nav-item[data-tab="' + tabId + '"]'));
-    // Update dock active state
-    document.querySelectorAll('.dock-item[id^="dock-"]').forEach(d => d.classList.remove('active'));
-    const dockBtn = document.getElementById('dock-' + tabId);
-    if (dockBtn) dockBtn.classList.add('active');
-}
-
-// Also sync dock when sidebar nav is used
-const _origSidebarNav = sidebarNav;
-sidebarNav = function(tabId, btn) {
-    _origSidebarNav(tabId, btn);
-    document.querySelectorAll('.dock-item[id^="dock-"]').forEach(d => d.classList.remove('active'));
-    const dockBtn = document.getElementById('dock-' + tabId);
-    if (dockBtn) dockBtn.classList.add('active');
-};
+// Dock navigation removed (dock has been removed from UI)
 
 /* ════════════════════════════════════════════════════════════════
    API
