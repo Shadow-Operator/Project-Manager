@@ -33,8 +33,19 @@ html, body { height: 100%; font-family: 'Inter', -apple-system, BlinkMacSystemFo
 
 /* Dark mode only — no light mode */
 
-body { background: #030303; color: var(--text); }
+body { background: #030303; color: var(--text); font-size: 14px; line-height: 1.5; }
 .hidden { display: none !important; }
+
+/* ── Typography Hierarchy ────────────────────────────────────── */
+.type-page-title { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.03em; color: #fafafa; }
+.type-section-title { font-size: 1.1rem; font-weight: 600; letter-spacing: -0.02em; color: #e2e8f0; }
+.type-card-title { font-size: 0.875rem; font-weight: 500; color: #e2e8f0; line-height: 1.4; }
+.type-label { font-size: 0.7rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; color: #64748b; }
+.type-body { font-size: 0.85rem; font-weight: 400; color: #94a3b8; line-height: 1.6; }
+.type-data { font-family: 'JetBrains Mono', monospace; font-size: 1.75rem; font-weight: 700; letter-spacing: -0.03em; color: #fafafa; }
+.type-data-sm { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; font-weight: 500; color: #94a3b8; }
+.type-meta { font-size: 0.7rem; font-weight: 400; color: #52525b; }
+.type-btn { font-size: 0.8rem; font-weight: 500; letter-spacing: -0.01em; }
 
 /* ── Login Screen ─────────────────────────────────────────────── */
 .login-screen {
@@ -397,8 +408,8 @@ body { background: #030303; color: var(--text); }
     min-height: 48px;
 }
 .topbar-title {
-    font-size: 1rem; font-weight: 600; color: #fafafa;
-    letter-spacing: -0.01em;
+    font-size: 1.25rem; font-weight: 700; color: #fafafa;
+    letter-spacing: -0.03em;
 }
 .topbar-spacer { flex: 1; }
 .topbar-search-btn {
@@ -494,11 +505,12 @@ body { background: #030303; color: var(--text); }
 .board-column-header {
     display: flex; align-items: center; justify-content: space-between;
     padding: 14px 16px; border-bottom: 1px solid #1a1a1f;
-    font-weight: 600; font-size: 0.85rem; color: #e4e4e7;
+    font-weight: 700; font-size: 0.78rem; color: #a1a1aa;
+    text-transform: uppercase; letter-spacing: 0.06em;
 }
 .board-column-count {
     background: rgba(255,255,255,0.06); padding: 2px 10px; border-radius: 12px;
-    font-size: 0.72rem; color: #71717a; font-weight: 500;
+    font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; color: #71717a; font-weight: 500;
 }
 .board-column-body {
     flex: 1; overflow-y: auto; padding: 10px;
@@ -567,14 +579,14 @@ body { background: #030303; color: var(--text); }
 .task-card-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
 
 .task-card-title {
-    font-weight: 600; font-size: 0.875rem; line-height: 1.35; color: #fafafa;
+    font-weight: 500; font-size: 0.85rem; line-height: 1.35; color: #e2e8f0;
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     letter-spacing: -0.01em;
 }
 
 .task-card-subtitle {
-    font-size: 0.72rem; color: #52525b; display: flex; align-items: center; gap: 6px;
-    flex-wrap: wrap;
+    font-size: 0.7rem; color: #52525b; display: flex; align-items: center; gap: 6px;
+    flex-wrap: wrap; font-weight: 400;
 }
 .task-card-subtitle .card-sep { color: #27272a; }
 
@@ -845,14 +857,14 @@ body { background: #030303; color: var(--text); }
 }
 .list-table { width: 100%; border-collapse: collapse; }
 .list-table th {
-    text-align: left; padding: 14px 16px; font-size: 0.75rem; font-weight: 500;
+    text-align: left; padding: 14px 16px; font-size: 0.68rem; font-weight: 600;
     color: #52525b; border-bottom: 1px solid #1a1a1f; cursor: pointer;
-    transition: color 0.15s;
+    transition: color 0.15s; text-transform: uppercase; letter-spacing: 0.06em;
 }
 .list-table th:hover { color: #a1a1aa; }
 .list-table td {
     padding: 14px 16px; border-bottom: 1px solid rgba(26,26,31,0.4);
-    font-size: 0.85rem; color: #d4d4d8;
+    font-size: 0.82rem; color: #d4d4d8; font-weight: 400;
 }
 .list-table tbody tr { transition: background 0.15s; }
 .list-table tbody tr:last-child td { border-bottom: none; }
@@ -1239,9 +1251,9 @@ body { background: #030303; color: var(--text); }
 }
 .stat-card:hover { border-color: #27272a; transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
 .stat-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-.stat-label { font-size: 0.82rem; color: #a1a1aa; font-weight: 500; }
+.stat-label { font-size: 0.72rem; color: #71717a; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; }
 .stat-icon { color: #3f3f46; }
-.stat-value { font-size: 2rem; font-weight: 700; color: #fafafa; letter-spacing: -0.03em; line-height: 1; }
+.stat-value { font-family: 'JetBrains Mono', monospace; font-size: 2rem; font-weight: 700; color: #fafafa; letter-spacing: -0.03em; line-height: 1; }
 .stat-trend { display: flex; align-items: center; gap: 4px; margin-top: 8px; font-size: 0.72rem; font-weight: 500; }
 .stat-trend.positive { color: #4ade80; }
 .stat-trend.negative { color: #f87171; }
