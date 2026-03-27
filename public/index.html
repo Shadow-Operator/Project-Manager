@@ -3911,17 +3911,17 @@ function renderHome() {
                         const dueCls = dueDateClass(t.due_date);
                         const dueColor = dueCls === 'overdue' ? '#f87171' : dueCls === 'today' ? '#fbbf24' : '#52525b';
                         const dueLabel = dueCls === 'overdue' ? 'Overdue' : dueCls === 'today' ? 'Due today' : (t.due_date ? formatDate(t.due_date) : '');
-                        return \`<div class="home-task-item" onclick="sidebarNav('board', document.querySelector('[data-tab=board]')); setTimeout(() => openDetail('\${esc(t.task_id)}'), 100)">
+                        return `<div class="home-task-item" onclick="sidebarNav('board', document.querySelector('[data-tab=board]')); setTimeout(() => openDetail('${esc(t.task_id)}'), 100)">
                             <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0">
-                                <button class="task-check \${t.status === 'Done' ? 'checked' : ''}" onclick="event.stopPropagation(); quickToggleStatus('\${esc(t.task_id)}')" style="width:18px;height:18px;flex-shrink:0"></button>
-                                <div class="home-task-title">\${esc(t.title)}</div>
+                                <button class="task-check ${t.status === 'Done' ? 'checked' : ''}" onclick="event.stopPropagation(); quickToggleStatus('${esc(t.task_id)}')" style="width:18px;height:18px;flex-shrink:0"></button>
+                                <div class="home-task-title">${esc(t.title)}</div>
                             </div>
                             <div style="display:flex;gap:6px;align-items:center">
-                                \${categoryBadge(t.category)}
-                                <span class="subtask-status-pill \${statusClass(t.status)}">\${esc(t.status)}</span>
-                                \${dueLabel ? \`<span style="color:\${dueColor};font-size:0.7rem;font-weight:\${dueCls === 'overdue' ? '600' : '400'}">\${dueLabel}</span>\` : ''}
+                                ${categoryBadge(t.category)}
+                                <span class="subtask-status-pill ${statusClass(t.status)}">${esc(t.status)}</span>
+                                ${dueLabel ? `<span style="color:${dueColor};font-size:0.7rem;font-weight:${dueCls === 'overdue' ? '600' : '400'}">${dueLabel}</span>` : ''}
                             </div>
-                        </div>\`;
+                        </div>`;
                     }).join('')}
                 </div>`
             }
