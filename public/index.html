@@ -573,22 +573,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     .topbar-search-btn { padding: 6px 10px; }
 }
 
-.board-animated-bg {
-    position: absolute; inset: 0; width: 100%; min-height: 100vh;
-    pointer-events: none; z-index: 0;
-    background:
-        radial-gradient(ellipse 80% 60% at 10% 20%, rgba(99,102,241,0.22), transparent 60%),
-        radial-gradient(ellipse 65% 55% at 90% 80%, rgba(139,92,246,0.18), transparent 60%),
-        radial-gradient(ellipse 55% 45% at 55% 10%, rgba(244,63,94,0.10), transparent 55%),
-        radial-gradient(ellipse 40% 30% at 30% 70%, rgba(99,102,241,0.12), transparent 50%);
-    animation: boardBgPulse 8s ease-in-out infinite alternate;
-}
-@keyframes boardBgPulse {
-    0%   { opacity: 0.75; transform: scale(1); }
-    50%  { opacity: 1; transform: scale(1.05); }
-    100% { opacity: 0.85; transform: scale(1.02); }
-}
-#tab-board .board-view, #tab-board #boardLoading, #tab-board #boardCategoryFilter { position: relative; z-index: 1; }
 
 /* ── Kanban Board ─────────────────────────────────────────────── */
 .board {
@@ -1648,7 +1632,12 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 
 .splash-glow {
     position: absolute; inset: 0; pointer-events: none;
-    background: radial-gradient(ellipse 60% 45% at 50% 48%, rgba(124,58,237,0.12) 0%, transparent 65%);
+    background: radial-gradient(ellipse 70% 55% at 50% 50%, rgba(129,140,248,0.14) 0%, transparent 70%);
+    animation: splashGlowPulse 2.4s ease-in-out infinite alternate;
+}
+@keyframes splashGlowPulse {
+    from { opacity: 0.6; transform: scale(1); }
+    to   { opacity: 1;   transform: scale(1.08); }
 }
 .splash-wordmark {
     position: relative; z-index: 2;
@@ -1656,18 +1645,26 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     font-size: clamp(2rem, 5vw, 3.4rem); font-weight: 600; color: #fafafa;
     letter-spacing: -0.03em; text-align: center; padding: 0 24px;
     opacity: 0;
-    animation: splashWordIn 0.8s cubic-bezier(0.16,1,0.3,1) 0.15s forwards;
+    animation: splashReveal 0.9s cubic-bezier(0.16,1,0.3,1) 0.1s forwards,
+               splashGlow   1.4s ease 0.85s forwards;
 }
 .splash-tagline {
     position: relative; z-index: 2;
-    font-size: 0.78rem; color: #3f3f46; letter-spacing: 0.14em;
-    text-transform: uppercase; font-weight: 500; margin-top: 12px;
+    font-size: 0.78rem; color: #52525b; letter-spacing: 0.18em;
+    text-transform: uppercase; font-weight: 500; margin-top: 14px;
     opacity: 0;
-    animation: splashWordIn 0.6s cubic-bezier(0.16,1,0.3,1) 0.55s forwards;
+    animation: splashReveal 0.7s cubic-bezier(0.16,1,0.3,1) 0.65s forwards;
 }
-@keyframes splashWordIn {
-    from { opacity: 0; transform: translateY(12px); }
-    to   { opacity: 1; transform: translateY(0); }
+@keyframes splashReveal {
+    0%   { opacity: 0; transform: translateY(22px) scale(0.97); filter: blur(10px); }
+    60%  { opacity: 1; filter: blur(0px); }
+    100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0px); }
+}
+@keyframes splashGlow {
+    0%   { text-shadow: none; color: #fafafa; }
+    35%  { text-shadow: 0 0 40px rgba(129,140,248,0.7), 0 0 80px rgba(129,140,248,0.3); color: #fff; }
+    70%  { text-shadow: 0 0 20px rgba(129,140,248,0.3); color: #fafafa; }
+    100% { text-shadow: none; color: #fafafa; }
 }
 /* keep old classes so nothing breaks */
 .splash-vaporize-wrap { display: none; }
@@ -2269,7 +2266,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 
             <!-- Board Tab -->
             <div id="tab-board" class="tab-pane" style="position:relative">
-                <div class="board-animated-bg"></div>
                 <div id="boardLoading" class="spinner">
                     <div class="spinner-dots"><div class="spinner-dot"></div><div class="spinner-dot"></div><div class="spinner-dot"></div></div>
                     <div class="spinner-text">Loading tasks...</div>
@@ -3357,7 +3353,15 @@ function enterDashboard(email, name) {
     document.getElementById('loginScreen').classList.add('hidden');
     const splash = document.getElementById('welcomeSplash');
     const splashWord = document.getElementById('splashWordmark');
+    const splashTag  = splash ? splash.querySelector('.splash-tagline') : null;
     if (splashWord) splashWord.textContent = 'Welcome to Stlla';
+    // Force-restart CSS animations (they won't replay after display:none toggle otherwise)
+    [splashWord, splashTag].forEach(el => {
+        if (!el) return;
+        el.style.animation = 'none';
+        void el.offsetWidth; // force reflow
+        el.style.animation = '';
+    });
     splash.classList.remove('hidden');
 
     // ── 2. Register dismiss timer FIRST — nothing below can stop it ──
