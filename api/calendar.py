@@ -57,11 +57,12 @@ def _get_calendar_service():
 
 class handler(BaseHTTPRequestHandler):
     def do_GET(self):
-        """List calendar events in a date range."""
+        """List calendar events in a date range for a specific user."""
         try:
             qs = parse_qs(urlparse(self.path).query)
             start = qs.get("start", [""])[0]
             end = qs.get("end", [""])[0]
+            user = qs.get("user", [""])[0]  # Which user's calendar to fetch
 
             if not start or not end:
                 json_response(self, 400, {"ok": False, "error": "start and end query params required (YYYY-MM-DD)"})
@@ -75,35 +76,38 @@ class handler(BaseHTTPRequestHandler):
             time_min = start + "T00:00:00Z"
             time_max = end + "T23:59:59Z"
 
-            # Fetch events from all team calendars
-            simplified = []
-            seen_ids = set()
-            for cal_id in set(CALENDAR_MAP.values()):
-                try:
-                    events_result = service.events().list(
-                        calendarId=cal_id,
-                        timeMin=time_min,
-                        timeMax=time_max,
-                        maxResults=100,
-                        singleEvents=True,
-                        orderBy="startTime"
-                    ).execute()
+            # Only fetch from the requesting user's calendar (or default)
+            cal_id = _get_calendar_id(user) if user else DEFAULT_CALENDAR_ID
 
-                    for ev in events_result.get("items", []):
-                        eid = ev.get("id", "")
-                        if eid in seen_ids:
-                            continue
-                        seen_ids.add(eid)
-                        start_date = ev.get("start", {}).get("date") or ev.get("start", {}).get("dateTime", "")[:10]
-                        simplified.append({
-                            "event_id": eid,
-                            "title": ev.get("summary", ""),
-                            "date": start_date,
-                            "description": ev.get("description", ""),
-                            "task_id": ev.get("extendedProperties", {}).get("private", {}).get("task_id", ""),
-                        })
-                except Exception as e:
-                    print(f"[Calendar] Failed to fetch from {cal_id}: {e}")
+            simplified = []
+            try:
+                events_result = service.events().list(
+                    calendarId=cal_id,
+                    timeMin=time_min,
+                    timeMax=time_max,
+                    maxResults=200,
+                    singleEvents=True,
+                    orderBy="startTime"
+                ).execute()
+
+                for ev in events_result.get("items", []):
+                    start_raw = ev.get("start", {})
+                    end_raw = ev.get("end", {})
+                    start_date = start_raw.get("date") or start_raw.get("dateTime", "")[:10]
+                    start_time = start_raw.get("dateTime", "")[11:16] if "dateTime" in start_raw else ""
+                    end_time = end_raw.get("dateTime", "")[11:16] if "dateTime" in end_raw else ""
+                    simplified.append({
+                        "event_id": ev.get("id", ""),
+                        "title": ev.get("summary", ""),
+                        "date": start_date,
+                        "start_time": start_time,
+                        "end_time": end_time,
+                        "description": ev.get("description", ""),
+                        "task_id": ev.get("extendedProperties", {}).get("private", {}).get("task_id", ""),
+                        "color": ev.get("colorId", ""),
+                    })
+            except Exception as e:
+                print(f"[Calendar] Failed to fetch from {cal_id}: {e}")
 
             json_response(self, 200, {"ok": True, "events": simplified})
         except Exception as e:

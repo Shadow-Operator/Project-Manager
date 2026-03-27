@@ -2807,12 +2807,21 @@ async function loadCalendarEvents() {
     const endYear = _calMonth === 11 ? _calYear + 1 : _calYear;
     const end = `${endYear}-${String(endMonth + 1).padStart(2, '0')}-01`;
     try {
-        const r = await fetch(`/api/calendar?start=${start}&end=${end}`);
+        const r = await fetch(`/api/calendar?start=${start}&end=${end}&user=${encodeURIComponent(currentUserId)}`);
         const d = await r.json();
         if (d.ok) _calEvents = d.events || [];
     } catch (e) {
         _calEvents = [];
     }
+}
+
+function getEventColor(event, task) {
+    // If it's a Stlla task, color by category
+    if (task) {
+        return CATEGORY_COLORS[task.category] || '#818cf8';
+    }
+    // Google Calendar event — use a neutral color
+    return '#4ade80';
 }
 
 async function renderCalendar() {
@@ -2845,21 +2854,28 @@ async function renderCalendar() {
         const dateStr = `${_calYear}-${String(_calMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
         const isToday = dateStr === today;
 
-        // Tasks with this due date
+        // Tasks with this due date (assigned to me or unassigned)
         const dayTasks = DATA.filter(t => t.due_date === dateStr && !t.parent_task_id);
-        // Google Calendar events on this date
+        // Google Calendar events on this date (exclude Stlla-pushed events)
         const dayGcal = _calEvents.filter(e => e.date === dateStr && !e.task_id);
 
         let eventsHtml = '';
+
+        // Stlla tasks — color by category
         dayTasks.forEach(t => {
-            const statusCls = t.status === 'Done' ? 'status-done' : t.status === 'In Progress' ? 'status-inprogress' : 'status-todo';
-            eventsHtml += `<div class="calendar-event task-event ${statusCls}" onclick="event.stopPropagation(); openDetail('${esc(t.task_id)}')" title="${esc(t.title)}">${esc(t.title)}</div>`;
-        });
-        dayGcal.forEach(e => {
-            eventsHtml += `<div class="calendar-event gcal-event" title="${esc(e.title)}">${esc(e.title)}</div>`;
+            const color = CATEGORY_COLORS[t.category] || '#818cf8';
+            const isDone = t.status === 'Done';
+            const timeStr = t.start_time ? `<span style="opacity:0.7">${t.start_time}</span> ` : '';
+            eventsHtml += `<div class="calendar-event" style="background:${color}15;color:${color};border-left-color:${color};${isDone ? 'opacity:0.4;text-decoration:line-through;' : ''}" onclick="event.stopPropagation(); openDetail('${esc(t.task_id)}')" title="${esc(t.title)}${t.category ? ' — ' + esc(t.category) : ''}">${timeStr}${esc(t.title)}</div>`;
         });
 
-        html += `<div class="calendar-cell ${isToday ? 'today' : ''}">
+        // Google Calendar events — green
+        dayGcal.forEach(e => {
+            const timeStr = e.start_time ? `<span style="opacity:0.7">${e.start_time}</span> ` : '';
+            eventsHtml += `<div class="calendar-event gcal-event" title="${esc(e.title)}">${timeStr}${esc(e.title)}</div>`;
+        });
+
+        html += `<div class="calendar-cell ${isToday ? 'today' : ''}" onclick="calClickDay('${dateStr}')">
             <div class="calendar-day-num">${d}</div>
             ${eventsHtml}
         </div>`;
@@ -2873,6 +2889,14 @@ async function renderCalendar() {
     }
 
     grid.innerHTML = html;
+}
+
+// Click a calendar day to quick-add a task
+function calClickDay(dateStr) {
+    openNewTaskModal('To Do');
+    setTimeout(() => {
+        document.getElementById('ntDueDate').value = dateStr;
+    }, 50);
 }
 
 async function pushToCalendar(taskId) {
