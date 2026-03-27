@@ -2676,11 +2676,32 @@ function enterDashboard(email, name) {
 
 async function loadProfiles() {
     try {
-        const { data } = await _supabase.from('profiles').select('email, avatar_url');
-        if (data) {
-            data.forEach(p => { if (p.avatar_url) updateTeamAvatar(p.email, p.avatar_url); });
-            updateTopbarAvatars();
-        }
+        const { data } = await _supabase.from('profiles').select('email, avatar_url, display_name');
+        if (!data) return;
+        const auth = JSON.parse(sessionStorage.getItem('app_auth') || localStorage.getItem('app_auth') || '{}');
+        data.forEach(p => {
+            // Update avatar in TEAM_ROSTER
+            if (p.avatar_url) updateTeamAvatar(p.email, p.avatar_url);
+            // Update display name in TEAM_ROSTER
+            if (p.display_name) {
+                const m = TEAM_ROSTER.find(m => m.email.toLowerCase() === p.email.toLowerCase());
+                if (m) m.name = p.display_name;
+            }
+            // Sync current user's data into auth + localStorage
+            if (p.email.toLowerCase() === currentUserId.toLowerCase()) {
+                if (p.avatar_url) {
+                    auth.avatar = p.avatar_url;
+                    localStorage.setItem('stlla_profile_photo', p.avatar_url);
+                }
+                if (p.display_name && !localStorage.getItem('stlla_display_name_' + auth.username)) {
+                    auth.name = p.display_name;
+                    localStorage.setItem('stlla_display_name_' + auth.username, p.display_name);
+                }
+                sessionStorage.setItem('app_auth', JSON.stringify(auth));
+            }
+        });
+        updateTopbarAvatars();
+        renderTeamPresence();
     } catch(e) { /* profiles table not set up yet — silent fail */ }
 }
 
@@ -2876,18 +2897,26 @@ async function handleProfilePhotoUpload(event) {
     }
 }
 
-function updateDisplayName(newName) {
+async function updateDisplayName(newName) {
     if (!newName.trim()) return;
     const auth = JSON.parse(sessionStorage.getItem('app_auth') || localStorage.getItem('app_auth') || '{}');
     auth.name = newName.trim();
     auth.initials = newName.trim().split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
     sessionStorage.setItem('app_auth', JSON.stringify(auth));
-    // Update TEAM_ROSTER
     const member = TEAM_ROSTER.find(m => m.email.toLowerCase() === (auth.username || '').toLowerCase());
-    if (member) { member.name = newName.trim(); }
+    if (member) { member.name = newName.trim(); member.initials = auth.initials; }
     localStorage.setItem('stlla_display_name_' + auth.username, newName.trim());
+    // Persist to Supabase so it shows on other devices/sessions
+    try {
+        await _supabase.from('profiles').upsert({
+            email: auth.username,
+            display_name: newName.trim(),
+            updated_at: new Date().toISOString()
+        });
+    } catch(e) {}
     renderSettingsAccount();
     updateTopbarAvatars();
+    renderTeamPresence();
     showToast('Display name updated', 'success');
 }
 
@@ -3135,6 +3164,7 @@ function sidebarNav(tabId, btn) {
     if (tabId === 'dealflow') renderDealFlow();
     if (tabId === 'invoices') renderInvoices();
     if (tabId === 'activity') renderActivityFeed();
+    if (tabId === 'settings') switchSettingsTab('account', null);
     // Close mobile sidebar
     if (window.innerWidth <= 768) {
         document.getElementById('sidebar').classList.remove('mobile-open');
@@ -4094,20 +4124,26 @@ function getPresenceStatus(email) {
 
 function renderTeamPresence() {
     const el = document.getElementById('teamPresence');
+    if (!el) return;
     const statusColors = { online: '#4ade80', away: '#fbbf24', offline: '#6b7280' };
-    // Get current user's avatar
     const myAuth = JSON.parse(sessionStorage.getItem('app_auth') || localStorage.getItem('app_auth') || '{}');
+    // Ensure current user's latest avatar is in TEAM_ROSTER
+    const myPhoto = localStorage.getItem('stlla_profile_photo') || myAuth.avatar;
+    if (myPhoto) updateTeamAvatar(currentUserId, myPhoto);
 
     el.innerHTML = TEAM_ROSTER.map(m => {
         const isMe = m.email.toLowerCase() === currentUserId.toLowerCase();
         const p = isMe ? { status: 'online', ago: '' } : getPresenceStatus(m.email);
-        const avatarUrl = isMe && myAuth.avatar ? myAuth.avatar : '';
-        const avatarContent = avatarUrl ? `<img src="${esc(avatarUrl)}" alt="">` : esc(m.initials);
-        return `<div class="team-avatar team-avatar-${p.status}" style="background:${m.color}">
+        // Use TEAM_ROSTER avatar for everyone (populated by loadProfiles / updateTeamAvatar)
+        const avatarUrl = m.avatar || '';
+        const avatarContent = avatarUrl
+            ? `<img src="${esc(avatarUrl)}" alt="${esc(m.initials)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`
+            : esc(m.initials);
+        return `<div class="team-avatar team-avatar-${p.status}" data-email="${esc(m.email)}" style="background:${m.color}">
             ${avatarContent}
             <div class="team-avatar-tooltip">
                 <strong>${esc(m.name)}</strong>${isMe ? ' (you)' : ''}<br>
-                <span style="color:${statusColors[p.status]}">${p.status}${p.ago ? ' \u00B7 ' + p.ago : ''}</span>
+                <span style="color:${statusColors[p.status]}">${p.status}${p.ago ? ' · ' + p.ago : ''}</span>
             </div>
         </div>`;
     }).join('');
