@@ -28,15 +28,7 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
     --radius-lg: 12px;
 }
 
-html.light {
-    --bg: #f8fafc;
-    --surface: rgba(0,0,0,0.02);
-    --surface2: rgba(0,0,0,0.05);
-    --border: rgba(0,0,0,0.1);
-    --text: #1e293b;
-    --text2: #64748b;
-    --text3: #94a3b8;
-}
+/* Dark mode only — no light mode */
 
 body { background: #030303; color: var(--text); }
 .hidden { display: none !important; }
@@ -1616,6 +1608,10 @@ body { background: #030303; color: var(--text); }
                 <div class="list-view">
                     <div class="list-toolbar">
                         <input type="text" class="search-input" id="listSearch" placeholder="Search tasks..." oninput="debouncedListFilter()">
+                        <button onclick="exportCSV()" style="padding:6px 14px;border-radius:8px;border:1px solid #27272a;background:#18181b;color:#a1a1aa;font-size:0.8rem;cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap;transition:all 0.2s;" onmouseover="this.style.borderColor='#818cf8';this.style.color='#818cf8'" onmouseout="this.style.borderColor='#27272a';this.style.color='#a1a1aa'">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            Export CSV
+                        </button>
                         <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
                             <div class="seg-tabs">
                                 <button class="seg-tab active" onclick="setListStatusTab('all',this)">All</button>
@@ -1762,13 +1758,117 @@ body { background: #030303; color: var(--text); }
 
             <!-- Settings Tab -->
             <div id="tab-settings" class="tab-pane">
-                <div style="padding: 24px;">
-                    <h2 style="font-size: 1.25rem; font-weight: 600; color: #fafafa; margin-bottom: 20px;">Settings</h2>
-                    <div style="background: #18181b; border: 1px solid #27272a; border-radius: 12px; padding: 20px;">
-                        <h3 style="font-size: 0.9rem; font-weight: 600; color: #d4d4d8; margin-bottom: 16px;">Appearance</h3>
-                        <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 0;">
-                            <span style="font-size: 0.85rem; color: #a1a1aa;">Dark Mode</span>
-                            <button class="btn-icon" onclick="toggleTheme()" id="settingsThemeToggle">Toggle</button>
+                <div style="padding: 24px; max-width: 720px;">
+                    <h2 style="font-size: 1.25rem; font-weight: 600; color: #fafafa; margin-bottom: 24px;">Settings</h2>
+
+                    <!-- Settings Tabs -->
+                    <div class="seg-tabs" style="margin-bottom: 24px;">
+                        <button class="seg-tab active" onclick="switchSettingsTab('account', this)">Account</button>
+                        <button class="seg-tab" onclick="switchSettingsTab('integrations', this)">Integrations</button>
+                        <button class="seg-tab" onclick="switchSettingsTab('shortcuts', this)">Shortcuts</button>
+                        <button class="seg-tab" onclick="switchSettingsTab('automations', this)">Automations</button>
+                    </div>
+
+                    <!-- Account -->
+                    <div id="settings-account" class="settings-section">
+                        <div style="background: #18181b; border: 1px solid #27272a; border-radius: 12px; padding: 20px; margin-bottom: 16px;">
+                            <h3 style="font-size: 0.9rem; font-weight: 600; color: #d4d4d8; margin-bottom: 16px;">Profile</h3>
+                            <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 16px;">
+                                <div id="settingsAvatar" style="width:56px;height:56px;border-radius:50%;background:#7c3aed;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:1.1rem;color:#fff;overflow:hidden;"></div>
+                                <div>
+                                    <div id="settingsName" style="font-size:0.95rem;font-weight:600;color:#fafafa;">—</div>
+                                    <div id="settingsEmail" style="font-size:0.8rem;color:#71717a;">—</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="background: #18181b; border: 1px solid #27272a; border-radius: 12px; padding: 20px;">
+                            <h3 style="font-size: 0.9rem; font-weight: 600; color: #d4d4d8; margin-bottom: 16px;">Team Members</h3>
+                            <div id="settingsTeamList" style="display:flex;flex-direction:column;gap:10px;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Integrations -->
+                    <div id="settings-integrations" class="settings-section hidden">
+                        <div style="background: #18181b; border: 1px solid #27272a; border-radius: 12px; padding: 20px; margin-bottom: 16px;">
+                            <h3 style="font-size: 0.9rem; font-weight: 600; color: #d4d4d8; margin-bottom: 16px;">Google Calendar</h3>
+                            <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #27272a;">
+                                <div>
+                                    <div style="font-size:0.85rem;color:#e2e8f0;">Auto-sync tasks to Calendar</div>
+                                    <div style="font-size:0.75rem;color:#52525b;">Tasks with due dates are automatically pushed to Google Calendar</div>
+                                </div>
+                                <span style="font-size:0.75rem;padding:4px 8px;border-radius:6px;background:rgba(74,222,128,0.15);color:#4ade80;">Active</span>
+                            </div>
+                            <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;">
+                                <div>
+                                    <div style="font-size:0.85rem;color:#e2e8f0;">Connected Calendars</div>
+                                    <div style="font-size:0.75rem;color:#52525b;">partner@shadowoperator.ai, harry@maudegroup.co.uk</div>
+                                </div>
+                                <span style="font-size:0.75rem;padding:4px 8px;border-radius:6px;background:rgba(74,222,128,0.15);color:#4ade80;">Connected</span>
+                            </div>
+                        </div>
+                        <div style="background: #18181b; border: 1px solid #27272a; border-radius: 12px; padding: 20px;">
+                            <h3 style="font-size: 0.9rem; font-weight: 600; color: #d4d4d8; margin-bottom: 16px;">Telegram</h3>
+                            <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;">
+                                <div>
+                                    <div style="font-size:0.85rem;color:#e2e8f0;">Telegram Widget</div>
+                                    <div style="font-size:0.75rem;color:#52525b;">Embedded in the Telegram tab</div>
+                                </div>
+                                <span style="font-size:0.75rem;padding:4px 8px;border-radius:6px;background:rgba(129,140,248,0.15);color:#818cf8;">Configured</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Shortcuts -->
+                    <div id="settings-shortcuts" class="settings-section hidden">
+                        <div style="background: #18181b; border: 1px solid #27272a; border-radius: 12px; padding: 20px;">
+                            <h3 style="font-size: 0.9rem; font-weight: 600; color: #d4d4d8; margin-bottom: 16px;">Keyboard Shortcuts</h3>
+                            <div style="display:flex;flex-direction:column;gap:8px;">
+                                <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #1a1a1f;">
+                                    <span style="font-size:0.85rem;color:#a1a1aa;">Search / Command Palette</span>
+                                    <kbd style="font-size:0.75rem;padding:3px 8px;border-radius:6px;background:#27272a;color:#d4d4d8;border:1px solid #3f3f46;font-family:monospace;">⌘ K</kbd>
+                                </div>
+                                <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #1a1a1f;">
+                                    <span style="font-size:0.85rem;color:#a1a1aa;">Toggle Sidebar</span>
+                                    <kbd style="font-size:0.75rem;padding:3px 8px;border-radius:6px;background:#27272a;color:#d4d4d8;border:1px solid #3f3f46;font-family:monospace;">⌘ B</kbd>
+                                </div>
+                                <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #1a1a1f;">
+                                    <span style="font-size:0.85rem;color:#a1a1aa;">New Task</span>
+                                    <kbd style="font-size:0.75rem;padding:3px 8px;border-radius:6px;background:#27272a;color:#d4d4d8;border:1px solid #3f3f46;font-family:monospace;">C</kbd>
+                                </div>
+                                <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #1a1a1f;">
+                                    <span style="font-size:0.85rem;color:#a1a1aa;">Go to Home</span>
+                                    <kbd style="font-size:0.75rem;padding:3px 8px;border-radius:6px;background:#27272a;color:#d4d4d8;border:1px solid #3f3f46;font-family:monospace;">1</kbd>
+                                </div>
+                                <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #1a1a1f;">
+                                    <span style="font-size:0.85rem;color:#a1a1aa;">Go to Board</span>
+                                    <kbd style="font-size:0.75rem;padding:3px 8px;border-radius:6px;background:#27272a;color:#d4d4d8;border:1px solid #3f3f46;font-family:monospace;">2</kbd>
+                                </div>
+                                <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #1a1a1f;">
+                                    <span style="font-size:0.85rem;color:#a1a1aa;">Go to List</span>
+                                    <kbd style="font-size:0.75rem;padding:3px 8px;border-radius:6px;background:#27272a;color:#d4d4d8;border:1px solid #3f3f46;font-family:monospace;">3</kbd>
+                                </div>
+                                <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #1a1a1f;">
+                                    <span style="font-size:0.85rem;color:#a1a1aa;">Go to Calendar</span>
+                                    <kbd style="font-size:0.75rem;padding:3px 8px;border-radius:6px;background:#27272a;color:#d4d4d8;border:1px solid #3f3f46;font-family:monospace;">4</kbd>
+                                </div>
+                                <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #1a1a1f;">
+                                    <span style="font-size:0.85rem;color:#a1a1aa;">Go to Deal Flow</span>
+                                    <kbd style="font-size:0.75rem;padding:3px 8px;border-radius:6px;background:#27272a;color:#d4d4d8;border:1px solid #3f3f46;font-family:monospace;">5</kbd>
+                                </div>
+                                <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;">
+                                    <span style="font-size:0.85rem;color:#a1a1aa;">Close Panel / Escape</span>
+                                    <kbd style="font-size:0.75rem;padding:3px 8px;border-radius:6px;background:#27272a;color:#d4d4d8;border:1px solid #3f3f46;font-family:monospace;">Esc</kbd>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Automations -->
+                    <div id="settings-automations" class="settings-section hidden">
+                        <div style="background: #18181b; border: 1px solid #27272a; border-radius: 12px; padding: 20px;">
+                            <h3 style="font-size: 0.9rem; font-weight: 600; color: #d4d4d8; margin-bottom: 16px;">Automation Rules</h3>
+                            <div id="settingsAutomationsList" style="display:flex;flex-direction:column;gap:10px;"></div>
+                            <button onclick="addNewAutomation()" style="margin-top:12px;padding:8px 16px;border-radius:8px;border:1px dashed #3f3f46;background:transparent;color:#a1a1aa;font-size:0.8rem;cursor:pointer;width:100%;transition:all 0.2s;" onmouseover="this.style.borderColor='#818cf8';this.style.color='#818cf8'" onmouseout="this.style.borderColor='#3f3f46';this.style.color='#a1a1aa'">+ Add Automation Rule</button>
                         </div>
                     </div>
                 </div>
@@ -1898,9 +1998,15 @@ const SUPABASE_URL = 'https://ouesmvzewhjoydnryfdc.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91ZXNtdnpld2hqb3lkbnJ5ZmRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1NDM3MzAsImV4cCI6MjA5MDExOTczMH0.HoNS3IyQWiNvKVTPHYhxIYWhI2Ls9fjEi4U_Vh9L9A0';
 
 const TEAM_ROSTER = [
-    { id: 'max', email: 'partner@shadowoperator.ai', name: 'Max', initials: 'MG', color: '#7c3aed' },
-    { id: 'harry', email: 'harry@maudegroup.co.uk', name: 'Harry', initials: 'HM', color: '#6d28d9' },
+    { id: 'max', email: 'partner@shadowoperator.ai', name: 'Max', initials: 'MG', color: '#7c3aed', avatar: '' },
+    { id: 'harry', email: 'harry@maudegroup.co.uk', name: 'Harry', initials: 'HM', color: '#6d28d9', avatar: '' },
 ];
+
+// Update team roster avatar from Google login
+function updateTeamAvatar(email, avatarUrl) {
+    const member = TEAM_ROSTER.find(m => m.email.toLowerCase() === email.toLowerCase());
+    if (member && avatarUrl) member.avatar = avatarUrl;
+}
 
 const STATUSES = ['To Do', 'In Progress', 'Done'];
 const PRIORITIES = ['High', 'Medium', 'Low'];
@@ -2130,10 +2236,14 @@ function enterDashboard(email, name) {
         mobileBtn.style.display = window.innerWidth <= 768 ? '' : 'none';
     });
     populateAssigneeSelects();
-    if (localStorage.getItem('app_theme') === 'light') {
-        document.documentElement.classList.add('light');
-    }
-    updateThemeIcon();
+    // Update team avatar from Google login
+    if (auth.avatar) updateTeamAvatar(email, auth.avatar);
+    // Store avatar in localStorage for team roster persistence
+    const storedAvatars = JSON.parse(localStorage.getItem('stlla_avatars') || '{}');
+    if (auth.avatar) storedAvatars[email] = auth.avatar;
+    localStorage.setItem('stlla_avatars', JSON.stringify(storedAvatars));
+    // Load saved avatars for all team members
+    Object.entries(storedAvatars).forEach(([e, url]) => updateTeamAvatar(e, url));
     // Show dashboard after 2s NO MATTER WHAT
     setTimeout(() => {
         try {
@@ -2274,7 +2384,128 @@ function toggleTheme() {
 
 function updateThemeIcon() {
     const btn = document.getElementById('themeToggle');
-    btn.textContent = document.documentElement.classList.contains('light') ? '\u2600' : '\u263E';
+    if (btn) btn.textContent = '\u263E'; // Always moon (dark mode only)
+}
+
+/* ════════════════════════════════════════════════════════════════
+   SETTINGS PAGE
+   ════════════════════════════════════════════════════════════════ */
+function switchSettingsTab(tab, btn) {
+    document.querySelectorAll('.settings-section').forEach(s => s.classList.add('hidden'));
+    const section = document.getElementById('settings-' + tab);
+    if (section) section.classList.remove('hidden');
+    if (btn) {
+        btn.closest('.seg-tabs').querySelectorAll('.seg-tab').forEach(t => t.classList.remove('active'));
+        btn.classList.add('active');
+    }
+    // Populate settings content
+    if (tab === 'account') renderSettingsAccount();
+    if (tab === 'automations') renderSettingsAutomations();
+}
+
+function renderSettingsAccount() {
+    const auth = JSON.parse(sessionStorage.getItem('app_auth') || localStorage.getItem('app_auth') || '{}');
+    const nameEl = document.getElementById('settingsName');
+    const emailEl = document.getElementById('settingsEmail');
+    const avatarEl = document.getElementById('settingsAvatar');
+    if (nameEl) nameEl.textContent = auth.name || 'User';
+    if (emailEl) emailEl.textContent = auth.username || '';
+    if (avatarEl) {
+        if (auth.avatar) {
+            avatarEl.innerHTML = `<img src="${auth.avatar}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+        } else {
+            avatarEl.textContent = auth.initials || '?';
+        }
+    }
+    // Team list
+    const list = document.getElementById('settingsTeamList');
+    if (list) {
+        list.innerHTML = TEAM_ROSTER.map(m => `
+            <div style="display:flex;align-items:center;gap:12px;padding:10px;background:#09090b;border-radius:8px;border:1px solid #1a1a1f;">
+                <div style="width:36px;height:36px;border-radius:50%;background:${m.color};display:flex;align-items:center;justify-content:center;font-weight:600;font-size:0.75rem;color:#fff;overflow:hidden;">
+                    ${m.avatar ? `<img src="${m.avatar}" style="width:100%;height:100%;object-fit:cover">` : m.initials}
+                </div>
+                <div>
+                    <div style="font-size:0.85rem;font-weight:500;color:#e2e8f0;">${esc(m.name)}</div>
+                    <div style="font-size:0.75rem;color:#52525b;">${esc(m.email)}</div>
+                </div>
+                <div style="margin-left:auto;">
+                    <span style="font-size:0.7rem;padding:3px 8px;border-radius:6px;background:rgba(129,140,248,0.12);color:#818cf8;">Member</span>
+                </div>
+            </div>
+        `).join('');
+    }
+}
+
+function renderSettingsAutomations() {
+    const list = document.getElementById('settingsAutomationsList');
+    if (!list) return;
+    list.innerHTML = _automations.map((a, i) => `
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:#09090b;border-radius:8px;border:1px solid #1a1a1f;">
+            <div style="flex:1;">
+                <div style="font-size:0.85rem;color:#e2e8f0;">When <strong style="color:#818cf8">${esc(a.trigger)}</strong></div>
+                <div style="font-size:0.8rem;color:#52525b;margin-top:2px;">Then ${esc(a.action)}</div>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center;">
+                <button onclick="_automations[${i}].enabled=!_automations[${i}].enabled;localStorage.setItem('stlla_automations',JSON.stringify(_automations));renderSettingsAutomations()" style="padding:4px 10px;border-radius:6px;border:1px solid ${a.enabled ? 'rgba(74,222,128,0.3)' : '#3f3f46'};background:${a.enabled ? 'rgba(74,222,128,0.1)' : 'transparent'};color:${a.enabled ? '#4ade80' : '#71717a'};font-size:0.75rem;cursor:pointer;">${a.enabled ? 'On' : 'Off'}</button>
+                <button onclick="_automations.splice(${i},1);localStorage.setItem('stlla_automations',JSON.stringify(_automations));renderSettingsAutomations()" style="padding:4px 8px;border-radius:6px;border:1px solid #27272a;background:transparent;color:#ef4444;font-size:0.75rem;cursor:pointer;">×</button>
+            </div>
+        </div>
+    `).join('') || '<div style="text-align:center;padding:20px;color:#52525b;font-size:0.85rem;">No automation rules yet</div>';
+}
+
+function addNewAutomation() {
+    const trigger = prompt('When this happens (e.g. "status changes to Done", "all subtasks completed"):');
+    if (!trigger) return;
+    const action = prompt('Do this (e.g. "move to Done column", "notify team", "set priority to Low"):');
+    if (!action) return;
+    _automations.push({ trigger, action, enabled: true });
+    localStorage.setItem('stlla_automations', JSON.stringify(_automations));
+    renderSettingsAutomations();
+    showToast('Automation added');
+}
+
+/* ════════════════════════════════════════════════════════════════
+   KEYBOARD SHORTCUTS
+   ════════════════════════════════════════════════════════════════ */
+document.addEventListener('keydown', function(e) {
+    // Skip if typing in an input
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable) return;
+    // Skip if search overlay is open
+    if (!document.getElementById('searchOverlay')?.classList.contains('hidden')) return;
+
+    if (e.key === 'c' || e.key === 'C') {
+        if (!e.metaKey && !e.ctrlKey) { e.preventDefault(); openNewTaskModal(); }
+    }
+    if (e.key === '1') { e.preventDefault(); sidebarNav('home'); }
+    if (e.key === '2') { e.preventDefault(); sidebarNav('board'); }
+    if (e.key === '3') { e.preventDefault(); sidebarNav('list'); }
+    if (e.key === '4') { e.preventDefault(); sidebarNav('calendar'); }
+    if (e.key === '5') { e.preventDefault(); sidebarNav('dealflow'); }
+    if (e.key === 'Escape') {
+        closeDetail();
+        closeNewTaskModal();
+        closeSearchOverlay();
+    }
+});
+
+/* ════════════════════════════════════════════════════════════════
+   EXPORT CSV
+   ════════════════════════════════════════════════════════════════ */
+function exportCSV() {
+    if (!DATA.length) { showToast('No tasks to export'); return; }
+    const headers = ['Title','Status','Priority','Category','Assignee','Due Date','Description','Created'];
+    const rows = DATA.map(t => [
+        t.title, t.status, t.priority, t.category || '', t.assignee || '',
+        t.due_date || '', (t.description || '').replace(/"/g, '""'), t.created_at || ''
+    ].map(v => `"${v}"`).join(','));
+    const csv = [headers.join(','), ...rows].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `stlla-tasks-${new Date().toISOString().slice(0,10)}.csv`;
+    a.click(); URL.revokeObjectURL(url);
+    showToast('CSV exported');
 }
 
 /* ════════════════════════════════════════════════════════════════
@@ -2508,9 +2739,11 @@ function renderTaskCard(task) {
     const dueCls = dueDateClass(task.due_date);
     const priorityLetter = (task.priority || '?')[0];
 
-    // Assignee display
+    // Assignee display (with Google profile picture if available)
     const assigneeHtml = member
-        ? `<span class="assignee-badge" style="background:${member.color};width:20px;height:20px;font-size:0.55rem" title="${esc(member.name)}">${esc(member.initials)}</span>`
+        ? (member.avatar
+            ? `<span class="assignee-badge" style="width:22px;height:22px;padding:0;overflow:hidden" title="${esc(member.name)}"><img src="${member.avatar}" alt="${esc(member.initials)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"></span>`
+            : `<span class="assignee-badge" style="background:${member.color};width:22px;height:22px;font-size:0.55rem" title="${esc(member.name)}">${esc(member.initials)}</span>`)
         : (task.assignee ? `<span style="color:#52525b;font-size:0.7rem">${esc(task.assignee.split('@')[0])}</span>` : '');
 
     // Due date
