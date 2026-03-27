@@ -39,7 +39,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
 /* ── Reset & Base ─────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -115,7 +115,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .login-screen {
     position: fixed; inset: 0;
     display: grid; place-items: center;
-    background: rgba(3,3,3,0.7);
+    background: transparent;
     color: #fafafa;
     overflow: hidden; z-index: 2;
 }
@@ -127,8 +127,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 }
 .bg-shapes::before {
     content: ''; position: absolute; inset: 0;
-    background: radial-gradient(ellipse at 30% 20%, rgba(99,102,241,0.06), transparent 60%),
-                radial-gradient(ellipse at 70% 80%, rgba(244,63,94,0.06), transparent 60%);
+    background: radial-gradient(ellipse at 30% 20%, rgba(99,102,241,0.18), transparent 60%),
+                radial-gradient(ellipse at 70% 80%, rgba(244,63,94,0.14), transparent 60%);
     filter: blur(80px);
 }
 .bg-shape {
@@ -154,34 +154,34 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     to { opacity: 1; transform: translateY(0); }
 }
 .bg-shape-1 {
-    --shape-color: rgba(99,102,241,0.25); --float-duration: 14s; --rotate: 12deg;
+    --shape-color: rgba(99,102,241,0.55); --float-duration: 14s; --rotate: 12deg;
     width: 500px; height: 120px; left: -5%; top: 18%;
     animation-delay: 0.3s;
 }
 .bg-shape-2 {
-    --shape-color: rgba(244,63,94,0.22); --float-duration: 16s; --rotate: -15deg;
+    --shape-color: rgba(244,63,94,0.45); --float-duration: 16s; --rotate: -15deg;
     width: 420px; height: 100px; right: -3%; top: 72%;
     animation-delay: 0.5s;
 }
 .bg-shape-3 {
-    --shape-color: rgba(139,92,246,0.20); --float-duration: 13s; --rotate: -8deg;
+    --shape-color: rgba(139,92,246,0.45); --float-duration: 13s; --rotate: -8deg;
     width: 260px; height: 70px; left: 8%; bottom: 8%;
     animation-delay: 0.4s;
 }
 .bg-shape-4 {
-    --shape-color: rgba(245,158,11,0.12); --float-duration: 15s; --rotate: 20deg;
+    --shape-color: rgba(245,158,11,0.30); --float-duration: 15s; --rotate: 20deg;
     width: 180px; height: 50px; right: 18%; top: 12%;
     animation-delay: 0.6s;
 }
 .bg-shape-5 {
-    --shape-color: rgba(6,182,212,0.12); --float-duration: 11s; --rotate: -25deg;
+    --shape-color: rgba(6,182,212,0.30); --float-duration: 11s; --rotate: -25deg;
     width: 140px; height: 38px; left: 22%; top: 6%;
     animation-delay: 0.7s;
 }
 /* Gradient overlay for depth */
 .bg-shapes-overlay {
     position: absolute; inset: 0; pointer-events: none;
-    background: linear-gradient(to top, #030303, transparent 30%, transparent 70%, rgba(3,3,3,0.8));
+    background: linear-gradient(to top, rgba(3,3,3,0.6), transparent 40%, transparent 60%, rgba(3,3,3,0.3));
 }
 
 /* Card fade-up animation */
@@ -5281,14 +5281,7 @@ function showSkeletonCards() {
 /* ════════════════════════════════════════════════════════════════
    INIT
    ════════════════════════════════════════════════════════════════ */
-function initWhenReady() {
-    if (window.supabase) {
-        checkSession();
-    } else {
-        setTimeout(initWhenReady, 50);
-    }
-}
-initWhenReady();
+checkSession();
 </script>
 </body>
 </html>
