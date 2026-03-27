@@ -18,7 +18,8 @@ TASK_HEADERS = [
     "task_id", "title", "description", "status", "priority",
     "assignee", "due_date", "parent_task_id", "links",
     "created_by", "created_at", "updated_at",
-    "category", "stage", "deal_value"
+    "category", "stage", "deal_value",
+    "comments", "time_spent", "files", "dependencies", "recurring"
 ]
 
 # ── Google Sheets Connection ────────────────────────────────────────

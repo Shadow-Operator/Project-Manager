@@ -729,6 +729,14 @@ body { background: var(--bg); color: var(--text); }
 
 .subtask-children { margin-left: 20px; margin-top: 4px; }
 
+/* ── Comment Items ───────────────────────────────────────────── */
+.comment-item {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 12px 0; border-bottom: 1px solid rgba(26,26,31,0.4);
+}
+.comment-item:last-child { border-bottom: none; }
+.comment-list { max-height: 400px; overflow-y: auto; }
+
 /* ── Modal ────────────────────────────────────────────────────── */
 .modal-overlay {
     position: fixed; top: 0; left: 0; right: 0; bottom: 0;
@@ -2491,6 +2499,8 @@ function closeDetail() {
     renderListView();
 }
 
+let _detailTab = 'details';
+
 function renderDetail(taskId) {
     const task = getTaskById(taskId);
     if (!task) { closeDetail(); return; }
@@ -2499,6 +2509,13 @@ function renderDetail(taskId) {
     const children = treeNode ? treeNode.children : [];
     let links = [];
     try { links = JSON.parse(task.links || '[]'); } catch(e) {}
+    let comments = [];
+    try { comments = JSON.parse(task.comments || '[]'); } catch(e) {}
+    let files = [];
+    try { files = JSON.parse(task.files || '[]'); } catch(e) {}
+    let timeSpent = parseInt(task.time_spent) || 0;
+    let deps = [];
+    try { deps = JSON.parse(task.dependencies || '[]'); } catch(e) {}
 
     // Breadcrumb
     let breadcrumb = '';
@@ -2515,101 +2532,183 @@ function renderDetail(taskId) {
         '</div>';
     }
 
+    const tab = _detailTab;
+    const tabBtn = (id, label, count) => `<button class="seg-tab ${tab === id ? 'active' : ''}" onclick="_detailTab='${id}'; renderDetail('${esc(taskId)}')">${label}${count ? ` (${count})` : ''}</button>`;
+
+    // Time tracking display
+    const hours = Math.floor(timeSpent / 3600);
+    const mins = Math.floor((timeSpent % 3600) / 60);
+    const timeDisplay = timeSpent > 0 ? `${hours}h ${mins}m` : '0h 0m';
+    const isTracking = _activeTimer && _activeTimer.taskId === taskId;
+
+    let tabContent = '';
+
+    if (tab === 'details') {
+        tabContent = `
+            <div class="detail-fields">
+                <div class="detail-label">Status</div>
+                <select onchange="updateDetailField('${esc(task.task_id)}','status',this.value); renderDetail('${esc(task.task_id)}')">
+                    ${STATUSES.map(s => `<option ${s === task.status ? 'selected' : ''}>${esc(s)}</option>`).join('')}
+                </select>
+                <div class="detail-label">Priority</div>
+                <select onchange="updateDetailField('${esc(task.task_id)}','priority',this.value); renderDetail('${esc(task.task_id)}')">
+                    ${PRIORITIES.map(p => `<option ${p === task.priority ? 'selected' : ''}>${esc(p)}</option>`).join('')}
+                </select>
+                <div class="detail-label">Assignee</div>
+                <select onchange="updateDetailField('${esc(task.task_id)}','assignee',this.value)">
+                    <option value="">Unassigned</option>
+                    ${TEAM_ROSTER.map(m => `<option value="${esc(m.email)}" ${task.assignee === m.email ? 'selected' : ''}>${esc(m.name)}</option>`).join('')}
+                </select>
+                <div class="detail-label">Due Date</div>
+                <input type="date" value="${esc(task.due_date)}" onchange="updateDetailField('${esc(task.task_id)}','due_date',this.value)">
+                <div class="detail-label">Category</div>
+                <select onchange="updateDetailField('${esc(task.task_id)}','category',this.value)">
+                    <option value="">None</option>
+                    ${CATEGORIES.map(c => `<option ${c === task.category ? 'selected' : ''}>${esc(c)}</option>`).join('')}
+                </select>
+                <div class="detail-label">Stage</div>
+                <select onchange="updateDetailField('${esc(task.task_id)}','stage',this.value)">
+                    <option value="">None</option>
+                    ${DEAL_STAGES.map(s => `<option ${s === task.stage ? 'selected' : ''}>${esc(s)}</option>`).join('')}
+                </select>
+                <div class="detail-label">Deal Value</div>
+                <input type="text" value="${esc(task.deal_value || '')}" placeholder="e.g. 5000" onblur="updateDetailField('${esc(task.task_id)}','deal_value',this.value)">
+            </div>
+            <div class="detail-section">
+                <div class="detail-section-title">Description</div>
+                <textarea class="detail-description" onblur="updateDetailField('${esc(task.task_id)}','description',this.value)">${esc(task.description)}</textarea>
+            </div>
+            <!-- Time Tracking -->
+            <div class="detail-section">
+                <div class="detail-section-title">
+                    Time Tracked
+                    <span style="font-size:0.82rem;font-weight:700;color:#fafafa;text-transform:none;letter-spacing:0">${timeDisplay}</span>
+                </div>
+                <div style="display:flex;gap:8px;align-items:center">
+                    <button class="btn-sm ${isTracking ? 'btn-danger' : ''}" onclick="toggleTimer('${esc(task.task_id)}')" id="timerBtn-${esc(task.task_id)}">
+                        ${isTracking ? '⏹ Stop' : '▶ Start Timer'}
+                    </button>
+                    ${isTracking ? `<span style="color:#4ade80;font-size:0.78rem;font-weight:600" id="timerDisplay-${esc(task.task_id)}">Running...</span>` : ''}
+                    <button class="btn-sm btn-outline" onclick="addManualTime('${esc(task.task_id)}')" style="font-size:0.72rem;padding:3px 10px">+ Add Manual</button>
+                </div>
+            </div>
+            <!-- Google Calendar -->
+            <div class="detail-section">
+                <div class="detail-section-title">Google Calendar</div>
+                ${task.due_date
+                    ? `<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                        <input type="time" id="calStart-${esc(task.task_id)}" value="09:00" style="padding:6px 10px;background:#18181b;border:1px solid #27272a;border-radius:8px;color:#e4e4e7;font-size:0.82rem;outline:none;width:100px">
+                        <span style="color:#3f3f46">to</span>
+                        <input type="time" id="calEnd-${esc(task.task_id)}" value="10:00" style="padding:6px 10px;background:#18181b;border:1px solid #27272a;border-radius:8px;color:#e4e4e7;font-size:0.82rem;outline:none;width:100px">
+                        <button class="cal-push-btn" onclick="pushToCalendar('${esc(task.task_id)}')" id="calBtn-${esc(task.task_id)}">&#x1F4C5; Push</button>
+                      </div>`
+                    : '<div style="font-size:0.82rem;color:#3f3f46">Set a due date first</div>'
+                }
+            </div>
+        `;
+    } else if (tab === 'subtasks') {
+        tabContent = `
+            <div class="detail-section">
+                <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
+                    <button class="btn-sm" onclick="openNewTaskModal('To Do','${esc(task.task_id)}')">+ Add Subtask</button>
+                </div>
+                <div class="subtask-list">
+                    ${renderSubtaskTree(children)}
+                    ${children.length === 0 ? '<div style="padding:20px;text-align:center;color:#27272a;font-size:0.82rem">No subtasks yet</div>' : ''}
+                </div>
+            </div>
+        `;
+    } else if (tab === 'comments') {
+        tabContent = `
+            <div class="detail-section">
+                <div class="comment-list" id="commentList-${esc(task.task_id)}">
+                    ${comments.length === 0 ? '<div style="padding:20px;text-align:center;color:#27272a;font-size:0.82rem">No comments yet — start the conversation</div>' : ''}
+                    ${comments.map((c, i) => {
+                        const member = getTeamMember(c.user) || {};
+                        return `<div class="comment-item">
+                            <div class="notif-avatar" style="background:${member.color || '#7c3aed'};width:28px;height:28px;font-size:0.6rem;flex-shrink:0">${esc((member.initials || c.user || '?').slice(0, 2))}</div>
+                            <div style="flex:1;min-width:0">
+                                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+                                    <span style="font-size:0.82rem;font-weight:600;color:#e4e4e7">${esc(member.name || c.user || 'Unknown')}</span>
+                                    <span style="font-size:0.68rem;color:#3f3f46">${timeAgo(c.time)}</span>
+                                </div>
+                                <div style="font-size:0.82rem;color:#a1a1aa;line-height:1.5">${esc(c.text)}</div>
+                            </div>
+                        </div>`;
+                    }).join('')}
+                </div>
+                <div style="display:flex;gap:8px;margin-top:12px">
+                    <input type="text" id="commentInput-${esc(task.task_id)}" placeholder="Write a comment..." style="flex:1;padding:10px 14px;background:#18181b;border:1px solid #27272a;border-radius:8px;color:#e4e4e7;font-size:0.82rem;outline:none" onkeydown="if(event.key==='Enter')addComment('${esc(task.task_id)}')">
+                    <button class="btn-sm" onclick="addComment('${esc(task.task_id)}')">Send</button>
+                </div>
+            </div>
+        `;
+    } else if (tab === 'files') {
+        tabContent = `
+            <div class="detail-section">
+                <div class="link-list">
+                    ${files.map((f, i) => `
+                        <div class="link-item">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;color:#71717a"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>
+                            <a href="${esc(f.url)}" target="_blank" rel="noopener">${esc(f.name || f.url)}</a>
+                            <button class="link-remove" onclick="removeFile('${esc(task.task_id)}', ${i})">&times;</button>
+                        </div>
+                    `).join('')}
+                    ${files.length === 0 ? '<div style="padding:20px;text-align:center;color:#27272a;font-size:0.82rem">No files attached</div>' : ''}
+                </div>
+                <div style="display:flex;gap:8px;margin-top:12px">
+                    <input type="url" id="fileUrl-${esc(task.task_id)}" placeholder="Google Drive link..." style="flex:1;padding:10px 14px;background:#18181b;border:1px solid #27272a;border-radius:8px;color:#e4e4e7;font-size:0.82rem;outline:none">
+                    <input type="text" id="fileName-${esc(task.task_id)}" placeholder="File name" style="width:120px;padding:10px 14px;background:#18181b;border:1px solid #27272a;border-radius:8px;color:#e4e4e7;font-size:0.82rem;outline:none">
+                    <button class="btn-sm" onclick="addFile('${esc(task.task_id)}')">Add</button>
+                </div>
+            </div>
+            <div class="detail-section">
+                <div class="detail-section-title">
+                    Links
+                    <button class="btn-sm btn-outline" onclick="toggleLinkForm('${esc(task.task_id)}')" style="font-size:0.75rem;padding:3px 10px">+ Add</button>
+                </div>
+                <div class="link-list">
+                    ${links.map((l, i) => `
+                        <div class="link-item">
+                            <a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label || l.url)}</a>
+                            <button class="link-remove" onclick="removeLink('${esc(task.task_id)}', ${i})">&times;</button>
+                        </div>
+                    `).join('')}
+                    ${links.length === 0 ? '<div style="font-size:0.82rem;color:#3f3f46">No links</div>' : ''}
+                </div>
+                <div class="link-add-form hidden" id="linkForm-${esc(task.task_id)}">
+                    <input type="url" placeholder="https://..." id="linkUrl-${esc(task.task_id)}">
+                    <input type="text" placeholder="Label" id="linkLabel-${esc(task.task_id)}" style="max-width:140px">
+                    <button class="btn-sm" onclick="addLink('${esc(task.task_id)}')">Add</button>
+                </div>
+            </div>
+        `;
+    }
+
     const html = `
         <div class="detail-header">
-            <div style="font-size:0.8rem;color:var(--text3)">${esc(task.task_id)}</div>
+            <div style="display:flex;align-items:center;gap:8px">
+                ${task.category ? categoryBadge(task.category) : ''}
+                <span style="font-size:0.72rem;color:#3f3f46">${esc(task.task_id)}</span>
+            </div>
             <button class="detail-close" onclick="closeDetail()">&times;</button>
         </div>
         ${breadcrumb}
         <input class="detail-title" value="${esc(task.title)}" onblur="updateDetailField('${esc(task.task_id)}','title',this.value)">
-        <div class="detail-fields">
-            <div class="detail-label">Status</div>
-            <select onchange="updateDetailField('${esc(task.task_id)}','status',this.value); renderDetail('${esc(task.task_id)}')">
-                ${STATUSES.map(s => `<option ${s === task.status ? 'selected' : ''}>${esc(s)}</option>`).join('')}
-            </select>
-            <div class="detail-label">Priority</div>
-            <select onchange="updateDetailField('${esc(task.task_id)}','priority',this.value); renderDetail('${esc(task.task_id)}')">
-                ${PRIORITIES.map(p => `<option ${p === task.priority ? 'selected' : ''}>${esc(p)}</option>`).join('')}
-            </select>
-            <div class="detail-label">Assignee</div>
-            <select onchange="updateDetailField('${esc(task.task_id)}','assignee',this.value)">
-                <option value="">Unassigned</option>
-                ${TEAM_ROSTER.map(m => `<option value="${esc(m.email)}" ${task.assignee === m.email ? 'selected' : ''}>${esc(m.name)}</option>`).join('')}
-            </select>
-            <div class="detail-label">Due Date</div>
-            <input type="date" value="${esc(task.due_date)}" onchange="updateDetailField('${esc(task.task_id)}','due_date',this.value)">
-            <div class="detail-label">Category</div>
-            <select onchange="updateDetailField('${esc(task.task_id)}','category',this.value)">
-                <option value="">None</option>
-                ${CATEGORIES.map(c => `<option ${c === task.category ? 'selected' : ''}>${esc(c)}</option>`).join('')}
-            </select>
-            <div class="detail-label">Stage</div>
-            <select onchange="updateDetailField('${esc(task.task_id)}','stage',this.value)">
-                <option value="">None</option>
-                ${DEAL_STAGES.map(s => `<option ${s === task.stage ? 'selected' : ''}>${esc(s)}</option>`).join('')}
-            </select>
-            <div class="detail-label">Deal Value</div>
-            <input type="text" value="${esc(task.deal_value || '')}" placeholder="e.g. 5000" onblur="updateDetailField('${esc(task.task_id)}','deal_value',this.value)">
+
+        <!-- Detail Tabs -->
+        <div class="seg-tabs" style="margin-bottom:16px">
+            ${tabBtn('details', 'Details')}
+            ${tabBtn('subtasks', 'Subtasks', children.length)}
+            ${tabBtn('comments', 'Comments', comments.length)}
+            ${tabBtn('files', 'Files', files.length + links.length)}
         </div>
 
-        <div class="detail-section">
-            <div class="detail-section-title">Description</div>
-            <textarea class="detail-description" onblur="updateDetailField('${esc(task.task_id)}','description',this.value)">${esc(task.description)}</textarea>
-        </div>
+        ${tabContent}
 
-        <div class="detail-section">
-            <div class="detail-section-title">
-                Links
-                <button class="btn-sm btn-outline" onclick="toggleLinkForm('${esc(task.task_id)}')" style="font-size:0.75rem;padding:3px 10px">+ Add</button>
-            </div>
-            <div class="link-list">
-                ${links.map((l, i) => `
-                    <div class="link-item">
-                        <a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label || l.url)}</a>
-                        <button class="link-remove" onclick="removeLink('${esc(task.task_id)}', ${i})">&times;</button>
-                    </div>
-                `).join('')}
-                ${links.length === 0 ? '<div style="font-size:0.85rem;color:var(--text3)">No links attached</div>' : ''}
-            </div>
-            <div class="link-add-form hidden" id="linkForm-${esc(task.task_id)}">
-                <input type="url" placeholder="https://..." id="linkUrl-${esc(task.task_id)}">
-                <input type="text" placeholder="Label (optional)" id="linkLabel-${esc(task.task_id)}" style="max-width:140px">
-                <button class="btn-sm" onclick="addLink('${esc(task.task_id)}')">Add</button>
-            </div>
-        </div>
-
-        <div class="detail-section">
-            <div class="detail-section-title">
-                Subtasks (${children.length})
-                <button class="btn-sm btn-outline" onclick="openNewTaskModal('To Do','${esc(task.task_id)}')" style="font-size:0.75rem;padding:3px 10px">+ Add Subtask</button>
-            </div>
-            <div class="subtask-list">
-                ${renderSubtaskTree(children)}
-                ${children.length === 0 ? '<div style="font-size:0.85rem;color:var(--text3)">No subtasks</div>' : ''}
-            </div>
-        </div>
-
-        <div class="detail-section">
-            <div class="detail-section-title">Google Calendar</div>
-            ${task.due_date
-                ? `<div style="display:flex;flex-direction:column;gap:10px">
-                    <div style="display:flex;gap:8px;align-items:center">
-                        <label style="font-size:0.78rem;color:#71717a;min-width:40px">Start</label>
-                        <input type="time" id="calStart-${esc(task.task_id)}" value="09:00" style="padding:6px 10px;background:#18181b;border:1px solid #27272a;border-radius:8px;color:#e4e4e7;font-size:0.82rem;outline:none">
-                        <label style="font-size:0.78rem;color:#71717a;min-width:30px">End</label>
-                        <input type="time" id="calEnd-${esc(task.task_id)}" value="10:00" style="padding:6px 10px;background:#18181b;border:1px solid #27272a;border-radius:8px;color:#e4e4e7;font-size:0.82rem;outline:none">
-                    </div>
-                    <button class="cal-push-btn" onclick="pushToCalendar('${esc(task.task_id)}')" id="calBtn-${esc(task.task_id)}">
-                        &#x1F4C5; Push to Google Calendar
-                    </button>
-                  </div>`
-                : '<div style="font-size:0.85rem;color:var(--text3)">Set a due date to push this task to Google Calendar</div>'
-            }
-        </div>
-
-        <div style="margin-top:24px;padding-top:16px;border-top:1px solid var(--border)">
+        <div style="margin-top:24px;padding-top:16px;border-top:1px solid #1a1a1f">
             <button class="btn-sm btn-danger" onclick="confirmDeleteTask('${esc(task.task_id)}', ${children.length})">Delete Task</button>
-            <span style="font-size:0.78rem;color:var(--text3);margin-left:12px">Created by ${esc(task.created_by)} on ${esc(task.created_at ? task.created_at.slice(0,10) : '')}</span>
+            <span style="font-size:0.72rem;color:#3f3f46;margin-left:12px">Created by ${esc(task.created_by)} · ${esc(task.created_at ? task.created_at.slice(0,10) : '')}</span>
         </div>
     `;
 
@@ -3424,6 +3523,110 @@ function timeAgo(isoStr) {
     if (hours < 24) return hours + 'h ago';
     const days = Math.floor(hours / 24);
     return days + 'd ago';
+}
+
+/* ════════════════════════════════════════════════════════════════
+   COMMENTS
+   ════════════════════════════════════════════════════════════════ */
+function addComment(taskId) {
+    const input = document.getElementById('commentInput-' + taskId);
+    const text = input.value.trim();
+    if (!text) return;
+
+    const task = getTaskById(taskId);
+    let comments = [];
+    try { comments = JSON.parse(task.comments || '[]'); } catch(e) {}
+    comments.push({ user: currentUserId, text, time: new Date().toISOString() });
+
+    apiUpdateField(taskId, 'comments', JSON.stringify(comments));
+    addActivity('commented on', task.title);
+    renderDetail(taskId);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   FILE ATTACHMENTS
+   ════════════════════════════════════════════════════════════════ */
+function addFile(taskId) {
+    const url = document.getElementById('fileUrl-' + taskId).value.trim();
+    const name = document.getElementById('fileName-' + taskId).value.trim();
+    if (!url) { showToast('File URL is required', 'error'); return; }
+
+    const task = getTaskById(taskId);
+    let files = [];
+    try { files = JSON.parse(task.files || '[]'); } catch(e) {}
+    files.push({ url, name: name || url.split('/').pop() || 'File' });
+
+    apiUpdateField(taskId, 'files', JSON.stringify(files));
+    addActivity('attached file to', task.title);
+    renderDetail(taskId);
+    showToast('File attached', 'success');
+}
+
+function removeFile(taskId, index) {
+    const task = getTaskById(taskId);
+    let files = [];
+    try { files = JSON.parse(task.files || '[]'); } catch(e) {}
+    files.splice(index, 1);
+    apiUpdateField(taskId, 'files', JSON.stringify(files));
+    renderDetail(taskId);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   TIME TRACKING
+   ════════════════════════════════════════════════════════════════ */
+let _activeTimer = null; // { taskId, startTime, intervalId }
+
+function toggleTimer(taskId) {
+    if (_activeTimer && _activeTimer.taskId === taskId) {
+        // Stop timer
+        clearInterval(_activeTimer.intervalId);
+        const elapsed = Math.floor((Date.now() - _activeTimer.startTime) / 1000);
+        const task = getTaskById(taskId);
+        const current = parseInt(task.time_spent) || 0;
+        apiUpdateField(taskId, 'time_spent', String(current + elapsed));
+        addActivity(`tracked ${Math.floor(elapsed/60)}m on`, task.title);
+        _activeTimer = null;
+        renderDetail(taskId);
+        showToast('Timer stopped', 'success');
+    } else {
+        // Stop any existing timer
+        if (_activeTimer) {
+            const elapsed = Math.floor((Date.now() - _activeTimer.startTime) / 1000);
+            const prevTask = getTaskById(_activeTimer.taskId);
+            if (prevTask) {
+                const current = parseInt(prevTask.time_spent) || 0;
+                apiUpdateField(_activeTimer.taskId, 'time_spent', String(current + elapsed));
+            }
+            clearInterval(_activeTimer.intervalId);
+        }
+        // Start new timer
+        _activeTimer = {
+            taskId,
+            startTime: Date.now(),
+            intervalId: setInterval(() => {
+                const el = document.getElementById('timerDisplay-' + taskId);
+                if (el) {
+                    const secs = Math.floor((Date.now() - _activeTimer.startTime) / 1000);
+                    const m = Math.floor(secs / 60);
+                    const s = secs % 60;
+                    el.textContent = `${m}:${String(s).padStart(2, '0')}`;
+                }
+            }, 1000)
+        };
+        renderDetail(taskId);
+        showToast('Timer started', 'success');
+    }
+}
+
+function addManualTime(taskId) {
+    const mins = prompt('Add time (minutes):');
+    if (!mins || isNaN(mins)) return;
+    const task = getTaskById(taskId);
+    const current = parseInt(task.time_spent) || 0;
+    apiUpdateField(taskId, 'time_spent', String(current + parseInt(mins) * 60));
+    addActivity(`logged ${mins}m on`, task.title);
+    renderDetail(taskId);
+    showToast(`Added ${mins} minutes`, 'success');
 }
 
 /* ════════════════════════════════════════════════════════════════
