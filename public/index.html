@@ -3102,7 +3102,7 @@ function initVaporizeCanvas(canvas, texts, opts, onComplete) {
                         if (cv > mv) { p.vx *= mv/cv; p.vy *= mv/cv; }
                         p.x += p.vx * dt * 20;
                         p.y += p.vy * dt * 10;
-                        p.opacity = Math.max(0, p.opacity - dt * 0.25 * (2000/VAPORIZE_MS));
+                        p.opacity = Math.max(0, p.opacity - dt * 0.8 * (2000/VAPORIZE_MS));
                     }
                     if (p.opacity > 0.01) allDone = false;
                 } else { allDone = false; }
@@ -3413,9 +3413,13 @@ function enterDashboard(email, name) {
             splash.classList.remove('fade-out');
         }, 500);
     };
-    // rAF defers until browser has laid out the splash, so canvas has real dimensions
-    requestAnimationFrame(() => {
+    // Double-rAF ensures the browser has fully laid out the splash before measuring
+    requestAnimationFrame(() => requestAnimationFrame(() => {
         try {
+            const wrap = splashCanvas.parentElement;
+            const w = wrap ? wrap.getBoundingClientRect().width : 0;
+            // If canvas still has no width, skip animation and go straight to dashboard
+            if (!w || w < 10) { dismissSplash(); return; }
             _splashCleanup = initVaporizeCanvas(splashCanvas, splashTexts, {
                 fontFamily: 'Bricolage Grotesque, sans-serif',
                 fontSize: 52,
@@ -3423,21 +3427,19 @@ function enterDashboard(email, name) {
                 color: 'rgba(250,250,250,1)',
                 spread: 5,
                 density: 6,
-                vaporizeDuration: 1.8,
-                fadeInDuration: 0.9,
-                waitDuration: 1.2,
-                direction: 'left-to-right',
-                alignment: 'center',
+                vaporizeDuration: 1.4,
+                fadeInDuration: 0.7,
+                waitDuration: 0.9,
             }, dismissSplash);
         } catch(e) {
-            // Fallback: 2.5s fixed timer if canvas fails
-            setTimeout(dismissSplash, 2500);
+            // Canvas failed — go to dashboard immediately
+            dismissSplash();
         }
-    });
-    // Hard fallback: never stay on splash longer than 6s
+    }));
+    // Hard fallback: never stay on splash longer than 3s
     setTimeout(() => {
         if (!splash.classList.contains('hidden')) dismissSplash();
-    }, 6000);
+    }, 3000);
 
     // Load data in background
     loadTasks().then(() => {
