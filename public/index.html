@@ -569,8 +569,9 @@ body { background: var(--bg); color: var(--text); }
 }
 .new-task-btn:hover { border-color: #818cf8; color: #818cf8; background: rgba(129,140,248,0.04); }
 .board-column-body:empty::after {
-    content: 'No tasks yet'; display: flex; align-items: center; justify-content: center;
-    height: 80px; color: #27272a; font-size: 0.8rem; font-style: italic;
+    content: 'No tasks'; display: flex; align-items: center; justify-content: center;
+    height: 60px; color: #1a1a1f; font-size: 0.78rem; font-style: italic;
+    border: 1px dashed #1a1a1f; border-radius: 10px; margin: 4px;
 }
 
 /* ── Task Detail Panel ────────────────────────────────────────── */
@@ -945,15 +946,58 @@ body { background: var(--bg); color: var(--text); }
 
 /* ── Empty State ──────────────────────────────────────────────── */
 .empty-state {
-    text-align: center; padding: 80px 20px; color: #27272a; font-size: 0.9rem;
+    text-align: center; padding: 60px 20px; color: #27272a; font-size: 0.9rem;
     display: flex; flex-direction: column; align-items: center; gap: 12px;
+    background: #0a0a0c; border: 2px dashed #1a1a1f; border-radius: 14px;
+    margin: 16px; transition: all 0.3s ease;
 }
+.empty-state:hover { border-color: #27272a; background: #0c0c10; }
+
+.empty-icons {
+    display: flex; align-items: center; justify-content: center; gap: 0; margin-bottom: 8px;
+}
+.empty-icon-box {
+    width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center;
+    background: #18181b; border: 1px solid #27272a; color: #52525b;
+    transition: all 0.3s ease; position: relative;
+}
+.empty-state:hover .empty-icon-box { border-color: #3f3f46; color: #a1a1aa; }
+.empty-icon-box:first-child { transform: rotate(-6deg); z-index: 1; }
+.empty-icon-box:nth-child(2) { z-index: 2; margin: 0 -4px; }
+.empty-icon-box:last-child { transform: rotate(6deg); z-index: 1; }
+.empty-state:hover .empty-icon-box:first-child { transform: rotate(-15deg) translateX(-8px) translateY(-4px); }
+.empty-state:hover .empty-icon-box:nth-child(2) { transform: translateY(-8px) scale(1.1); }
+.empty-state:hover .empty-icon-box:last-child { transform: rotate(15deg) translateX(8px) translateY(-4px); }
+
+.empty-title { font-size: 1rem; font-weight: 600; color: #e4e4e7; }
+.empty-desc { font-size: 0.82rem; color: #52525b; max-width: 320px; line-height: 1.5; }
+.empty-action {
+    display: inline-flex; align-items: center; gap: 6px; margin-top: 8px;
+    padding: 8px 16px; background: #18181b; border: 1px solid #27272a;
+    border-radius: 8px; color: #a1a1aa; font-size: 0.82rem; font-weight: 500;
+    cursor: pointer; transition: all 0.2s ease;
+}
+.empty-action:hover { background: #27272a; color: #fafafa; border-color: #3f3f46; }
 
 /* ── Loading Spinner ──────────────────────────────────────────── */
 .spinner {
-    display: flex; align-items: center; justify-content: center; padding: 40px;
-    color: var(--text3);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 60px; gap: 16px; color: #52525b;
 }
+.spinner-dots {
+    display: flex; gap: 6px;
+}
+.spinner-dot {
+    width: 8px; height: 8px; border-radius: 50%; background: #7c3aed;
+    animation: spinnerPulse 1.2s ease-in-out infinite;
+}
+.spinner-dot:nth-child(2) { animation-delay: 0.15s; }
+.spinner-dot:nth-child(3) { animation-delay: 0.3s; }
+@keyframes spinnerPulse {
+    0%, 80%, 100% { transform: scale(0.6); opacity: 0.3; }
+    40% { transform: scale(1); opacity: 1; }
+}
+.spinner-text { font-size: 0.82rem; color: #3f3f46; }
 
 /* ── Welcome Splash Screen ───────────────────────────────────── */
 .welcome-splash {
@@ -1320,7 +1364,10 @@ body { background: var(--bg); color: var(--text); }
 
             <!-- Board Tab -->
             <div id="tab-board" class="tab-pane">
-                <div id="boardLoading" class="spinner">Loading tasks...</div>
+                <div id="boardLoading" class="spinner">
+                    <div class="spinner-dots"><div class="spinner-dot"></div><div class="spinner-dot"></div><div class="spinner-dot"></div></div>
+                    <div class="spinner-text">Loading tasks...</div>
+                </div>
                 <div id="boardCategoryFilter" class="hidden" style="padding:12px 20px 0">
                     <div class="seg-tabs">
                         <button class="seg-tab active" onclick="setBoardCategoryTab('all',this)">All</button>
@@ -1388,9 +1435,17 @@ body { background: var(--bg); color: var(--text); }
                         </table>
                     </div>
                     <div id="listEmpty" class="empty-state hidden">
-                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:#1a1a1f"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-                        <span>No tasks yet</span>
-                        <span style="font-size:0.78rem; color:#1a1a1f">Create one from the Board tab</span>
+                        <div class="empty-icons">
+                            <div class="empty-icon-box"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></div>
+                            <div class="empty-icon-box"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
+                            <div class="empty-icon-box"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+                        </div>
+                        <div class="empty-title">No tasks found</div>
+                        <div class="empty-desc">Try adjusting your filters or create a new task to get started.</div>
+                        <button class="empty-action" onclick="sidebarNav('board', document.querySelector('[data-tab=board]'))">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            Create Task
+                        </button>
                     </div>
                 </div>
             </div>
