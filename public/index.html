@@ -1301,40 +1301,224 @@ body { background: #030303; color: var(--text); font-size: 14px; line-height: 1.
     50% { box-shadow: 0 0 0 4px rgba(239,68,68,0); }
 }
 
-/* Notification panel */
+/* Notification panel — purple theme */
 .notif-panel {
     position: fixed; top: 56px; right: 20px; width: 380px; max-height: 480px;
-    background: #0a0a0c; border: 1px solid #1a1a1f; border-radius: 14px;
+    background: rgba(15, 10, 40, 0.95);
+    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(129, 140, 248, 0.2); border-radius: 16px;
     z-index: 101; overflow: hidden;
-    box-shadow: 0 -8px 32px rgba(0,0,0,0.4);
+    box-shadow: 0 8px 40px rgba(99,102,241,0.1), 0 -4px 24px rgba(0,0,0,0.4);
     display: none;
 }
 .notif-panel.open { display: flex; flex-direction: column; }
 .notif-panel-header {
-    padding: 14px 16px; border-bottom: 1px solid #1a1a1f;
+    padding: 14px 16px; border-bottom: 1px solid rgba(129, 140, 248, 0.12);
     display: flex; align-items: center; justify-content: space-between;
     font-size: 0.9rem; font-weight: 600; color: #fafafa;
 }
+.notif-panel-header .notif-header-left {
+    display: flex; align-items: center; gap: 8px;
+}
+.notif-panel-header .mark-read-link {
+    font-size: 0.72rem; color: #818cf8; cursor: pointer; background: none;
+    border: none; font-weight: 500; transition: color 0.15s;
+}
+.notif-panel-header .mark-read-link:hover { color: #a5b4fc; }
 .notif-panel-body { flex: 1; overflow-y: auto; }
 .notif-item {
     display: flex; align-items: flex-start; gap: 10px;
-    padding: 12px 16px; border-bottom: 1px solid rgba(26,26,31,0.4);
-    transition: background 0.12s;
+    padding: 12px 16px; border-bottom: 1px solid rgba(129, 140, 248, 0.08);
+    transition: background 0.12s; position: relative;
 }
-.notif-item:hover { background: rgba(255,255,255,0.02); }
+.notif-item:hover { background: rgba(129, 140, 248, 0.04); }
 .notif-item:last-child { border-bottom: none; }
+.notif-item.unread::after {
+    content: ''; position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+    width: 8px; height: 8px; border-radius: 50%; background: #818cf8;
+}
 .notif-avatar {
-    width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+    width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
     display: flex; align-items: center; justify-content: center;
-    font-size: 0.6rem; font-weight: 700; color: #fff;
+    font-size: 0.65rem; font-weight: 700; color: #fff;
 }
 .notif-content { flex: 1; min-width: 0; }
 .notif-text { font-size: 0.82rem; color: #d4d4d8; line-height: 1.4; }
 .notif-text strong { color: #fafafa; font-weight: 600; }
-.notif-time { font-size: 0.68rem; color: #3f3f46; margin-top: 2px; }
+.notif-time { font-size: 0.68rem; color: #52525b; margin-top: 2px; }
+.notif-panel-footer {
+    padding: 10px 16px; border-top: 1px solid rgba(129, 140, 248, 0.12);
+    display: flex; gap: 8px; justify-content: flex-end;
+}
+.notif-panel-footer .btn-notif-close {
+    padding: 6px 16px; border-radius: 8px; border: 1px solid rgba(129,140,248,0.2);
+    background: transparent; color: #a1a1aa; font-size: 0.78rem; cursor: pointer; transition: all 0.15s;
+}
+.notif-panel-footer .btn-notif-close:hover { background: rgba(129,140,248,0.08); color: #fafafa; }
+.notif-panel-footer .btn-notif-viewall {
+    padding: 6px 16px; border-radius: 8px; border: none;
+    background: #7c3aed; color: #fff; font-size: 0.78rem; font-weight: 500; cursor: pointer; transition: all 0.15s;
+}
+.notif-panel-footer .btn-notif-viewall:hover { background: #6d28d9; }
 
 /* Page content bottom padding */
 .page-content { padding-bottom: 20px; }
+
+/* ── Context Menu ────────────────────────────────────────────── */
+.context-menu {
+    position: fixed; z-index: 500;
+    background: #18181b; border: 1px solid #27272a; border-radius: 12px;
+    padding: 4px; min-width: 200px;
+    box-shadow: 0 16px 48px rgba(0,0,0,0.5);
+    animation: contextMenuIn 0.12s ease;
+}
+@keyframes contextMenuIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+.context-menu-item {
+    display: flex; align-items: center; gap: 10px; width: 100%;
+    padding: 8px 12px; background: none; border: none; border-radius: 8px;
+    color: #a1a1aa; font-size: 0.82rem; cursor: pointer; transition: all 0.12s;
+    text-align: left;
+}
+.context-menu-item:hover { color: #fafafa; background: rgba(255,255,255,0.06); }
+.context-menu-item.danger { color: #f87171; }
+.context-menu-item.danger:hover { background: rgba(248,113,113,0.08); }
+.context-menu-item svg { width: 15px; height: 15px; flex-shrink: 0; }
+.context-menu-separator { height: 1px; background: #27272a; margin: 4px 8px; }
+.context-menu-sub {
+    position: relative;
+}
+.context-menu-sub .context-submenu {
+    display: none; position: absolute; left: 100%; top: -4px;
+    background: #18181b; border: 1px solid #27272a; border-radius: 12px;
+    padding: 4px; min-width: 160px;
+    box-shadow: 0 16px 48px rgba(0,0,0,0.5);
+}
+.context-menu-sub:hover .context-submenu { display: block; }
+
+/* ── Sidebar Profile Popover ─────────────────────────────────── */
+.sidebar-profile-popover {
+    position: absolute; bottom: 100%; left: 8px; right: 8px;
+    background: #0a0a0c; border: 1px solid #1a1a1f; border-radius: 12px;
+    margin-bottom: 8px; overflow: hidden;
+    box-shadow: 0 -8px 32px rgba(0,0,0,0.4);
+    animation: popoverIn 0.15s ease;
+}
+.sidebar-profile-popover .popover-profile-header {
+    padding: 14px; border-bottom: 1px solid #1a1a1f;
+    display: flex; align-items: center; gap: 12px;
+}
+.sidebar-profile-popover .popover-profile-name { font-size: 0.88rem; font-weight: 600; color: #fafafa; }
+.sidebar-profile-popover .popover-profile-email { font-size: 0.72rem; color: #52525b; }
+.sidebar-profile-popover .popover-nav-items { padding: 4px; }
+.sidebar-profile-popover .popover-separator { height: 1px; background: #1a1a1f; margin: 4px 0; }
+
+/* ── Delete Confirmation Dialog ──────────────────────────────── */
+.confirm-dialog-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.6); z-index: 500;
+    display: flex; align-items: center; justify-content: center;
+    backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+    animation: confirmOverlayIn 0.15s ease;
+}
+@keyframes confirmOverlayIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+.confirm-dialog {
+    background: #09090b; border: 1px solid #27272a; border-radius: 16px;
+    padding: 28px; width: 400px; max-width: 90vw;
+    box-shadow: 0 16px 48px rgba(0,0,0,0.5);
+    animation: modalFadeIn 0.2s ease;
+    text-align: center;
+}
+.confirm-dialog-icon {
+    width: 48px; height: 48px; border-radius: 50%; margin: 0 auto 16px;
+    background: rgba(239,68,68,0.1); display: flex; align-items: center; justify-content: center;
+}
+.confirm-dialog h3 { font-size: 1.1rem; font-weight: 600; color: #fafafa; margin-bottom: 8px; }
+.confirm-dialog p { font-size: 0.85rem; color: #71717a; margin-bottom: 24px; line-height: 1.5; }
+.confirm-dialog-actions { display: flex; gap: 10px; justify-content: center; }
+.confirm-dialog-actions .btn-cancel {
+    padding: 10px 24px; border-radius: 8px; border: 1px solid #27272a;
+    background: transparent; color: #a1a1aa; font-size: 0.85rem; font-weight: 500;
+    cursor: pointer; transition: all 0.15s;
+}
+.confirm-dialog-actions .btn-cancel:hover { background: #18181b; color: #fafafa; border-color: #3f3f46; }
+.confirm-dialog-actions .btn-delete {
+    padding: 10px 24px; border-radius: 8px; border: none;
+    background: #ef4444; color: #fff; font-size: 0.85rem; font-weight: 500;
+    cursor: pointer; transition: all 0.15s;
+}
+.confirm-dialog-actions .btn-delete:hover { background: #dc2626; }
+
+/* ── Breadcrumb ──────────────────────────────────────────────── */
+.breadcrumb {
+    font-size: 0.78rem; color: #52525b; font-weight: 400;
+    margin-left: 8px; display: flex; align-items: center; gap: 4px;
+    white-space: nowrap;
+}
+.breadcrumb .bc-sep { color: #3f3f46; margin: 0 2px; }
+.breadcrumb .bc-current { color: #71717a; }
+
+/* ── Activity Feed ───────────────────────────────────────────── */
+.activity-item {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 12px 16px; border-bottom: 1px solid rgba(26,26,31,0.4);
+    transition: background 0.12s;
+}
+.activity-item:hover { background: rgba(255,255,255,0.02); }
+.activity-item:last-child { border-bottom: none; }
+.activity-avatar {
+    width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.65rem; font-weight: 700; color: #fff;
+}
+.activity-content { flex: 1; min-width: 0; }
+.activity-text { font-size: 0.82rem; color: #d4d4d8; line-height: 1.5; }
+.activity-text strong { color: #fafafa; font-weight: 600; }
+.activity-time { font-size: 0.68rem; color: #3f3f46; margin-top: 2px; }
+
+/* ── Skeleton Loading ────────────────────────────────────────── */
+.skeleton {
+    background: #18181b;
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+}
+.skeleton::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent);
+    animation: skeletonShimmer 1.5s ease-in-out infinite;
+}
+@keyframes skeletonShimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+.skeleton-card {
+    height: 80px; margin-bottom: 6px; border-radius: 12px;
+    border: 1px solid #1a1a1f;
+}
+.skeleton-line {
+    height: 12px; border-radius: 6px; margin-bottom: 8px;
+}
+.skeleton-line.w-75 { width: 75%; }
+.skeleton-line.w-50 { width: 50%; }
+.skeleton-line.w-25 { width: 25%; }
+
+/* ── Progress Bar ────────────────────────────────────────────── */
+.progress-bar-track {
+    height: 6px; background: #1a1a1f; border-radius: 3px;
+    overflow: hidden;
+}
+.progress-bar-fill {
+    height: 100%; border-radius: 3px;
+    background: linear-gradient(90deg, #7c3aed, #818cf8);
+    transition: width 0.5s ease;
+}
 </style>
 </head>
 <body>
@@ -1480,6 +1664,10 @@ body { background: #030303; color: var(--text); font-size: 14px; line-height: 1.
             </button>
             <div class="sidebar-separator"></div>
             <div class="sidebar-nav-label">General</div>
+            <button class="sidebar-nav-item" onclick="sidebarNav('activity', this)" data-tab="activity">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <span>Activity</span>
+            </button>
             <button class="sidebar-nav-item" onclick="sidebarNav('settings', this)" data-tab="settings">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
                 <span>Settings</span>
@@ -1494,19 +1682,24 @@ body { background: #030303; color: var(--text); font-size: 14px; line-height: 1.
                 </div>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;color:#52525b;margin-left:auto"><path d="M7 15l5 5 5-5"/><path d="M7 9l5-5 5 5"/></svg>
             </div>
-            <div class="user-popover hidden" id="userPopover">
-                <div style="padding:12px;border-bottom:1px solid #1a1a1f;display:flex;align-items:center;gap:10px">
-                    <div class="sidebar-user-avatar" id="popoverAvatar" style="width:36px;height:36px;font-size:0.75rem">MG</div>
+            <div class="sidebar-profile-popover hidden" id="userPopover">
+                <div class="popover-profile-header">
+                    <div class="sidebar-user-avatar" id="popoverAvatar" style="width:40px;height:40px;font-size:0.8rem">MG</div>
                     <div>
-                        <div style="font-size:0.85rem;font-weight:600;color:#fafafa" id="popoverName">User</div>
-                        <div style="font-size:0.72rem;color:#52525b" id="popoverEmail">user@email.com</div>
+                        <div class="popover-profile-name" id="popoverName">User</div>
+                        <div class="popover-profile-email" id="popoverEmail">user@email.com</div>
                     </div>
                 </div>
-                <div style="padding:4px">
+                <div class="popover-nav-items">
+                    <button class="popover-item" onclick="sidebarNav('activity', document.querySelector('[data-tab=activity]')); toggleUserPopover()">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        Activity Log
+                    </button>
                     <button class="popover-item" onclick="sidebarNav('settings', document.querySelector('[data-tab=settings]')); toggleUserPopover()">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
                         Settings
                     </button>
+                    <div class="popover-separator"></div>
                     <button class="popover-item popover-danger" onclick="handleLogout()">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
                         Sign Out
@@ -1524,6 +1717,7 @@ body { background: #030303; color: var(--text); font-size: 14px; line-height: 1.
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
             </button>
             <span class="topbar-title" id="pageTitle">Board</span>
+            <span class="breadcrumb" id="topbarBreadcrumb"></span>
             <div class="topbar-spacer"></div>
             <button class="topbar-search-btn" onclick="openSearchOverlay()" title="Search (⌘K)">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -1738,6 +1932,21 @@ body { background: #030303; color: var(--text); font-size: 14px; line-height: 1.
                 </div>
             </div>
 
+            <!-- Activity Tab -->
+            <div id="tab-activity" class="tab-pane">
+                <div style="padding:20px;max-width:720px;margin:0 auto">
+                    <div style="margin-bottom:20px">
+                        <h2 style="font-size:1.2rem;font-weight:700;color:#fafafa;letter-spacing:-0.02em">Activity Feed</h2>
+                        <p style="font-size:0.82rem;color:#52525b;margin-top:4px">Recent actions across your workspace</p>
+                    </div>
+                    <div class="home-section">
+                        <div id="activityFeedBody" style="max-height:calc(100vh - 200px);overflow-y:auto">
+                            <div style="padding:24px;text-align:center;color:#27272a;font-size:0.82rem">No activity yet</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Settings Tab -->
             <div id="tab-settings" class="tab-pane">
                 <div style="padding: 24px; max-width: 720px;">
@@ -1886,14 +2095,21 @@ body { background: #030303; color: var(--text); font-size: 14px; line-height: 1.
     <!-- Dock removed -->
 </div>
 
-<!-- Notification Panel -->
+<!-- Notification Panel (purple theme) -->
 <div class="notif-panel" id="notifPanel">
     <div class="notif-panel-header">
-        Notifications
-        <button class="btn-sm btn-outline" onclick="clearNotifications()" style="font-size:0.7rem;padding:3px 10px">Clear all</button>
+        <span class="notif-header-left">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            Notifications
+        </span>
+        <button class="mark-read-link" onclick="markAllNotificationsRead()">Mark all as read</button>
     </div>
     <div class="notif-panel-body" id="notifBody">
-        <div style="padding:24px;text-align:center;color:#27272a;font-size:0.82rem">No notifications yet</div>
+        <div style="padding:24px;text-align:center;color:#3f3f46;font-size:0.82rem">No notifications yet</div>
+    </div>
+    <div class="notif-panel-footer">
+        <button class="btn-notif-close" onclick="toggleNotificationPanel()">Close</button>
+        <button class="btn-notif-viewall" onclick="sidebarNav('activity', document.querySelector('[data-tab=activity]')); toggleNotificationPanel()">View All</button>
     </div>
 </div>
 
@@ -2234,6 +2450,19 @@ function enterDashboard(email, name) {
         document.getElementById('sidebarAvatar').textContent = auth.initials;
     }
     if (auth.color && !auth.avatar) document.getElementById('sidebarAvatar').style.background = auth.color;
+    // Check localStorage for profile photo
+    const savedProfilePhoto = localStorage.getItem('stlla_profile_photo');
+    if (savedProfilePhoto) {
+        auth.avatar = savedProfilePhoto;
+        document.getElementById('sidebarAvatar').innerHTML = '<img src="' + savedProfilePhoto + '" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
+        // Also update topbar team avatar if present
+        const topbarAvatars = document.querySelectorAll('.team-avatar');
+        topbarAvatars.forEach(function(av) {
+            if (av.getAttribute('data-email') === email) {
+                av.innerHTML = '<img src="' + savedProfilePhoto + '" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
+            }
+        });
+    }
     // Restore sidebar state
     if (localStorage.getItem('sidebar_collapsed') === 'true') {
         document.getElementById('sidebar').classList.add('collapsed');
@@ -2341,10 +2570,17 @@ function toggleUserPopover() {
     if (!pop.classList.contains('hidden')) {
         // Sync data
         const auth = JSON.parse(sessionStorage.getItem('app_auth') || localStorage.getItem('app_auth') || '{}');
+        const savedPhoto = localStorage.getItem('stlla_profile_photo');
+        if (savedPhoto) auth.avatar = savedPhoto;
         document.getElementById('popoverName').textContent = auth.name || 'User';
         document.getElementById('popoverEmail').textContent = auth.username || '';
-        document.getElementById('popoverAvatar').textContent = auth.initials || '';
-        if (auth.color) document.getElementById('popoverAvatar').style.background = auth.color;
+        const popAvatar = document.getElementById('popoverAvatar');
+        if (auth.avatar) {
+            popAvatar.innerHTML = '<img src="' + auth.avatar + '" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
+        } else {
+            popAvatar.textContent = auth.initials || '';
+        }
+        if (auth.color && !auth.avatar) popAvatar.style.background = auth.color;
         // Close on outside click
         setTimeout(() => {
             const close = (e) => {
@@ -2458,14 +2694,24 @@ function updateRole(newRole) {
 
 function updateTopbarAvatars() {
     const auth = JSON.parse(sessionStorage.getItem('app_auth') || localStorage.getItem('app_auth') || '{}');
+    // Check localStorage for saved profile photo
+    const savedPhoto = localStorage.getItem('stlla_profile_photo');
+    if (savedPhoto) auth.avatar = savedPhoto;
     // Update sidebar footer avatar
     const sidebarAvatar = document.getElementById('sidebarAvatar');
     if (sidebarAvatar) {
-        if (auth.avatar) sidebarAvatar.innerHTML = `<img src="${auth.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+        if (auth.avatar) sidebarAvatar.innerHTML = '<img src="' + auth.avatar + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
         else sidebarAvatar.textContent = auth.initials || '?';
     }
     const sidebarName = document.getElementById('sidebarUserName');
     if (sidebarName) sidebarName.textContent = auth.name || 'User';
+    // Update topbar team presence avatars
+    const topbarAvatars = document.querySelectorAll('.team-avatar');
+    topbarAvatars.forEach(function(av) {
+        if (av.getAttribute('data-email') === auth.username && auth.avatar) {
+            av.innerHTML = '<img src="' + auth.avatar + '" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
+        }
+    });
 }
 
 function addCustomIntegration() {
@@ -2607,10 +2853,14 @@ document.addEventListener('keydown', function(e) {
     if (e.key === '3') { e.preventDefault(); sidebarNav('list'); }
     if (e.key === '4') { e.preventDefault(); sidebarNav('calendar'); }
     if (e.key === '5') { e.preventDefault(); sidebarNav('dealflow'); }
+    if (e.key === '6') { e.preventDefault(); sidebarNav('activity'); }
     if (e.key === 'Escape') {
         closeDetail();
         closeNewTaskModal();
         closeSearchOverlay();
+        closeContextMenu();
+        var confirmOverlay = document.querySelector('.confirm-dialog-overlay');
+        if (confirmOverlay) confirmOverlay.remove();
     }
 });
 
@@ -2636,7 +2886,7 @@ function exportCSV() {
 /* ════════════════════════════════════════════════════════════════
    SIDEBAR & NAVIGATION
    ════════════════════════════════════════════════════════════════ */
-const PAGE_TITLES = { home: 'Home', board: 'Board', list: 'List', calendar: 'Calendar', dealflow: 'Deal Flow', invoices: 'Invoices', telegram: 'Telegram', settings: 'Settings' };
+const PAGE_TITLES = { home: 'Home', board: 'Board', list: 'List', calendar: 'Calendar', dealflow: 'Deal Flow', invoices: 'Invoices', telegram: 'Telegram', activity: 'Activity', settings: 'Settings' };
 const CATEGORIES = ['Recast', 'Shadow Operating', "Mulligan's Marketplace", 'Agency'];
 const DEAL_STAGES = ['Lead', 'Contact Made', 'Proposal', 'Negotiation', 'Won', 'Lost'];
 let _boardCategoryFilter = new Set();
@@ -2659,17 +2909,25 @@ function sidebarNav(tabId, btn) {
     // Update sidebar active state
     document.querySelectorAll('.sidebar-nav-item').forEach(b => b.classList.remove('active'));
     if (btn) btn.classList.add('active');
+    else {
+        const navBtn = document.querySelector('.sidebar-nav-item[data-tab="' + tabId + '"]');
+        if (navBtn) navBtn.classList.add('active');
+    }
     // Update page title
     document.getElementById('pageTitle').textContent = PAGE_TITLES[tabId] || tabId;
+    // Update breadcrumb
+    updateBreadcrumb(tabId);
     // Switch tab pane
     document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-    document.getElementById('tab-' + tabId).classList.add('active');
+    const tabEl = document.getElementById('tab-' + tabId);
+    if (tabEl) tabEl.classList.add('active');
     // Trigger renders
     if (tabId === 'home') renderHome();
     if (tabId === 'list') renderListView();
     if (tabId === 'calendar') renderCalendar();
     if (tabId === 'dealflow') renderDealFlow();
     if (tabId === 'invoices') renderInvoices();
+    if (tabId === 'activity') renderActivityFeed();
     // Close mobile sidebar
     if (window.innerWidth <= 768) {
         document.getElementById('sidebar').classList.remove('mobile-open');
@@ -2689,6 +2947,8 @@ async function loadTasks() {
     try {
         document.getElementById('boardLoading').classList.remove('hidden');
         document.getElementById('boardContent').classList.add('hidden');
+        // Show skeleton loading in board columns
+        showSkeletonCards();
 
         const r = await fetch('/api/tasks');
         const d = await r.json();
@@ -2879,7 +3139,7 @@ function renderTaskCard(task) {
     const isDone = task.status === 'Done';
     const dueCls2 = !isDone && dueDateClass(task.due_date);
     const cardCls = isDone ? 'done' : dueCls2 === 'overdue' ? 'overdue-card' : dueCls2 === 'today' ? 'due-today-card' : '';
-    return `<div class="task-card ${cardCls}" draggable="true" ondragstart="handleDragStart(event,'${esc(task.task_id)}')" ondragend="handleDragEnd(event)" onclick="openDetail('${esc(task.task_id)}')">
+    return `<div class="task-card ${cardCls}" draggable="true" ondragstart="handleDragStart(event,'${esc(task.task_id)}')" ondragend="handleDragEnd(event)" onclick="openDetail('${esc(task.task_id)}')" oncontextmenu="showContextMenu(event,'${esc(task.task_id)}')">
         <div class="task-card-main">
             <button class="task-check ${isDone ? 'checked' : ''}" onclick="event.stopPropagation(); quickToggleStatus('${esc(task.task_id)}')" title="${isDone ? 'Mark incomplete' : 'Mark done'}">
                 ${isDone ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' : ''}
@@ -3380,14 +3640,12 @@ async function submitNewTask() {
    DELETE TASK
    ════════════════════════════════════════════════════════════════ */
 function confirmDeleteTask(taskId, childCount) {
-    let msg = 'Delete this task?';
-    if (childCount > 0) msg = `Delete this task and its ${childCount} subtask(s)?`;
-    if (confirm(msg)) {
-        const task = getTaskById(taskId);
-        if (task) addActivity('deleted', task.title);
-        apiDeleteTask(taskId, true);
-        closeDetail();
-    }
+    const task = getTaskById(taskId);
+    const title = task ? task.title : 'this task';
+    const desc = childCount > 0
+        ? 'This will delete the task and its ' + childCount + ' subtask(s). This action cannot be undone.'
+        : 'This action cannot be undone.';
+    showDeleteConfirm(taskId, title, desc);
 }
 
 /* ════════════════════════════════════════════════════════════════
@@ -3456,6 +3714,7 @@ function setListStatusTab(tab, btn) {
     btn.classList.add('active');
     listFilters.status.clear();
     if (tab !== 'all') listFilters.status.add(tab);
+    updateBreadcrumb('list', tab !== 'all' ? tab : '');
     renderListView();
 }
 
@@ -3464,6 +3723,7 @@ function setListCategoryTab(tab, btn) {
     btn.classList.add('active');
     listFilters.category.clear();
     if (tab !== 'all') listFilters.category.add(tab);
+    updateBreadcrumb('list', tab !== 'all' ? tab : '');
     renderListView();
 }
 
@@ -4059,15 +4319,15 @@ function renderHome() {
                     const c = catCounts[cat];
                     const pct = c.total > 0 ? Math.round((c.done / c.total) * 100) : 0;
                     const color = CATEGORY_COLORS[cat] || '#71717a';
-                    return `<div style="padding:8px 12px">
-                        <div style="display:flex;justify-content:space-between;margin-bottom:6px">
-                            <span style="font-size:0.82rem;color:#d4d4d8">${esc(cat)}</span>
-                            <span style="font-size:0.72rem;color:#52525b">${c.done}/${c.total} · ${pct}%</span>
-                        </div>
-                        <div style="height:6px;background:#1a1a1f;border-radius:3px;overflow:hidden">
-                            <div style="height:100%;width:${pct}%;background:${color};border-radius:3px;transition:width 0.5s ease"></div>
-                        </div>
-                    </div>`;
+                    return '<div style="padding:8px 12px">' +
+                        '<div style="display:flex;justify-content:space-between;margin-bottom:6px">' +
+                            '<span style="font-size:0.82rem;color:#d4d4d8">' + esc(cat) + '</span>' +
+                            '<span style="font-size:0.72rem;color:#52525b">' + c.done + '/' + c.total + ' \u00b7 ' + pct + '%</span>' +
+                        '</div>' +
+                        '<div class="progress-bar-track">' +
+                            '<div class="progress-bar-fill" style="width:' + pct + '%;background:linear-gradient(90deg,' + color + ',' + color + 'cc)"></div>' +
+                        '</div>' +
+                    '</div>';
                 }).join('')}
             </div>
 
@@ -4138,24 +4398,25 @@ function toggleNotificationPanel() {
 }
 
 function renderNotifPanel() {
-    const body = document.getElementById('notifBody');
+    var body = document.getElementById('notifBody');
     if (_activityLog.length === 0) {
-        body.innerHTML = '<div style="padding:24px;text-align:center;color:#27272a;font-size:0.82rem">No notifications yet</div>';
+        body.innerHTML = '<div style="padding:24px;text-align:center;color:#3f3f46;font-size:0.82rem">No notifications yet</div>';
         return;
     }
-    body.innerHTML = _activityLog.slice(0, 20).map(a => {
-        const member = getTeamMember(a.user) || TEAM_ROSTER.find(m => a.user && a.user.includes(m.name.toLowerCase()));
-        const color = member ? member.color : '#7c3aed';
-        const initials = member ? member.initials : (a.user || '?').slice(0, 2).toUpperCase();
-        const name = member ? member.name : (a.user || 'Someone').split('@')[0];
-        const ago = timeAgo(a.time);
-        return `<div class="notif-item">
-            <div class="notif-avatar" style="background:${color}">${esc(initials)}</div>
-            <div class="notif-content">
-                <div class="notif-text"><strong>${esc(name)}</strong> ${esc(a.action)} <strong>${esc(a.task)}</strong></div>
-                <div class="notif-time">${ago}</div>
-            </div>
-        </div>`;
+    body.innerHTML = _activityLog.slice(0, 20).map(function(a) {
+        var member = getTeamMember(a.user) || TEAM_ROSTER.find(function(m) { return a.user && a.user.includes(m.name.toLowerCase()); });
+        var color = member ? member.color : '#7c3aed';
+        var initials = member ? member.initials : (a.user || '?').slice(0, 2).toUpperCase();
+        var name = member ? member.name : (a.user || 'Someone').split('@')[0];
+        var ago = timeAgo(a.time);
+        var unreadCls = !a.read ? ' unread' : '';
+        return '<div class="notif-item' + unreadCls + '">' +
+            '<div class="notif-avatar" style="background:' + color + '">' + esc(initials) + '</div>' +
+            '<div class="notif-content">' +
+                '<div class="notif-text"><strong>' + esc(name) + '</strong> ' + esc(a.action) + ' <strong>' + esc(a.task) + '</strong></div>' +
+                '<div class="notif-time">' + ago + '</div>' +
+            '</div>' +
+        '</div>';
     }).join('');
 }
 
@@ -4617,6 +4878,8 @@ function setBoardCategoryTab(tab, btn) {
     if (tab !== 'all' && tab !== 'mine') {
         _boardCategoryFilter.add(tab);
     }
+    // Update breadcrumb
+    updateBreadcrumb('board', tab !== 'all' ? tab : '');
     renderBoard();
 }
 
@@ -4697,6 +4960,208 @@ function categoryBadge(cat) {
     if (!cat) return '';
     const color = CATEGORY_COLORS[cat] || '#71717a';
     return `<span style="display:inline-block;padding:2px 8px;border-radius:12px;font-size:0.65rem;font-weight:600;background:${color}20;color:${color}">${esc(cat)}</span>`;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   CONTEXT MENU (Right-click on task cards)
+   ════════════════════════════════════════════════════════════════ */
+function showContextMenu(e, taskId) {
+    e.preventDefault();
+    e.stopPropagation();
+    // Remove any existing context menu
+    var existing = document.querySelector('.context-menu');
+    if (existing) existing.remove();
+
+    var task = getTaskById(taskId);
+    if (!task) return;
+
+    var menu = document.createElement('div');
+    menu.className = 'context-menu';
+    menu.innerHTML =
+        '<button class="context-menu-item" onclick="openDetail(\'' + esc(taskId) + '\'); closeContextMenu()">' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>' +
+            'Edit' +
+        '</button>' +
+        '<button class="context-menu-item" onclick="duplicateTask(\'' + esc(taskId) + '\'); closeContextMenu()">' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>' +
+            'Duplicate' +
+        '</button>' +
+        '<div class="context-menu-sub">' +
+            '<button class="context-menu-item">' +
+                '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>' +
+                'Move to \u2192' +
+            '</button>' +
+            '<div class="context-submenu">' +
+                '<button class="context-menu-item" onclick="moveTaskTo(\'' + esc(taskId) + '\',\'To Do\'); closeContextMenu()">To Do</button>' +
+                '<button class="context-menu-item" onclick="moveTaskTo(\'' + esc(taskId) + '\',\'In Progress\'); closeContextMenu()">In Progress</button>' +
+                '<button class="context-menu-item" onclick="moveTaskTo(\'' + esc(taskId) + '\',\'Done\'); closeContextMenu()">Done</button>' +
+            '</div>' +
+        '</div>' +
+        '<div class="context-menu-separator"></div>' +
+        '<button class="context-menu-item danger" onclick="showDeleteConfirm(\'' + esc(taskId) + '\',\'' + esc(task.title).replace(/'/g, "\\'") + '\'); closeContextMenu()">' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>' +
+            'Delete' +
+        '</button>';
+
+    // Position menu at cursor
+    menu.style.left = e.clientX + 'px';
+    menu.style.top = e.clientY + 'px';
+    document.body.appendChild(menu);
+
+    // Adjust if overflowing right/bottom
+    var rect = menu.getBoundingClientRect();
+    if (rect.right > window.innerWidth) menu.style.left = (e.clientX - rect.width) + 'px';
+    if (rect.bottom > window.innerHeight) menu.style.top = (e.clientY - rect.height) + 'px';
+
+    // Close on click outside
+    setTimeout(function() {
+        document.addEventListener('click', closeContextMenu);
+        document.addEventListener('contextmenu', closeContextMenu);
+    }, 10);
+}
+
+function closeContextMenu() {
+    var menu = document.querySelector('.context-menu');
+    if (menu) menu.remove();
+    document.removeEventListener('click', closeContextMenu);
+    document.removeEventListener('contextmenu', closeContextMenu);
+}
+
+function duplicateTask(taskId) {
+    var task = getTaskById(taskId);
+    if (!task) return;
+    apiCreateTask({
+        title: task.title + ' (copy)',
+        description: task.description || '',
+        status: task.status,
+        priority: task.priority,
+        assignee: task.assignee || '',
+        due_date: task.due_date || '',
+        parent_task_id: task.parent_task_id || '',
+        links: task.links || '[]',
+        created_by: currentUserId,
+        category: task.category || '',
+        stage: task.stage || '',
+        deal_value: task.deal_value || '',
+        recurring: task.recurring || '',
+    }).then(function(created) {
+        if (created) {
+            addActivity('duplicated', task.title);
+            TREE = buildTaskTree(DATA);
+            renderBoard();
+            renderListView();
+            showToast('Task duplicated', 'success');
+        }
+    });
+}
+
+function moveTaskTo(taskId, newStatus) {
+    var task = getTaskById(taskId);
+    if (!task || task.status === newStatus) return;
+    apiUpdateField(taskId, 'status', newStatus);
+    addActivity('moved to ' + newStatus, task.title);
+    renderBoard();
+    renderListView();
+    showToast('Moved to ' + newStatus, 'success');
+}
+
+/* ════════════════════════════════════════════════════════════════
+   DELETE CONFIRMATION DIALOG
+   ════════════════════════════════════════════════════════════════ */
+function showDeleteConfirm(taskId, taskTitle, description) {
+    // Remove any existing dialog
+    var existing = document.querySelector('.confirm-dialog-overlay');
+    if (existing) existing.remove();
+
+    var desc = description || 'This action cannot be undone.';
+    var overlay = document.createElement('div');
+    overlay.className = 'confirm-dialog-overlay';
+    overlay.onclick = function(e) { if (e.target === overlay) overlay.remove(); };
+    overlay.innerHTML =
+        '<div class="confirm-dialog">' +
+            '<div class="confirm-dialog-icon">' +
+                '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>' +
+            '</div>' +
+            '<h3>Delete Task?</h3>' +
+            '<p>' + esc(desc) + '</p>' +
+            '<div class="confirm-dialog-actions">' +
+                '<button class="btn-cancel" onclick="this.closest(\'.confirm-dialog-overlay\').remove()">Cancel</button>' +
+                '<button class="btn-delete" onclick="executeDeleteTask(\'' + esc(taskId) + '\'); this.closest(\'.confirm-dialog-overlay\').remove()">Delete</button>' +
+            '</div>' +
+        '</div>';
+    document.body.appendChild(overlay);
+}
+
+function executeDeleteTask(taskId) {
+    var task = getTaskById(taskId);
+    if (task) addActivity('deleted', task.title);
+    apiDeleteTask(taskId, true);
+    closeDetail();
+}
+
+/* ════════════════════════════════════════════════════════════════
+   BREADCRUMB
+   ════════════════════════════════════════════════════════════════ */
+function updateBreadcrumb(tabId, filter) {
+    var bc = document.getElementById('topbarBreadcrumb');
+    if (!bc) return;
+    if (!filter) {
+        bc.innerHTML = '';
+        return;
+    }
+    bc.innerHTML = '<span class="bc-sep">\u203A</span><span class="bc-current">' + esc(filter) + '</span>';
+}
+
+/* ════════════════════════════════════════════════════════════════
+   ACTIVITY FEED
+   ════════════════════════════════════════════════════════════════ */
+function renderActivityFeed() {
+    var body = document.getElementById('activityFeedBody');
+    if (!body) return;
+    if (_activityLog.length === 0) {
+        body.innerHTML = '<div style="padding:40px;text-align:center;color:#27272a;font-size:0.82rem">No activity yet. Actions like creating, completing, or deleting tasks will appear here.</div>';
+        return;
+    }
+    body.innerHTML = _activityLog.map(function(a) {
+        var member = getTeamMember(a.user) || TEAM_ROSTER.find(function(m) { return a.user && a.user.includes(m.name.toLowerCase()); });
+        var color = member ? member.color : '#7c3aed';
+        var initials = member ? member.initials : (a.user || '?').slice(0, 2).toUpperCase();
+        var name = member ? member.name : (a.user || 'Someone').split('@')[0];
+        var ago = timeAgo(a.time);
+        return '<div class="activity-item">' +
+            '<div class="activity-avatar" style="background:' + color + '">' + esc(initials) + '</div>' +
+            '<div class="activity-content">' +
+                '<div class="activity-text"><strong>' + esc(name) + '</strong> ' + esc(a.action) + ' <strong>' + esc(a.task) + '</strong></div>' +
+                '<div class="activity-time">' + ago + '</div>' +
+            '</div>' +
+        '</div>';
+    }).join('');
+}
+
+function markAllNotificationsRead() {
+    _activityLog.forEach(function(a) { a.read = true; });
+    localStorage.setItem('stlla_activity', JSON.stringify(_activityLog));
+    updateNotifBadge();
+    renderNotifPanel();
+}
+
+/* ════════════════════════════════════════════════════════════════
+   SKELETON LOADING
+   ════════════════════════════════════════════════════════════════ */
+function showSkeletonCards() {
+    var skeletonHtml = '';
+    for (var i = 0; i < 3; i++) {
+        skeletonHtml += '<div class="skeleton skeleton-card"></div>';
+    }
+    var todoBody = document.getElementById('body-todo');
+    var ipBody = document.getElementById('body-inprogress');
+    var doneBody = document.getElementById('body-done');
+    if (todoBody) todoBody.innerHTML = skeletonHtml;
+    if (ipBody) ipBody.innerHTML = skeletonHtml;
+    if (doneBody) doneBody.innerHTML = skeletonHtml;
+    // Show the board content so skeletons are visible
+    document.getElementById('boardContent').classList.remove('hidden');
+    document.getElementById('boardCategoryFilter').classList.remove('hidden');
 }
 
 /* ════════════════════════════════════════════════════════════════
