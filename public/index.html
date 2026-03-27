@@ -38,24 +38,80 @@ html.light {
     --text3: #94a3b8;
 }
 
-body { background: #000; color: var(--text); }
+body { background: #030303; color: var(--text); }
 .hidden { display: none !important; }
 
 /* ── Login Screen ─────────────────────────────────────────────── */
 .login-screen {
     position: fixed; inset: 0;
     display: grid; place-items: center;
-    background: linear-gradient(to bottom, #000 50%, transparent 100%);
+    background: transparent;
     color: #fafafa;
     overflow: hidden; z-index: 2;
 }
 
-/* Dotted surface background */
-.dotted-surface {
+/* Elegant floating shapes background */
+.bg-shapes {
     position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    overflow: hidden; background: #030303;
 }
-.dotted-surface canvas {
-    width: 100%; height: 100%;
+.bg-shapes::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 30% 20%, rgba(99,102,241,0.04), transparent 60%),
+                radial-gradient(ellipse at 70% 80%, rgba(244,63,94,0.04), transparent 60%);
+    filter: blur(60px);
+}
+.bg-shape {
+    position: absolute; border-radius: 9999px;
+    background: linear-gradient(135deg, var(--shape-color, rgba(255,255,255,0.06)), transparent);
+    backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px);
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 8px 32px rgba(255,255,255,0.03);
+    animation: shapeFloat var(--float-duration, 12s) ease-in-out infinite;
+    opacity: 0;
+    animation: shapeFadeIn 2s ease forwards, shapeFloat var(--float-duration, 12s) ease-in-out infinite;
+}
+.bg-shape::after {
+    content: ''; position: absolute; inset: 0; border-radius: 9999px;
+    background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.1), transparent 70%);
+}
+@keyframes shapeFloat {
+    0%, 100% { transform: translateY(0) rotate(var(--rotate, 0deg)); }
+    50% { transform: translateY(15px) rotate(var(--rotate, 0deg)); }
+}
+@keyframes shapeFadeIn {
+    from { opacity: 0; transform: translateY(-80px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.bg-shape-1 {
+    --shape-color: rgba(99,102,241,0.1); --float-duration: 14s; --rotate: 12deg;
+    width: 500px; height: 120px; left: -5%; top: 18%;
+    animation-delay: 0.3s;
+}
+.bg-shape-2 {
+    --shape-color: rgba(244,63,94,0.1); --float-duration: 16s; --rotate: -15deg;
+    width: 420px; height: 100px; right: -3%; top: 72%;
+    animation-delay: 0.5s;
+}
+.bg-shape-3 {
+    --shape-color: rgba(139,92,246,0.1); --float-duration: 13s; --rotate: -8deg;
+    width: 260px; height: 70px; left: 8%; bottom: 8%;
+    animation-delay: 0.4s;
+}
+.bg-shape-4 {
+    --shape-color: rgba(245,158,11,0.08); --float-duration: 15s; --rotate: 20deg;
+    width: 180px; height: 50px; right: 18%; top: 12%;
+    animation-delay: 0.6s;
+}
+.bg-shape-5 {
+    --shape-color: rgba(6,182,212,0.08); --float-duration: 11s; --rotate: -25deg;
+    width: 140px; height: 38px; left: 22%; top: 6%;
+    animation-delay: 0.7s;
+}
+/* Gradient overlay for depth */
+.bg-shapes-overlay {
+    position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(to top, #030303, transparent 30%, transparent 70%, rgba(3,3,3,0.8));
 }
 
 /* Card fade-up animation */
@@ -256,7 +312,11 @@ body { background: #000; color: var(--text); }
     background: none; border: none; width: 100%; text-align: left;
 }
 .sidebar-nav-item:hover { color: #fafafa; background: #18181b; }
-.sidebar-nav-item.active { color: #fafafa; background: #18181b; }
+.sidebar-nav-item.active {
+    color: #fafafa; background: rgba(124,58,237,0.08);
+    border-left: 3px solid #7c3aed; padding-left: 7px;
+    box-shadow: inset 3px 0 12px rgba(124,58,237,0.06);
+}
 .sidebar-nav-item svg { width: 18px; height: 18px; flex-shrink: 0; opacity: 0.7; }
 .sidebar-nav-item.active svg { opacity: 1; }
 .sidebar-nav-item span { overflow: hidden; text-overflow: ellipsis; }
@@ -284,6 +344,10 @@ body { background: #000; color: var(--text); }
     font-size: 0.65rem; font-weight: 700; color: #fff;
     flex-shrink: 0; background: #7c3aed;
     box-shadow: 0 0 12px rgba(124,58,237,0.3);
+    overflow: hidden;
+}
+.sidebar-user-avatar img {
+    width: 100%; height: 100%; object-fit: cover; border-radius: 50%;
 }
 .sidebar-user-info { overflow: hidden; flex: 1; }
 .sidebar-user-name { font-size: 0.82rem; font-weight: 500; color: #e4e4e7; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -318,7 +382,7 @@ body { background: #000; color: var(--text); }
 /* ── Main Content ────────────────────────────────────────────── */
 .main-content {
     flex: 1; display: flex; flex-direction: column;
-    overflow: hidden; background: rgba(0,0,0,0.85);
+    overflow: hidden; background: rgba(3,3,3,0.92);
     min-width: 0; position: relative; z-index: 2;
 }
 
@@ -357,6 +421,7 @@ body { background: #000; color: var(--text); }
     box-shadow: 0 0 10px rgba(124,58,237,0.25);
 }
 .team-avatar:first-child { margin-left: 0; }
+.team-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
 .team-avatar:hover { transform: translateY(-2px); z-index: 2; }
 .team-avatar::after {
     content: ''; position: absolute; bottom: -1px; right: -1px;
@@ -1047,7 +1112,7 @@ body { background: #000; color: var(--text); }
     position: fixed; inset: 0; z-index: 9999;
     display: flex; flex-direction: column;
     align-items: center; justify-content: center;
-    background: linear-gradient(to bottom, #000 40%, transparent 100%);
+    background: rgba(3,3,3,0.85);
     opacity: 1;
     transition: opacity 0.6s ease;
 }
@@ -1308,8 +1373,15 @@ body { background: #000; color: var(--text); }
 </head>
 <body>
 
-<!-- Dotted Surface Background (global) -->
-<div class="dotted-surface" id="dottedSurface"><canvas id="dottedCanvas"></canvas></div>
+<!-- Elegant Floating Shapes Background (global) -->
+<div class="bg-shapes">
+    <div class="bg-shape bg-shape-1"></div>
+    <div class="bg-shape bg-shape-2"></div>
+    <div class="bg-shape bg-shape-3"></div>
+    <div class="bg-shape bg-shape-4"></div>
+    <div class="bg-shape bg-shape-5"></div>
+    <div class="bg-shapes-overlay"></div>
+</div>
 
 <!-- Toast Container -->
 <div id="toastContainer"></div>
@@ -1946,68 +2018,7 @@ function flattenTree(nodes, depth = 0) {
    ════════════════════════════════════════════════════════════════ */
 const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-/* ── Dotted Surface Background ───────────────────────────────── */
-(function initDottedSurface() {
-    const canvas = document.getElementById('dottedCanvas');
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-
-    const SEPARATION = 28;
-    const AMOUNTX = 50;
-    const AMOUNTY = 50;
-    let count = 0;
-    let animId;
-
-    function resize() {
-        canvas.width = window.innerWidth * window.devicePixelRatio;
-        canvas.height = window.innerHeight * window.devicePixelRatio;
-        canvas.style.width = window.innerWidth + 'px';
-        canvas.style.height = window.innerHeight + 'px';
-        ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
-    }
-    resize();
-    window.addEventListener('resize', resize);
-
-    function draw() {
-        animId = requestAnimationFrame(draw);
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        const w = window.innerWidth;
-        const h = window.innerHeight;
-        const cx = w / 2;
-        const cy = h * 0.85;
-
-        for (let ix = 0; ix < AMOUNTX; ix++) {
-            for (let iy = 0; iy < AMOUNTY; iy++) {
-                // 3D position
-                const x3d = (ix - AMOUNTX / 2) * SEPARATION;
-                const z3d = (iy - AMOUNTY / 2) * SEPARATION;
-                const y3d = Math.sin((ix + count) * 0.3) * 20 + Math.sin((iy + count) * 0.5) * 20;
-
-                // Simple perspective projection
-                const perspective = 800;
-                const zOffset = z3d + 600;
-                if (zOffset <= 10) continue;
-                const scale = perspective / zOffset;
-
-                const screenX = cx + x3d * scale;
-                const screenY = cy + (y3d - 100) * scale;
-
-                // Size and opacity based on depth
-                const size = Math.max(0.5, 2.5 * scale);
-                const alpha = Math.min(0.8, Math.max(0.05, scale * 0.7));
-
-                // Only draw if on screen
-                if (screenX < -10 || screenX > w + 10 || screenY < -10 || screenY > h + 10) continue;
-
-                ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
-                ctx.fillRect(screenX - size / 2, screenY - size / 2, size, size);
-            }
-        }
-        count += 0.04;
-    }
-    draw();
-})();
+/* No JS needed — elegant shapes are pure CSS */
 
 /* ── Email/Password Login ─────────────────────────────────────── */
 function handleEmailLogin(e) {
@@ -2102,8 +2113,12 @@ function enterDashboard(email, name) {
     const auth = JSON.parse(sessionStorage.getItem('app_auth') || localStorage.getItem('app_auth') || '{}');
     document.getElementById('sidebarUserName').textContent = name || email.split('@')[0];
     document.getElementById('sidebarUserEmail').textContent = email;
-    if (auth.initials) document.getElementById('sidebarAvatar').textContent = auth.initials;
-    if (auth.color) document.getElementById('sidebarAvatar').style.background = auth.color;
+    if (auth.avatar) {
+        document.getElementById('sidebarAvatar').innerHTML = `<img src="${auth.avatar}" alt="">`;
+    } else if (auth.initials) {
+        document.getElementById('sidebarAvatar').textContent = auth.initials;
+    }
+    if (auth.color && !auth.avatar) document.getElementById('sidebarAvatar').style.background = auth.color;
     // Restore sidebar state
     if (localStorage.getItem('sidebar_collapsed') === 'true') {
         document.getElementById('sidebar').classList.add('collapsed');
@@ -2119,7 +2134,7 @@ function enterDashboard(email, name) {
         document.documentElement.classList.add('light');
     }
     updateThemeIcon();
-    // Show dashboard after 3s NO MATTER WHAT
+    // Show dashboard after 2s NO MATTER WHAT
     setTimeout(() => {
         try {
             splash.classList.add('fade-out');
@@ -2129,11 +2144,10 @@ function enterDashboard(email, name) {
                 document.getElementById('dashboardWrap').classList.remove('hidden');
             }, 600);
         } catch(e) {
-            // Force show dashboard
             splash.style.display = 'none';
             document.getElementById('dashboardWrap').classList.remove('hidden');
         }
-    }, 3000);
+    }, 2000);
 
     // Load data in background
     loadTasks().then(() => {
@@ -3258,11 +3272,16 @@ function getPresenceStatus(email) {
 function renderTeamPresence() {
     const el = document.getElementById('teamPresence');
     const statusColors = { online: '#4ade80', away: '#fbbf24', offline: '#6b7280' };
+    // Get current user's avatar
+    const myAuth = JSON.parse(sessionStorage.getItem('app_auth') || localStorage.getItem('app_auth') || '{}');
+
     el.innerHTML = TEAM_ROSTER.map(m => {
         const isMe = m.email.toLowerCase() === currentUserId.toLowerCase();
         const p = isMe ? { status: 'online', ago: '' } : getPresenceStatus(m.email);
+        const avatarUrl = isMe && myAuth.avatar ? myAuth.avatar : '';
+        const avatarContent = avatarUrl ? `<img src="${esc(avatarUrl)}" alt="">` : esc(m.initials);
         return `<div class="team-avatar team-avatar-${p.status}" style="background:${m.color}">
-            ${esc(m.initials)}
+            ${avatarContent}
             <div class="team-avatar-tooltip">
                 <strong>${esc(m.name)}</strong>${isMe ? ' (you)' : ''}<br>
                 <span style="color:${statusColors[p.status]}">${p.status}${p.ago ? ' \u00B7 ' + p.ago : ''}</span>
