@@ -1023,6 +1023,25 @@ body { background: var(--bg); color: var(--text); }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
+/* ── Segmented Tabs ──────────────────────────────────────────── */
+.seg-tabs {
+    display: inline-flex; align-items: center; gap: 2px;
+    background: rgba(255,255,255,0.03); border: 1px solid #1a1a1f;
+    border-radius: 12px; padding: 3px;
+}
+.seg-tab {
+    padding: 7px 16px; border-radius: 9px; border: none;
+    background: transparent; color: #52525b;
+    font-size: 0.78rem; font-weight: 600; cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+    white-space: nowrap;
+}
+.seg-tab:hover { color: #a1a1aa; }
+.seg-tab.active {
+    background: #fafafa; color: #09090b;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
 /* ── Home Dashboard ──────────────────────────────────────────── */
 .stat-card {
     background: #0a0a0c; border: 1px solid #1a1a1f; border-radius: 12px;
@@ -1296,14 +1315,15 @@ body { background: var(--bg); color: var(--text); }
             <!-- Board Tab -->
             <div id="tab-board" class="tab-pane">
                 <div id="boardLoading" class="spinner">Loading tasks...</div>
-                <div id="boardCategoryFilter" class="filter-chips hidden" style="padding:12px 20px 0;display:flex;gap:6px;flex-wrap:wrap;align-items:center">
-                    <button class="filter-chip" id="myTasksFilter" onclick="toggleMyTasks(this)" style="border-color:rgba(124,58,237,0.3);color:#a78bfa">My Tasks</button>
-                    <span style="width:1px;height:20px;background:#1a1a1f"></span>
-                    <button class="filter-chip" onclick="toggleBoardCategory('Recast',this)">Recast</button>
-                    <button class="filter-chip" onclick="toggleBoardCategory('Shadow Operating',this)">Shadow Op</button>
-                    <button class="filter-chip" onclick="toggleBoardCategory('Mulligan\\'s Marketplace',this)">Mulligan's</button>
-                    <button class="filter-chip" onclick="toggleBoardCategory('Agency',this)">Agency</button>
-                    <button class="filter-chip" onclick="toggleBoardCategory('',this)">No Category</button>
+                <div id="boardCategoryFilter" class="hidden" style="padding:12px 20px 0">
+                    <div class="seg-tabs">
+                        <button class="seg-tab active" onclick="setBoardCategoryTab('all',this)">All</button>
+                        <button class="seg-tab" onclick="setBoardCategoryTab('mine',this)">My Tasks</button>
+                        <button class="seg-tab" onclick="setBoardCategoryTab('Recast',this)">Recast</button>
+                        <button class="seg-tab" onclick="setBoardCategoryTab('Shadow Operating',this)">Shadow Op</button>
+                        <button class="seg-tab" onclick="setBoardCategoryTab('Mulligan\\'s Marketplace',this)">Mulligan's</button>
+                        <button class="seg-tab" onclick="setBoardCategoryTab('Agency',this)">Agency</button>
+                    </div>
                 </div>
                 <div id="boardContent" class="board hidden">
                     <div class="board-column" id="col-todo">
@@ -1329,18 +1349,20 @@ body { background: var(--bg); color: var(--text); }
                 <div class="list-view">
                     <div class="list-toolbar">
                         <input type="text" class="search-input" id="listSearch" placeholder="Search tasks..." oninput="debouncedListFilter()">
-                        <div class="filter-chips" id="filterChips">
-                            <button class="filter-chip" onclick="toggleListFilter('status','To Do',this)">To Do</button>
-                            <button class="filter-chip" onclick="toggleListFilter('status','In Progress',this)">In Progress</button>
-                            <button class="filter-chip" onclick="toggleListFilter('status','Done',this)">Done</button>
-                            <button class="filter-chip" onclick="toggleListFilter('priority','High',this)">High</button>
-                            <button class="filter-chip" onclick="toggleListFilter('priority','Medium',this)">Medium</button>
-                            <button class="filter-chip" onclick="toggleListFilter('priority','Low',this)">Low</button>
-                            <span style="width:1px;height:20px;background:#1a1a1f"></span>
-                            <button class="filter-chip" onclick="toggleListFilter('category','Recast',this)">Recast</button>
-                            <button class="filter-chip" onclick="toggleListFilter('category','Shadow Operating',this)">Shadow Op</button>
-                            <button class="filter-chip" onclick="toggleListFilter('category',&quot;Mulligan's Marketplace&quot;,this)">Mulligan's</button>
-                            <button class="filter-chip" onclick="toggleListFilter('category','Agency',this)">Agency</button>
+                        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+                            <div class="seg-tabs">
+                                <button class="seg-tab active" onclick="setListStatusTab('all',this)">All</button>
+                                <button class="seg-tab" onclick="setListStatusTab('To Do',this)">To Do</button>
+                                <button class="seg-tab" onclick="setListStatusTab('In Progress',this)">In Progress</button>
+                                <button class="seg-tab" onclick="setListStatusTab('Done',this)">Done</button>
+                            </div>
+                            <div class="seg-tabs">
+                                <button class="seg-tab active" onclick="setListCategoryTab('all',this)">All</button>
+                                <button class="seg-tab" onclick="setListCategoryTab('Recast',this)">Recast</button>
+                                <button class="seg-tab" onclick="setListCategoryTab('Shadow Operating',this)">Shadow Op</button>
+                                <button class="seg-tab" onclick="setListCategoryTab('Mulligan\\'s Marketplace',this)">Mulligan's</button>
+                                <button class="seg-tab" onclick="setListCategoryTab('Agency',this)">Agency</button>
+                            </div>
                         </div>
                     </div>
                     <div class="list-table-wrap">
@@ -1385,11 +1407,12 @@ body { background: var(--bg); color: var(--text); }
                 <div style="padding: 20px;">
                     <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap">
                         <button class="btn-sm" onclick="openNewDealModal()">+ New Deal</button>
-                        <div class="filter-chips" id="dealCategoryChips">
-                            <button class="filter-chip" onclick="toggleDealFilter('Recast',this)">Recast</button>
-                            <button class="filter-chip" onclick="toggleDealFilter('Shadow Operating',this)">Shadow Op</button>
-                            <button class="filter-chip" onclick="toggleDealFilter('Mulligan\\'s Marketplace',this)">Mulligan's</button>
-                            <button class="filter-chip" onclick="toggleDealFilter('Agency',this)">Agency</button>
+                        <div class="seg-tabs">
+                            <button class="seg-tab active" onclick="setDealTab('all',this)">All</button>
+                            <button class="seg-tab" onclick="setDealTab('Recast',this)">Recast</button>
+                            <button class="seg-tab" onclick="setDealTab('Shadow Operating',this)">Shadow Op</button>
+                            <button class="seg-tab" onclick="setDealTab('Mulligan\\'s Marketplace',this)">Mulligan's</button>
+                            <button class="seg-tab" onclick="setDealTab('Agency',this)">Agency</button>
                         </div>
                     </div>
                     <div id="dealFlowBoard" class="board" style="max-height:calc(100vh - 140px)"></div>
@@ -2606,6 +2629,22 @@ function toggleListFilter(category, value, btn) {
     renderListView();
 }
 
+function setListStatusTab(tab, btn) {
+    btn.closest('.seg-tabs').querySelectorAll('.seg-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    listFilters.status.clear();
+    if (tab !== 'all') listFilters.status.add(tab);
+    renderListView();
+}
+
+function setListCategoryTab(tab, btn) {
+    btn.closest('.seg-tabs').querySelectorAll('.seg-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    listFilters.category.clear();
+    if (tab !== 'all') listFilters.category.add(tab);
+    renderListView();
+}
+
 function sortList(col) {
     if (listSort.col === col) listSort.asc = !listSort.asc;
     else { listSort.col = col; listSort.asc = true; }
@@ -3089,25 +3128,31 @@ function renderHome() {
    BOARD CATEGORY FILTER
    ════════════════════════════════════════════════════════════════ */
 let _myTasksOnly = false;
+let _activeBoardTab = 'all';
 
-function toggleMyTasks(btn) {
-    _myTasksOnly = !_myTasksOnly;
-    btn.classList.toggle('active');
-    renderBoard();
-}
+function setBoardCategoryTab(tab, btn) {
+    _activeBoardTab = tab;
+    // Update tab active states
+    btn.closest('.seg-tabs').querySelectorAll('.seg-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
 
-function toggleBoardCategory(cat, btn) {
-    if (_boardCategoryFilter.has(cat)) { _boardCategoryFilter.delete(cat); btn.classList.remove('active'); }
-    else { _boardCategoryFilter.add(cat); btn.classList.add('active'); }
+    // Apply filter
+    _myTasksOnly = (tab === 'mine');
+    _boardCategoryFilter.clear();
+    if (tab !== 'all' && tab !== 'mine') {
+        _boardCategoryFilter.add(tab);
+    }
     renderBoard();
 }
 
 /* ════════════════════════════════════════════════════════════════
    DEAL FLOW
    ════════════════════════════════════════════════════════════════ */
-function toggleDealFilter(cat, btn) {
-    if (_dealCategoryFilter.has(cat)) { _dealCategoryFilter.delete(cat); btn.classList.remove('active'); }
-    else { _dealCategoryFilter.add(cat); btn.classList.add('active'); }
+function setDealTab(tab, btn) {
+    btn.closest('.seg-tabs').querySelectorAll('.seg-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    _dealCategoryFilter.clear();
+    if (tab !== 'all') _dealCategoryFilter.add(tab);
     renderDealFlow();
 }
 
