@@ -2253,9 +2253,17 @@ function renderDetail(taskId) {
         <div class="detail-section">
             <div class="detail-section-title">Google Calendar</div>
             ${task.due_date
-                ? `<button class="cal-push-btn" onclick="pushToCalendar('${esc(task.task_id)}')" id="calBtn-${esc(task.task_id)}">
-                    &#x1F4C5; Push to Google Calendar
-                  </button>`
+                ? `<div style="display:flex;flex-direction:column;gap:10px">
+                    <div style="display:flex;gap:8px;align-items:center">
+                        <label style="font-size:0.78rem;color:#71717a;min-width:40px">Start</label>
+                        <input type="time" id="calStart-${esc(task.task_id)}" value="09:00" style="padding:6px 10px;background:#18181b;border:1px solid #27272a;border-radius:8px;color:#e4e4e7;font-size:0.82rem;outline:none">
+                        <label style="font-size:0.78rem;color:#71717a;min-width:30px">End</label>
+                        <input type="time" id="calEnd-${esc(task.task_id)}" value="10:00" style="padding:6px 10px;background:#18181b;border:1px solid #27272a;border-radius:8px;color:#e4e4e7;font-size:0.82rem;outline:none">
+                    </div>
+                    <button class="cal-push-btn" onclick="pushToCalendar('${esc(task.task_id)}')" id="calBtn-${esc(task.task_id)}">
+                        &#x1F4C5; Push to Google Calendar
+                    </button>
+                  </div>`
                 : '<div style="font-size:0.85rem;color:var(--text3)">Set a due date to push this task to Google Calendar</div>'
             }
         </div>
@@ -2762,6 +2770,8 @@ async function pushToCalendar(taskId) {
                 due_date: task.due_date,
                 description: task.description,
                 assignee: task.assignee,
+                start_time: document.getElementById('calStart-' + taskId)?.value || '09:00',
+                end_time: document.getElementById('calEnd-' + taskId)?.value || '10:00',
             })
         });
         const d = await r.json();

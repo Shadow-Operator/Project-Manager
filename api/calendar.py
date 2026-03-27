@@ -126,16 +126,25 @@ class handler(BaseHTTPRequestHandler):
                 due_date = body.get("due_date", "")
                 description = body.get("description", "")
                 assignee = body.get("assignee", "")
+                start_time = body.get("start_time", "09:00")
+                end_time = body.get("end_time", "10:00")
 
                 if not due_date:
                     json_response(self, 400, {"ok": False, "error": "due_date is required to add to calendar"})
                     return
 
+                # Use timed events so they show as blocks on the calendar
                 event_body = {
                     "summary": title,
                     "description": f"{description}\n\nAssigned to: {assignee}".strip() if assignee else description,
-                    "start": {"date": due_date},
-                    "end": {"date": due_date},
+                    "start": {
+                        "dateTime": f"{due_date}T{start_time}:00",
+                        "timeZone": "Europe/London"
+                    },
+                    "end": {
+                        "dateTime": f"{due_date}T{end_time}:00",
+                        "timeZone": "Europe/London"
+                    },
                     "extendedProperties": {
                         "private": {"task_id": task_id}
                     }
