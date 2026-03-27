@@ -1470,6 +1470,13 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .search-result-item:hover { background: #18181b; }
 .search-result-item .sr-title { flex: 1; color: #e4e4e7; }
 .search-result-item .sr-parent { color: #52525b; font-size: 0.78rem; }
+.search-result-item.active { background: rgba(129,140,248,0.08); }
+.search-result-group { font-size: 0.68rem; font-weight: 600; color: #52525b; text-transform: uppercase; letter-spacing: 0.08em; padding: 10px 20px 4px; }
+.search-result-item .sr-icon { width: 16px; height: 16px; color: #52525b; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+.search-result-item .sr-hint { font-size: 0.68rem; color: #3f3f46; flex-shrink: 0; }
+.search-result-item .sr-hint kbd { padding: 2px 6px; border-radius: 4px; background: #27272a; color: #71717a; border: 1px solid #3f3f46; font-family: monospace; font-size: 0.65rem; }
+.search-overlay-footer { padding: 8px 20px; border-top: 1px solid #27272a; font-size: 0.68rem; color: #3f3f46; display: flex; gap: 16px; }
+.search-overlay-footer kbd { padding: 1px 5px; border-radius: 3px; background: #27272a; border: 1px solid #3f3f46; font-family: monospace; margin: 0 2px; }
 
 /* ── Toasts ───────────────────────────────────────────────────── */
 #toastContainer { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
@@ -2597,6 +2604,37 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
                                 </div>
                                 <span style="font-size:0.68rem;padding:4px 10px;border-radius:6px;background:rgba(129,140,248,0.12);color:#818cf8;font-weight:500;">Configured</span>
                             </div>
+                            <!-- Google Sheets -->
+                            <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #27272a;">
+                                <div style="display:flex;align-items:center;gap:12px;">
+                                    <div style="width:36px;height:36px;border-radius:8px;background:rgba(52,211,153,0.1);display:flex;align-items:center;justify-content:center;">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+                                    </div>
+                                    <div>
+                                        <div style="font-size:0.85rem;font-weight:500;color:#e2e8f0;">Google Sheets</div>
+                                        <div style="font-size:0.72rem;color:#52525b;">Export tasks & invoices as spreadsheets</div>
+                                    </div>
+                                </div>
+                                <div style="display:flex;gap:6px;">
+                                    <button onclick="exportToSheets()" class="btn-sm" style="font-size:0.7rem;padding:4px 10px;">Export Tasks</button>
+                                    <button onclick="window.open('https://sheets.new','_blank')" class="btn-sm" style="font-size:0.7rem;padding:4px 10px;">New Sheet</button>
+                                </div>
+                            </div>
+                            <!-- Google Docs -->
+                            <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #27272a;">
+                                <div style="display:flex;align-items:center;gap:12px;">
+                                    <div style="width:36px;height:36px;border-radius:8px;background:rgba(96,165,250,0.1);display:flex;align-items:center;justify-content:center;">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                                    </div>
+                                    <div>
+                                        <div style="font-size:0.85rem;font-weight:500;color:#e2e8f0;">Google Docs</div>
+                                        <div style="font-size:0.72rem;color:#52525b;">Create docs linked to your projects</div>
+                                    </div>
+                                </div>
+                                <div style="display:flex;gap:6px;">
+                                    <button onclick="window.open('https://docs.new','_blank')" class="btn-sm" style="font-size:0.7rem;padding:4px 10px;">New Doc</button>
+                                </div>
+                            </div>
                             <div id="customIntegrationsList"></div>
                         </div>
                         <div style="background: #18181b; border: 1px solid #27272a; border-radius: 12px; padding: 20px;">
@@ -2660,9 +2698,42 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
                     <!-- Automations -->
                     <div id="settings-automations" class="settings-section hidden">
                         <div style="background: #18181b; border: 1px solid #27272a; border-radius: 12px; padding: 20px;">
-                            <h3 style="font-size: 0.9rem; font-weight: 600; color: #d4d4d8; margin-bottom: 16px;">Automation Rules</h3>
+                            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+                                <h3 style="font-size: 0.9rem; font-weight: 600; color: #d4d4d8;">Automation Rules</h3>
+                                <button onclick="toggleAutomationForm()" class="btn-sm" style="font-size:0.78rem;padding:6px 14px;">+ Add Rule</button>
+                            </div>
+                            <div id="automationForm" class="hidden" style="background:#09090b;border:1px dashed #3f3f46;border-radius:12px;padding:16px;margin-bottom:16px;">
+                                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+                                    <div>
+                                        <label style="display:block;font-size:0.68rem;font-weight:500;color:#71717a;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.06em;">When this happens</label>
+                                        <select id="autoTrigger" style="width:100%;padding:8px 10px;background:#18181b;border:1px solid #27272a;border-radius:8px;color:#e4e4e7;font-size:0.82rem;outline:none;" onchange="updateAutoValueField()">
+                                            <option value="task_created">Task is created</option>
+                                            <option value="task_done">Task marked Done</option>
+                                            <option value="task_overdue">Task becomes overdue</option>
+                                            <option value="task_assigned">Task is assigned</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label style="display:block;font-size:0.68rem;font-weight:500;color:#71717a;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.06em;">Do this</label>
+                                        <select id="autoAction" style="width:100%;padding:8px 10px;background:#18181b;border:1px solid #27272a;border-radius:8px;color:#e4e4e7;font-size:0.82rem;outline:none;" onchange="updateAutoValueField()">
+                                            <option value="telegram_notify">Send Telegram notification</option>
+                                            <option value="browser_notify">Send browser notification</option>
+                                            <option value="set_priority">Set priority</option>
+                                            <option value="move_to_status">Move to status</option>
+                                            <option value="auto_assign">Auto-assign to</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div id="autoValueWrap" class="hidden" style="margin-bottom:10px;">
+                                    <label id="autoValueLabel" style="display:block;font-size:0.68rem;font-weight:500;color:#71717a;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.06em;">Value</label>
+                                    <input id="autoValue" type="text" style="width:100%;padding:8px 10px;background:#18181b;border:1px solid #27272a;border-radius:8px;color:#e4e4e7;font-size:0.82rem;outline:none;" placeholder="e.g. High, In Progress, user@email.com">
+                                </div>
+                                <div style="display:flex;gap:8px;">
+                                    <button onclick="saveAutomationRule()" class="btn-sm" style="background:#818cf8;color:#fff;border-color:#818cf8;">Save Rule</button>
+                                    <button onclick="toggleAutomationForm()" class="btn-sm" style="color:#71717a;">Cancel</button>
+                                </div>
+                            </div>
                             <div id="settingsAutomationsList" style="display:flex;flex-direction:column;gap:10px;"></div>
-                            <button onclick="addNewAutomation()" style="margin-top:12px;padding:8px 16px;border-radius:8px;border:1px dashed #3f3f46;background:transparent;color:#a1a1aa;font-size:0.8rem;cursor:pointer;width:100%;transition:all 0.2s;" onmouseover="this.style.borderColor='#818cf8';this.style.color='#818cf8'" onmouseout="this.style.borderColor='#3f3f46';this.style.color='#a1a1aa'">+ Add Automation Rule</button>
                         </div>
                     </div>
                 </div>
@@ -2796,11 +2867,12 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
             </div>
         </div>
         <input type="hidden" id="ntParentId" value="">
-        <div class="modal-footer">
-            <button class="btn-templates" onclick="showTemplates()">
+        <div class="modal-footer" style="position:relative;">
+            <button class="btn-templates" onclick="toggleTemplatePicker()">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
                 Templates
             </button>
+            <div id="templatePicker" class="hidden" style="position:absolute;bottom:calc(100% + 6px);left:0;width:320px;background:#111113;border:1px solid #27272a;border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,0.5);z-index:10;max-height:360px;overflow-y:auto;"></div>
             <div style="flex:1"></div>
             <button class="btn-cancel" onclick="closeNewTaskModal()">Cancel</button>
             <button class="btn-create" onclick="submitNewTask()">Create Task</button>
@@ -2894,8 +2966,13 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 <div id="searchOverlay" class="search-overlay" onclick="if(event.target===this)closeSearchOverlay()">
     <div class="search-overlay-box">
                 <svg class="search-overlay-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input id="searchOverlayInput" class="search-overlay-input" placeholder="Search tasks..." oninput="debouncedGlobalSearch()">
+        <input id="searchOverlayInput" class="search-overlay-input" placeholder="Search tasks, navigate, run actions..." oninput="debouncedGlobalSearch()" onkeydown="cmdPaletteKeydown(event)">
         <div id="searchOverlayResults" class="search-overlay-results"></div>
+        <div class="search-overlay-footer">
+            <span><kbd>↑↓</kbd> Navigate</span>
+            <span><kbd>↵</kbd> Select</span>
+            <span><kbd>Esc</kbd> Close</span>
+        </div>
     </div>
 </div>
 
@@ -3799,32 +3876,58 @@ function renderSettingsAccount() {
     }
 }
 
+const AUTO_TRIGGER_LABELS = { task_created: 'Task is created', task_done: 'Task marked Done', task_overdue: 'Task becomes overdue', task_assigned: 'Task is assigned' };
+const AUTO_ACTION_LABELS = { telegram_notify: 'Send Telegram notification', browser_notify: 'Send browser notification', set_priority: 'Set priority', move_to_status: 'Move to status', auto_assign: 'Auto-assign to' };
+const AUTO_ACTIONS_NEED_VALUE = { set_priority: 'Priority (High/Medium/Low)', move_to_status: 'Status (To Do/In Progress/Done)', auto_assign: 'Email address' };
+
+function toggleAutomationForm() {
+    document.getElementById('automationForm').classList.toggle('hidden');
+}
+
+function updateAutoValueField() {
+    const action = document.getElementById('autoAction').value;
+    const wrap = document.getElementById('autoValueWrap');
+    const label = document.getElementById('autoValueLabel');
+    if (AUTO_ACTIONS_NEED_VALUE[action]) {
+        wrap.classList.remove('hidden');
+        label.textContent = AUTO_ACTIONS_NEED_VALUE[action];
+    } else {
+        wrap.classList.add('hidden');
+    }
+}
+
+function saveAutomationRule() {
+    const trigger = document.getElementById('autoTrigger').value;
+    const action = document.getElementById('autoAction').value;
+    const value = document.getElementById('autoValue')?.value || '';
+    _automations.push({ id: 'auto_' + Date.now(), trigger, action, value, enabled: true });
+    localStorage.setItem('stlla_automations', JSON.stringify(_automations));
+    renderSettingsAutomations();
+    toggleAutomationForm();
+    showToast('Automation rule added');
+}
+
 function renderSettingsAutomations() {
     const list = document.getElementById('settingsAutomationsList');
     if (!list) return;
-    list.innerHTML = _automations.map((a, i) => `
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:#09090b;border-radius:8px;border:1px solid #1a1a1f;">
-            <div style="flex:1;">
-                <div style="font-size:0.85rem;color:#e2e8f0;">When <strong style="color:#818cf8">${esc(a.trigger)}</strong></div>
-                <div style="font-size:0.8rem;color:#52525b;margin-top:2px;">Then ${esc(a.action)}</div>
+    list.innerHTML = _automations.map((a, i) => {
+        const trigLabel = AUTO_TRIGGER_LABELS[a.trigger] || a.trigger;
+        const actLabel = AUTO_ACTION_LABELS[a.action] || a.action;
+        return `<div style="display:flex;align-items:center;gap:12px;padding:12px;background:#09090b;border-radius:8px;border:1px solid #1a1a1f;">
+            <div style="flex:1;min-width:0;">
+                <div style="font-size:0.82rem;color:#e2e8f0;display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                    <span style="font-size:0.68rem;padding:2px 8px;border-radius:10px;background:rgba(129,140,248,0.12);color:#818cf8;">When</span>
+                    <strong>${esc(trigLabel)}</strong>
+                    <span style="color:#3f3f46">→</span>
+                    <span style="font-size:0.68rem;padding:2px 8px;border-radius:10px;background:rgba(74,222,128,0.12);color:#4ade80;">Then</span>
+                    <strong>${esc(actLabel)}</strong>
+                    ${a.value ? `<span style="color:#a1a1aa;font-size:0.78rem">(${esc(a.value)})</span>` : ''}
+                </div>
             </div>
-            <div style="display:flex;gap:8px;align-items:center;">
-                <button onclick="_automations[${i}].enabled=!_automations[${i}].enabled;localStorage.setItem('stlla_automations',JSON.stringify(_automations));renderSettingsAutomations()" style="padding:4px 10px;border-radius:6px;border:1px solid ${a.enabled ? 'rgba(74,222,128,0.3)' : '#3f3f46'};background:${a.enabled ? 'rgba(74,222,128,0.1)' : 'transparent'};color:${a.enabled ? '#4ade80' : '#71717a'};font-size:0.75rem;cursor:pointer;">${a.enabled ? 'On' : 'Off'}</button>
-                <button onclick="_automations.splice(${i},1);localStorage.setItem('stlla_automations',JSON.stringify(_automations));renderSettingsAutomations()" style="padding:4px 8px;border-radius:6px;border:1px solid #27272a;background:transparent;color:#ef4444;font-size:0.75rem;cursor:pointer;">×</button>
-            </div>
-        </div>
-    `).join('') || '<div style="text-align:center;padding:20px;color:#52525b;font-size:0.85rem;">No automation rules yet</div>';
-}
-
-function addNewAutomation() {
-    const trigger = prompt('When this happens (e.g. "status changes to Done", "all subtasks completed"):');
-    if (!trigger) return;
-    const action = prompt('Do this (e.g. "move to Done column", "notify team", "set priority to Low"):');
-    if (!action) return;
-    _automations.push({ trigger, action, enabled: true });
-    localStorage.setItem('stlla_automations', JSON.stringify(_automations));
-    renderSettingsAutomations();
-    showToast('Automation added');
+            <button onclick="_automations[${i}].enabled=!_automations[${i}].enabled;localStorage.setItem('stlla_automations',JSON.stringify(_automations));renderSettingsAutomations()" style="padding:4px 10px;border-radius:6px;border:1px solid ${a.enabled ? 'rgba(74,222,128,0.3)' : '#3f3f46'};background:${a.enabled ? 'rgba(74,222,128,0.1)' : 'transparent'};color:${a.enabled ? '#4ade80' : '#71717a'};font-size:0.75rem;cursor:pointer;white-space:nowrap;">${a.enabled ? '● On' : '○ Off'}</button>
+            <button onclick="_automations.splice(${i},1);localStorage.setItem('stlla_automations',JSON.stringify(_automations));renderSettingsAutomations()" style="padding:4px 8px;border-radius:6px;border:1px solid #27272a;background:transparent;color:#ef4444;font-size:0.75rem;cursor:pointer;">×</button>
+        </div>`;
+    }).join('') || '<div style="text-align:center;padding:20px;color:#52525b;font-size:0.85rem;">No automation rules yet — add one above</div>';
 }
 
 /* ════════════════════════════════════════════════════════════════
@@ -4008,6 +4111,12 @@ async function apiUpdateField(taskId, field, value) {
     if (task) task[field] = value;
     TREE = buildTaskTree(DATA);
     _lastLocalWrite = Date.now();
+
+    // Fire automations on status/assignee changes
+    if (task) {
+        if (field === 'status' && value === 'Done') fireAutomation('task_done', task);
+        if (field === 'assignee') fireAutomation('task_assigned', task);
+    }
 
     try {
         await fetch('/api/update_task', {
@@ -4855,6 +4964,7 @@ async function submitNewTask() {
         showToast('Task created', 'success');
         addActivity('created', created.title);
         tgNotifyTask('created', created);
+        fireAutomation('task_created', created);
         // Notify in-app — always fire so user always sees the popup
         if (created.assignee && created.assignee.toLowerCase() !== currentUserId.toLowerCase()) {
             const assigneeName = created.assignee.split('@')[0];
@@ -5206,60 +5316,179 @@ function sortList(col) {
 const debouncedListFilter = debounce(() => renderListView(), 200);
 
 /* ════════════════════════════════════════════════════════════════
-   CMD+K SEARCH
+   CMD+K COMMAND PALETTE
    ════════════════════════════════════════════════════════════════ */
+const CMD_NAV_ITEMS = [
+    { label: 'Home',      tab: 'home',     icon: '🏠', keys: '1' },
+    { label: 'Board',     tab: 'board',    icon: '📋', keys: '2' },
+    { label: 'List',      tab: 'list',     icon: '📝', keys: '3' },
+    { label: 'Calendar',  tab: 'calendar', icon: '📅', keys: '4' },
+    { label: 'Plan',      tab: 'plan',     icon: '🗂️' },
+    { label: 'Deal Flow', tab: 'dealflow', icon: '💰', keys: '5' },
+    { label: 'Invoices',  tab: 'invoices', icon: '🧾' },
+    { label: 'Telegram',  tab: 'telegram', icon: '💬' },
+    { label: 'Workload',  tab: 'workload', icon: '📊' },
+    { label: 'Activity',  tab: 'activity', icon: '⚡', keys: '6' },
+    { label: 'Settings',  tab: 'settings', icon: '⚙️' },
+];
+const CMD_ACTIONS = [
+    { label: 'Create new task',    icon: '➕', fn: () => openNewTaskModal() },
+    { label: 'Create new invoice', icon: '🧾', fn: () => openNewInvoiceModal() },
+    { label: 'Export to CSV',      icon: '📤', fn: () => exportToSheets() },
+    { label: 'Toggle sidebar',     icon: '📐', fn: () => toggleSidebar() },
+    { label: 'Open Google Sheets', icon: '📊', fn: () => window.open('https://sheets.new','_blank') },
+    { label: 'Open Google Docs',   icon: '📄', fn: () => window.open('https://docs.new','_blank') },
+];
+
+let _cmdSelectedIndex = -1;
+let _cmdResults = [];
+
+function fuzzyScore(query, target) {
+    const q = query.toLowerCase(), t = target.toLowerCase();
+    if (t.includes(q)) return 100 + (t.indexOf(q) === 0 ? 50 : 0);
+    let qi = 0, score = 0, consecutive = 0;
+    for (let ti = 0; ti < t.length && qi < q.length; ti++) {
+        if (t[ti] === q[qi]) { qi++; score += 1 + consecutive; consecutive++; } else { consecutive = 0; }
+    }
+    return qi === q.length ? score : 0;
+}
+
 function openSearchOverlay() {
-    document.getElementById('searchOverlay').classList.add('open');
+    const overlay = document.getElementById('searchOverlay');
+    if (overlay.classList.contains('open')) { closeSearchOverlay(); return; }
+    overlay.classList.add('open');
     const input = document.getElementById('searchOverlayInput');
     input.value = '';
     input.focus();
-    document.getElementById('searchOverlayResults').innerHTML = '';
+    _cmdSelectedIndex = -1;
+    renderCommandPaletteDefaults();
 }
 
 function closeSearchOverlay() {
     document.getElementById('searchOverlay').classList.remove('open');
+    _cmdSelectedIndex = -1;
+    _cmdResults = [];
 }
 
 document.addEventListener('keydown', function(e) {
-    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault();
-        openSearchOverlay();
-    }
-    if (e.key === 'Escape') {
-        if (document.getElementById('searchOverlay').classList.contains('open')) closeSearchOverlay();
-    }
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); openSearchOverlay(); }
+    if (e.key === 'Escape' && document.getElementById('searchOverlay').classList.contains('open')) closeSearchOverlay();
 });
 
-// Cmd+B to toggle sidebar
 document.addEventListener('keydown', e => {
-    if ((e.metaKey || e.ctrlKey) && e.key === 'b') {
-        e.preventDefault();
-        toggleSidebar();
-    }
+    if ((e.metaKey || e.ctrlKey) && e.key === 'b') { e.preventDefault(); toggleSidebar(); }
 });
+
+function cmdPaletteKeydown(e) {
+    const results = document.getElementById('searchOverlayResults');
+    const items = results.querySelectorAll('.search-result-item');
+    if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        _cmdSelectedIndex = Math.min(_cmdSelectedIndex + 1, items.length - 1);
+        updateCmdSelection(items);
+    } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        _cmdSelectedIndex = Math.max(_cmdSelectedIndex - 1, 0);
+        updateCmdSelection(items);
+    } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (_cmdSelectedIndex >= 0 && _cmdSelectedIndex < _cmdResults.length) {
+            _cmdResults[_cmdSelectedIndex].fn();
+            closeSearchOverlay();
+        }
+    }
+}
+
+function updateCmdSelection(items) {
+    items.forEach((el, i) => el.classList.toggle('active', i === _cmdSelectedIndex));
+    if (items[_cmdSelectedIndex]) items[_cmdSelectedIndex].scrollIntoView({ block: 'nearest' });
+}
+
+function renderCommandPaletteDefaults() {
+    _cmdResults = [];
+    let html = '<div class="search-result-group">Navigate</div>';
+    CMD_NAV_ITEMS.forEach(item => {
+        const idx = _cmdResults.length;
+        _cmdResults.push({ fn: () => sidebarNav(item.tab) });
+        html += `<div class="search-result-item" onclick="_cmdResults[${idx}].fn();closeSearchOverlay()" onmouseenter="_cmdSelectedIndex=${idx};updateCmdSelection(document.querySelectorAll('.search-result-item'))">
+            <span class="sr-icon">${item.icon}</span>
+            <span class="sr-title">${item.label}</span>
+            ${item.keys ? `<span class="sr-hint"><kbd>${item.keys}</kbd></span>` : ''}
+        </div>`;
+    });
+    html += '<div class="search-result-group">Actions</div>';
+    CMD_ACTIONS.forEach(item => {
+        const idx = _cmdResults.length;
+        _cmdResults.push({ fn: item.fn });
+        html += `<div class="search-result-item" onclick="_cmdResults[${idx}].fn();closeSearchOverlay()" onmouseenter="_cmdSelectedIndex=${idx};updateCmdSelection(document.querySelectorAll('.search-result-item'))">
+            <span class="sr-icon">${item.icon}</span>
+            <span class="sr-title">${item.label}</span>
+        </div>`;
+    });
+    document.getElementById('searchOverlayResults').innerHTML = html;
+}
 
 function globalSearch() {
-    const q = (document.getElementById('searchOverlayInput').value || '').toLowerCase().trim();
+    const q = (document.getElementById('searchOverlayInput').value || '').trim();
     const results = document.getElementById('searchOverlayResults');
-    if (!q) { results.innerHTML = ''; return; }
+    if (!q) { renderCommandPaletteDefaults(); return; }
 
-    const matches = DATA.filter(t =>
-        t.title.toLowerCase().includes(q) || (t.description || '').toLowerCase().includes(q)
-    ).slice(0, 10);
+    _cmdResults = [];
+    let html = '';
 
-    if (matches.length === 0) {
-        results.innerHTML = '<div style="padding:16px 20px;color:var(--text3);font-size:0.9rem">No results found</div>';
-        return;
+    // 1. Task matches
+    const taskMatches = DATA.map(t => ({
+        task: t,
+        score: Math.max(fuzzyScore(q, t.title), fuzzyScore(q, t.description || '') * 0.6)
+    })).filter(m => m.score > 0).sort((a, b) => b.score - a.score).slice(0, 8);
+
+    if (taskMatches.length > 0) {
+        html += '<div class="search-result-group">Tasks</div>';
+        taskMatches.forEach(m => {
+            const t = m.task;
+            const idx = _cmdResults.length;
+            _cmdResults.push({ fn: () => { closeSearchOverlay(); openDetail(t.task_id); } });
+            const parent = t.parent_task_id ? getTaskById(t.parent_task_id) : null;
+            html += `<div class="search-result-item" onclick="_cmdResults[${idx}].fn()" onmouseenter="_cmdSelectedIndex=${idx};updateCmdSelection(document.querySelectorAll('.search-result-item'))">
+                <span class="subtask-status-pill ${statusClass(t.status)}" style="flex-shrink:0;font-size:0.65rem">${esc(t.status)}</span>
+                <span class="sr-title">${esc(t.title)}</span>
+                ${parent ? `<span class="sr-parent">in ${esc(parent.title)}</span>` : ''}
+            </div>`;
+        });
     }
 
-    results.innerHTML = matches.map(t => {
-        const parent = t.parent_task_id ? getTaskById(t.parent_task_id) : null;
-        return `<div class="search-result-item" onclick="closeSearchOverlay(); openDetail('${esc(t.task_id)}')">
-            <span class="subtask-status-pill ${statusClass(t.status)}" style="flex-shrink:0">${esc(t.status)}</span>
-            <span class="sr-title">${esc(t.title)}</span>
-            ${parent ? `<span class="sr-parent">in ${esc(parent.title)}</span>` : ''}
-        </div>`;
-    }).join('');
+    // 2. Navigation matches
+    const navMatches = CMD_NAV_ITEMS.filter(n => fuzzyScore(q, n.label) > 0).slice(0, 5);
+    if (navMatches.length > 0) {
+        html += '<div class="search-result-group">Navigate</div>';
+        navMatches.forEach(item => {
+            const idx = _cmdResults.length;
+            _cmdResults.push({ fn: () => sidebarNav(item.tab) });
+            html += `<div class="search-result-item" onclick="_cmdResults[${idx}].fn();closeSearchOverlay()" onmouseenter="_cmdSelectedIndex=${idx};updateCmdSelection(document.querySelectorAll('.search-result-item'))">
+                <span class="sr-icon">${item.icon}</span>
+                <span class="sr-title">${item.label}</span>
+                ${item.keys ? `<span class="sr-hint"><kbd>${item.keys}</kbd></span>` : ''}
+            </div>`;
+        });
+    }
+
+    // 3. Action matches
+    const actMatches = CMD_ACTIONS.filter(a => fuzzyScore(q, a.label) > 0).slice(0, 4);
+    if (actMatches.length > 0) {
+        html += '<div class="search-result-group">Actions</div>';
+        actMatches.forEach(item => {
+            const idx = _cmdResults.length;
+            _cmdResults.push({ fn: item.fn });
+            html += `<div class="search-result-item" onclick="_cmdResults[${idx}].fn();closeSearchOverlay()" onmouseenter="_cmdSelectedIndex=${idx};updateCmdSelection(document.querySelectorAll('.search-result-item'))">
+                <span class="sr-icon">${item.icon}</span>
+                <span class="sr-title">${item.label}</span>
+            </div>`;
+        });
+    }
+
+    if (!html) html = '<div style="padding:16px 20px;color:#52525b;font-size:0.85rem">No results found</div>';
+    _cmdSelectedIndex = -1;
+    results.innerHTML = html;
 }
 
 const debouncedGlobalSearch = debounce(() => globalSearch(), 150);
@@ -5741,7 +5970,23 @@ function renderHome() {
         </div>
 
         <!-- Stats Cards -->
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:24px">
+        ${(() => {
+            // Revenue data
+            const totalRevenue = (typeof _invoices !== 'undefined' ? _invoices : []).reduce((s, inv) => s + (parseFloat(inv.amount) || 0), 0);
+            const paidRevenue = (typeof _invoices !== 'undefined' ? _invoices : []).filter(inv => inv.status === 'Paid').reduce((s, inv) => s + (parseFloat(inv.amount) || 0), 0);
+            const pendingRevenue = totalRevenue - paidRevenue;
+            // Deal pipeline
+            const DEAL_STAGES_HOME = ['Lead','Contact Made','Proposal','Negotiation','Won'];
+            const dealTasks = DATA.filter(t => t.stage && DEAL_STAGES_HOME.includes(t.stage));
+            const pipelineValue = dealTasks.reduce((s, t) => s + (parseFloat(t.deal_value) || 0), 0);
+            const wonValue = DATA.filter(t => t.stage === 'Won').reduce((s, t) => s + (parseFloat(t.deal_value) || 0), 0);
+            // Time tracked
+            const totalTimeSecs = DATA.reduce((s, t) => s + (parseInt(t.time_spent) || 0), 0);
+            const timeHrs = Math.floor(totalTimeSecs / 3600);
+            const timeMins = Math.floor((totalTimeSecs % 3600) / 60);
+            return '';
+        })()}
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:24px">
             <div class="stat-card">
                 <div class="stat-header">
                     <span class="stat-label">Total Tasks</span>
@@ -5783,6 +6028,26 @@ function renderHome() {
                 <div class="stat-value" style="color:#818cf8">${inProgress.length}</div>
                 <div class="stat-trend neutral">
                     ${myTasks.filter(t => t.status === 'In Progress').length} yours
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-label">Revenue</span>
+                    <svg class="stat-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                </div>
+                <div class="stat-value" style="color:#4ade80">£${(() => { const p = (typeof _invoices !== 'undefined' ? _invoices : []).filter(i => i.status === 'Paid').reduce((s,i) => s + (parseFloat(i.amount)||0), 0); return p.toLocaleString(); })()}</div>
+                <div class="stat-trend neutral">
+                    £${(() => { const t = (typeof _invoices !== 'undefined' ? _invoices : []).reduce((s,i) => s + (parseFloat(i.amount)||0), 0); const p = (typeof _invoices !== 'undefined' ? _invoices : []).filter(i => i.status === 'Paid').reduce((s,i) => s + (parseFloat(i.amount)||0), 0); return (t - p).toLocaleString(); })()} pending
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-label">Pipeline</span>
+                    <svg class="stat-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                </div>
+                <div class="stat-value" style="color:#fbbf24">£${(() => { const stages = ['Lead','Contact Made','Proposal','Negotiation','Won']; return DATA.filter(t => t.stage && stages.includes(t.stage)).reduce((s,t) => s + (parseFloat(t.deal_value)||0), 0).toLocaleString(); })()}</div>
+                <div class="stat-trend neutral">
+                    £${DATA.filter(t => t.stage === 'Won').reduce((s,t) => s + (parseFloat(t.deal_value)||0), 0).toLocaleString()} won
                 </div>
             </div>
         </div>
@@ -6265,15 +6530,47 @@ if (_automations.length === 0) {
     localStorage.setItem('stlla_automations', JSON.stringify(_automations));
 }
 
+let _autoRunning = false;
+
 function runAutomations() {
-    const today = new Date().toISOString().slice(0, 10);
-    _automations.filter(a => a.enabled).forEach(auto => {
-        if (auto.trigger === 'overdue') {
-            DATA.filter(t => t.due_date && t.due_date < today && t.status !== 'Done' && t.priority !== auto.value).forEach(t => {
-                apiUpdateField(t.task_id, 'priority', auto.value);
+    if (_autoRunning) return;
+    _autoRunning = true;
+    try {
+        const today = new Date().toISOString().slice(0, 10);
+        _automations.filter(a => a.enabled && a.trigger === 'task_overdue').forEach(auto => {
+            DATA.filter(t => t.due_date && t.due_date < today && t.status !== 'Done').forEach(t => {
+                executeAutoAction(auto, t);
             });
+        });
+    } finally { _autoRunning = false; }
+}
+
+function fireAutomation(triggerType, task) {
+    if (_autoRunning) return;
+    _autoRunning = true;
+    try {
+        _automations.filter(a => a.enabled && a.trigger === triggerType).forEach(auto => {
+            executeAutoAction(auto, task);
+        });
+    } finally { _autoRunning = false; }
+}
+
+function executeAutoAction(auto, task) {
+    try {
+        if (auto.action === 'telegram_notify') {
+            tgNotifyTask(auto.trigger === 'task_done' ? 'done' : auto.trigger === 'task_created' ? 'created' : 'updated', task);
+        } else if (auto.action === 'browser_notify') {
+            if (Notification.permission === 'granted') {
+                new Notification('Stlla Automation', { body: `${task.title} — ${AUTO_TRIGGER_LABELS[auto.trigger] || auto.trigger}`, icon: '/favicon.svg' });
+            }
+        } else if (auto.action === 'set_priority' && auto.value) {
+            if (task.priority !== auto.value) apiUpdateField(task.task_id, 'priority', auto.value);
+        } else if (auto.action === 'move_to_status' && auto.value) {
+            if (task.status !== auto.value) apiUpdateField(task.task_id, 'status', auto.value);
+        } else if (auto.action === 'auto_assign' && auto.value) {
+            if (task.assignee !== auto.value) apiUpdateField(task.task_id, 'assignee', auto.value);
         }
-    });
+    } catch(e) { console.warn('Automation error:', e); }
 }
 
 /* ════════════════════════════════════════════════════════════════
@@ -6281,115 +6578,111 @@ function runAutomations() {
    ════════════════════════════════════════════════════════════════ */
 let _templates = JSON.parse(localStorage.getItem('stlla_templates') || '[]');
 
-// Default templates
+// Quick-fill templates (single task pre-fill)
+const QUICK_TEMPLATES = [
+    { name: 'Bug Report',      prefix: '[Bug] ',     desc: 'Steps to reproduce:\n1. \n\nExpected:\n\nActual:', priority: 'High', category: '' },
+    { name: 'Feature Request',  prefix: '[Feature] ', desc: 'As a user, I want…\n\nAcceptance criteria:\n- ', priority: 'Medium', category: '' },
+    { name: 'Meeting Notes',    prefix: '[Meeting] ', desc: 'Attendees:\n\nAgenda:\n- \n\nAction items:\n- ', priority: 'Low', category: '' },
+    { name: 'Client Task',      prefix: '',           desc: 'Client:\nDeadline:\nDeliverables:\n- ', priority: 'High', category: '' },
+];
+
+// Project templates (multi-task)
 if (_templates.length === 0) {
     _templates = [
-        {
-            id: 'tpl1', name: 'New Client Onboarding',
-            tasks: [
-                { title: 'Initial meeting', priority: 'High', status: 'To Do' },
-                { title: 'Contract signed', priority: 'High', status: 'To Do' },
-                { title: 'Email & domain setup', priority: 'Medium', status: 'To Do' },
-                { title: 'Kickoff call', priority: 'Medium', status: 'To Do' },
-                { title: 'First deliverable', priority: 'Medium', status: 'To Do' },
-            ]
-        },
-        {
-            id: 'tpl2', name: 'Content Campaign',
-            tasks: [
-                { title: 'Creative strategy', priority: 'High', status: 'To Do' },
-                { title: 'Content production', priority: 'Medium', status: 'To Do' },
-                { title: 'Ad account setup', priority: 'Medium', status: 'To Do' },
-                { title: 'Launch campaign', priority: 'High', status: 'To Do' },
-                { title: 'Report & optimize', priority: 'Low', status: 'To Do' },
-            ]
-        },
-        {
-            id: 'tpl3', name: 'Deal Pipeline',
-            tasks: [
-                { title: 'Research prospect', priority: 'Medium', status: 'To Do' },
-                { title: 'Initial outreach', priority: 'High', status: 'To Do' },
-                { title: 'Discovery call', priority: 'High', status: 'To Do' },
-                { title: 'Send proposal', priority: 'High', status: 'To Do' },
-                { title: 'Follow up', priority: 'Medium', status: 'To Do' },
-                { title: 'Close deal', priority: 'High', status: 'To Do' },
-            ]
-        },
+        { id: 'tpl1', name: 'Client Onboarding', tasks: [
+            { title: 'Initial meeting', priority: 'High' }, { title: 'Contract signed', priority: 'High' },
+            { title: 'Email & domain setup', priority: 'Medium' }, { title: 'Kickoff call', priority: 'Medium' },
+            { title: 'First deliverable', priority: 'Medium' },
+        ]},
+        { id: 'tpl2', name: 'Content Campaign', tasks: [
+            { title: 'Creative strategy', priority: 'High' }, { title: 'Content production', priority: 'Medium' },
+            { title: 'Ad account setup', priority: 'Medium' }, { title: 'Launch campaign', priority: 'High' },
+            { title: 'Report & optimize', priority: 'Low' },
+        ]},
+        { id: 'tpl3', name: 'Deal Pipeline', tasks: [
+            { title: 'Research prospect', priority: 'Medium' }, { title: 'Initial outreach', priority: 'High' },
+            { title: 'Discovery call', priority: 'High' }, { title: 'Send proposal', priority: 'High' },
+            { title: 'Follow up', priority: 'Medium' }, { title: 'Close deal', priority: 'High' },
+        ]},
     ];
     localStorage.setItem('stlla_templates', JSON.stringify(_templates));
 }
 
-function showTemplates() {
-    const tplList = _templates.map(t =>
-        `• ${t.name} (${t.tasks.length} tasks)`
-    ).join('\n');
+function toggleTemplatePicker() {
+    const picker = document.getElementById('templatePicker');
+    if (!picker) return;
+    picker.classList.toggle('hidden');
+    if (!picker.classList.contains('hidden')) renderTemplatePicker();
+}
 
-    const chosen = prompt(`Choose a template:\n\n${tplList}\n\nType the template name:`);
-    if (!chosen) return;
+function renderTemplatePicker() {
+    const picker = document.getElementById('templatePicker');
+    let html = '<div style="padding:12px 14px 6px;font-size:0.68rem;font-weight:600;color:#52525b;text-transform:uppercase;letter-spacing:0.06em;">Quick Fill</div>';
+    QUICK_TEMPLATES.forEach((t, i) => {
+        html += `<div onclick="applyQuickTemplate(${i})" style="padding:10px 14px;cursor:pointer;transition:background 0.1s;border-bottom:1px solid #1a1a1f;" onmouseover="this.style.background='#18181b'" onmouseout="this.style.background='transparent'">
+            <div style="font-size:0.82rem;color:#e4e4e7;font-weight:500;">${esc(t.name)}</div>
+            <div style="font-size:0.7rem;color:#52525b;margin-top:2px;">Pre-fills title, description & priority</div>
+        </div>`;
+    });
+    html += '<div style="padding:12px 14px 6px;font-size:0.68rem;font-weight:600;color:#52525b;text-transform:uppercase;letter-spacing:0.06em;">Project Templates</div>';
+    _templates.forEach((t, i) => {
+        html += `<div onclick="applyProjectTemplate(${i})" style="padding:10px 14px;cursor:pointer;transition:background 0.1s;border-bottom:1px solid #1a1a1f;" onmouseover="this.style.background='#18181b'" onmouseout="this.style.background='transparent'">
+            <div style="font-size:0.82rem;color:#e4e4e7;font-weight:500;">${esc(t.name)}</div>
+            <div style="font-size:0.7rem;color:#52525b;margin-top:2px;">${t.tasks.length} subtasks auto-created</div>
+        </div>`;
+    });
+    // Save current as template
+    html += `<div onclick="saveCurrentAsTemplate()" style="padding:10px 14px;cursor:pointer;transition:background 0.1s;border-top:1px solid #27272a;display:flex;align-items:center;gap:6px;" onmouseover="this.style.background='#18181b'" onmouseout="this.style.background='transparent'">
+        <span style="color:#818cf8;font-size:0.82rem;">+ Save current as template</span>
+    </div>`;
+    picker.innerHTML = html;
+}
 
-    const tpl = _templates.find(t => chosen.toLowerCase().includes(t.name.toLowerCase()));
-    if (!tpl) { showToast('Template not found', 'error'); return; }
+function applyQuickTemplate(i) {
+    const t = QUICK_TEMPLATES[i];
+    document.getElementById('ntTitle').value = t.prefix;
+    document.getElementById('ntDescription').value = t.desc;
+    document.getElementById('ntPriority').value = t.priority;
+    if (t.category) document.getElementById('ntCategory').value = t.category;
+    document.getElementById('templatePicker').classList.add('hidden');
+    document.getElementById('ntTitle').focus();
+    document.getElementById('ntTitle').setSelectionRange(t.prefix.length, t.prefix.length);
+}
 
+function applyProjectTemplate(i) {
+    const tpl = _templates[i];
+    if (!tpl) return;
+    document.getElementById('templatePicker').classList.add('hidden');
     const category = document.getElementById('ntCategory').value;
     const assignee = document.getElementById('ntAssignee').value;
-
     closeNewTaskModal();
-
-    // Create parent task
     apiCreateTask({
-        title: tpl.name,
-        description: `Created from template: ${tpl.name}`,
-        status: 'To Do',
-        priority: 'High',
-        assignee,
-        due_date: '',
-        parent_task_id: '',
-        links: '[]',
-        created_by: currentUserId,
-        category,
-        stage: '',
-        deal_value: '',
-        recurring: '',
+        title: tpl.name, description: 'Created from template: ' + tpl.name,
+        status: 'To Do', priority: 'High', assignee, due_date: '', parent_task_id: '',
+        links: '[]', created_by: currentUserId, category, stage: '', deal_value: '', recurring: '',
     }).then(parent => {
         if (!parent) return;
-        // Create subtasks
-        const promises = tpl.tasks.map(sub =>
-            apiCreateTask({
-                title: sub.title,
-                description: '',
-                status: sub.status,
-                priority: sub.priority,
-                assignee,
-                due_date: '',
-                parent_task_id: parent.task_id,
-                links: '[]',
-                created_by: currentUserId,
-                category,
-                stage: '',
-                deal_value: '',
-                recurring: '',
-            })
-        );
-        Promise.all(promises).then(() => {
-            showToast(`Template "${tpl.name}" created with ${tpl.tasks.length} subtasks`, 'success');
+        Promise.all(tpl.tasks.map(sub => apiCreateTask({
+            title: sub.title, description: '', status: 'To Do', priority: sub.priority,
+            assignee, due_date: '', parent_task_id: parent.task_id, links: '[]',
+            created_by: currentUserId, category, stage: '', deal_value: '', recurring: '',
+        }))).then(() => {
+            showToast(`"${tpl.name}" created with ${tpl.tasks.length} subtasks`, 'success');
             addActivity('created from template', tpl.name);
-            TREE = buildTaskTree(DATA);
-            renderBoard();
-            renderListView();
+            TREE = buildTaskTree(DATA); renderBoard(); renderListView();
         });
     });
 }
 
-function saveTemplate() {
+function saveCurrentAsTemplate() {
+    document.getElementById('templatePicker').classList.add('hidden');
     const name = prompt('Template name:');
     if (!name) return;
     const tasks = prompt('Task titles (comma-separated):');
     if (!tasks) return;
-
     _templates.push({
-        id: 'tpl_' + Date.now(),
-        name,
-        tasks: tasks.split(',').map(t => ({ title: t.trim(), priority: 'Medium', status: 'To Do' })),
+        id: 'tpl_' + Date.now(), name,
+        tasks: tasks.split(',').map(t => ({ title: t.trim(), priority: 'Medium' })),
     });
     localStorage.setItem('stlla_templates', JSON.stringify(_templates));
     showToast('Template saved', 'success');
