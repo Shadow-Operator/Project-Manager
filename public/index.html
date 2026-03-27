@@ -918,6 +918,45 @@ body { background: var(--bg); color: var(--text); }
 .calendar-event.status-inprogress { border-left-color: #818cf8; }
 .calendar-event.status-done { border-left-color: #4ade80; background: rgba(74,222,128,0.06); color: #86efac; }
 
+/* Weekly calendar view */
+.weekly-grid {
+    display: grid; grid-template-columns: 60px repeat(7, 1fr);
+    background: #000; border: 1px solid #1a1a1f; border-radius: 14px;
+    overflow: hidden;
+}
+.weekly-header {
+    padding: 10px 6px; text-align: center; font-size: 0.72rem; font-weight: 600;
+    color: #3f3f46; text-transform: uppercase; letter-spacing: 0.06em;
+    border-bottom: 1px solid #1a1a1f; background: #000;
+}
+.weekly-header.today-header { color: #818cf8; }
+.weekly-header-date {
+    font-size: 1.1rem; font-weight: 700; color: #52525b; margin-top: 2px;
+}
+.weekly-header.today-header .weekly-header-date {
+    color: #fff; background: #818cf8; width: 28px; height: 28px;
+    border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+    font-size: 0.85rem;
+}
+.weekly-time-label {
+    padding: 4px 8px; font-size: 0.65rem; color: #27272a; text-align: right;
+    border-right: 1px solid #1a1a1f; border-bottom: 1px solid rgba(26,26,31,0.3);
+    height: 48px; display: flex; align-items: flex-start; justify-content: flex-end;
+}
+.weekly-cell {
+    border-right: 1px solid rgba(26,26,31,0.3); border-bottom: 1px solid rgba(26,26,31,0.3);
+    min-height: 48px; padding: 2px; position: relative; cursor: pointer;
+    transition: background 0.1s;
+}
+.weekly-cell:nth-child(8n+1) { border-right: 1px solid #1a1a1f; }
+.weekly-cell:hover { background: rgba(255,255,255,0.015); }
+.weekly-cell.today-col { background: rgba(129,140,248,0.03); }
+.weekly-event {
+    font-size: 0.65rem; padding: 2px 6px; margin: 1px 0; border-radius: 4px;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    cursor: pointer; font-weight: 500; line-height: 1.3;
+}
+
 .cal-push-btn {
     display: inline-flex; align-items: center; gap: 6px;
     padding: 6px 14px; background: transparent; border: 1px solid #27272a;
@@ -1389,6 +1428,10 @@ body { background: var(--bg); color: var(--text); }
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
                 <span>Deal Flow</span>
             </button>
+            <button class="sidebar-nav-item" onclick="sidebarNav('invoices', this)" data-tab="invoices">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                <span>Invoices</span>
+            </button>
             <div class="sidebar-separator"></div>
             <div class="sidebar-nav-label">Communication</div>
             <button class="sidebar-nav-item" onclick="sidebarNav('telegram', this)" data-tab="telegram">
@@ -1553,12 +1596,17 @@ body { background: var(--bg); color: var(--text); }
             <div id="tab-calendar" class="tab-pane">
                 <div class="calendar-view">
                     <div class="calendar-nav">
-                        <button class="btn-icon" onclick="calNavMonth(-1)">&larr;</button>
+                        <button class="btn-icon" onclick="calNav(-1)">&larr;</button>
                         <h2 id="calMonthLabel" style="flex:1; text-align:center"></h2>
-                        <button class="btn-icon" onclick="calNavMonth(1)">&rarr;</button>
+                        <button class="btn-icon" onclick="calNav(1)">&rarr;</button>
+                        <div class="seg-tabs" style="margin-left:8px">
+                            <button class="seg-tab" id="calViewMonth" onclick="setCalView('month',this)">Month</button>
+                            <button class="seg-tab active" id="calViewWeek" onclick="setCalView('week',this)">Week</button>
+                        </div>
                         <button class="btn-sm btn-outline" onclick="calGoToday()" style="margin-left:8px">Today</button>
                     </div>
-                    <div class="calendar-grid" id="calendarGrid"></div>
+                    <div id="calendarGrid" class="calendar-grid"></div>
+                    <div id="weeklyGrid" class="weekly-grid hidden"></div>
                 </div>
             </div>
 
@@ -1576,6 +1624,52 @@ body { background: var(--bg); color: var(--text); }
                         </div>
                     </div>
                     <div id="dealFlowBoard" class="board" style="max-height:calc(100vh - 140px)"></div>
+                </div>
+            </div>
+
+            <!-- Invoice Tab -->
+            <div id="tab-invoices" class="tab-pane">
+                <div style="padding:20px">
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
+                        <h2 style="font-size:1.1rem;font-weight:600;color:#fafafa">Invoices</h2>
+                        <div style="display:flex;gap:8px;align-items:center">
+                            <div class="seg-tabs">
+                                <button class="seg-tab active" onclick="setInvoiceFilter('all',this)">All</button>
+                                <button class="seg-tab" onclick="setInvoiceFilter('Draft',this)">Draft</button>
+                                <button class="seg-tab" onclick="setInvoiceFilter('Sent',this)">Sent</button>
+                                <button class="seg-tab" onclick="setInvoiceFilter('Paid',this)">Paid</button>
+                                <button class="seg-tab" onclick="setInvoiceFilter('Overdue',this)">Overdue</button>
+                            </div>
+                            <button class="btn-sm" onclick="openNewInvoiceModal()">+ New Invoice</button>
+                        </div>
+                    </div>
+                    <div id="invoiceSummary" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px"></div>
+                    <div class="list-table-wrap">
+                        <table class="list-table">
+                            <thead><tr>
+                                <th>Invoice</th>
+                                <th>Client</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Category</th>
+                                <th style="text-align:right">Due Date</th>
+                            </tr></thead>
+                            <tbody id="invoiceBody"></tbody>
+                        </table>
+                    </div>
+                    <div id="invoiceEmpty" class="empty-state hidden">
+                        <div class="empty-icons">
+                            <div class="empty-icon-box"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+                            <div class="empty-icon-box"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+                            <div class="empty-icon-box"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
+                        </div>
+                        <div class="empty-title">No invoices yet</div>
+                        <div class="empty-desc">Track your invoices and payments across all projects.</div>
+                        <button class="empty-action" onclick="openNewInvoiceModal()">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            Create Invoice
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -2133,7 +2227,7 @@ function updateThemeIcon() {
 /* ════════════════════════════════════════════════════════════════
    SIDEBAR & NAVIGATION
    ════════════════════════════════════════════════════════════════ */
-const PAGE_TITLES = { home: 'Home', board: 'Board', list: 'List', calendar: 'Calendar', dealflow: 'Deal Flow', telegram: 'Telegram', settings: 'Settings' };
+const PAGE_TITLES = { home: 'Home', board: 'Board', list: 'List', calendar: 'Calendar', dealflow: 'Deal Flow', invoices: 'Invoices', telegram: 'Telegram', settings: 'Settings' };
 const CATEGORIES = ['Recast', 'Shadow Operating', "Mulligan's Marketplace", 'Agency'];
 const DEAL_STAGES = ['Lead', 'Contact Made', 'Proposal', 'Negotiation', 'Won', 'Lost'];
 let _boardCategoryFilter = new Set();
@@ -2166,6 +2260,7 @@ function sidebarNav(tabId, btn) {
     if (tabId === 'list') renderListView();
     if (tabId === 'calendar') renderCalendar();
     if (tabId === 'dealflow') renderDealFlow();
+    if (tabId === 'invoices') renderInvoices();
     // Close mobile sidebar
     if (window.innerWidth <= 768) {
         document.getElementById('sidebar').classList.remove('mobile-open');
@@ -3107,32 +3202,31 @@ function renderTeamPresence() {
 let _calYear = new Date().getFullYear();
 let _calMonth = new Date().getMonth(); // 0-indexed
 let _calEvents = []; // Google Calendar events
+let _calView = 'week'; // 'month' or 'week'
+let _calWeekStart = (() => { const d = new Date(); d.setDate(d.getDate() - d.getDay()); d.setHours(0,0,0,0); return d; })();
 
-function calNavMonth(dir) {
-    const grid = document.getElementById('calendarGrid');
-    const label = document.getElementById('calMonthLabel');
-    // Slide out
-    grid.classList.add(dir > 0 ? 'slide-left' : 'slide-right');
-    label.style.opacity = '0';
-    setTimeout(() => {
+function setCalView(view, btn) {
+    _calView = view;
+    btn.closest('.seg-tabs').querySelectorAll('.seg-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    renderCalendar();
+}
+
+function calNav(dir) {
+    if (_calView === 'month') {
         _calMonth += dir;
         if (_calMonth < 0) { _calMonth = 11; _calYear--; }
         if (_calMonth > 11) { _calMonth = 0; _calYear++; }
-        renderCalendar().then(() => {
-            // Reset and slide in from opposite side
-            grid.classList.remove('slide-left', 'slide-right');
-            grid.classList.add(dir > 0 ? 'slide-right' : 'slide-left');
-            // Force reflow
-            void grid.offsetWidth;
-            grid.classList.remove('slide-left', 'slide-right');
-            label.style.opacity = '1';
-        });
-    }, 150);
+    } else {
+        _calWeekStart = new Date(_calWeekStart.getTime() + dir * 7 * 86400000);
+    }
+    renderCalendar();
 }
 
 function calGoToday() {
     _calYear = new Date().getFullYear();
     _calMonth = new Date().getMonth();
+    _calWeekStart = (() => { const d = new Date(); d.setDate(d.getDate() - d.getDay()); d.setHours(0,0,0,0); return d; })();
     renderCalendar();
 }
 
@@ -3161,6 +3255,17 @@ function getEventColor(event, task) {
 
 async function renderCalendar() {
     const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+    if (_calView === 'week') {
+        document.getElementById('calendarGrid').classList.add('hidden');
+        document.getElementById('weeklyGrid').classList.remove('hidden');
+        await loadCalendarEvents();
+        renderWeeklyView();
+        return;
+    }
+
+    document.getElementById('calendarGrid').classList.remove('hidden');
+    document.getElementById('weeklyGrid').classList.add('hidden');
     document.getElementById('calMonthLabel').textContent = `${monthNames[_calMonth]} ${_calYear}`;
 
     await loadCalendarEvents();
@@ -3227,6 +3332,74 @@ async function renderCalendar() {
 }
 
 // Click a calendar day to quick-add a task
+function renderWeeklyView() {
+    const today = new Date().toISOString().slice(0, 10);
+    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+    // Get week dates
+    const weekDates = [];
+    for (let i = 0; i < 7; i++) {
+        const d = new Date(_calWeekStart.getTime() + i * 86400000);
+        weekDates.push(d);
+    }
+
+    // Update label
+    const ws = weekDates[0];
+    const we = weekDates[6];
+    document.getElementById('calMonthLabel').textContent = `${monthNames[ws.getMonth()]} ${ws.getDate()} – ${monthNames[we.getMonth()]} ${we.getDate()}, ${we.getFullYear()}`;
+
+    const grid = document.getElementById('weeklyGrid');
+    const hours = [6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21];
+
+    // Headers
+    let html = '<div class="weekly-header" style="border-bottom:1px solid #1a1a1f"></div>';
+    weekDates.forEach(d => {
+        const dateStr = d.toISOString().slice(0, 10);
+        const isToday = dateStr === today;
+        html += `<div class="weekly-header ${isToday ? 'today-header' : ''}">
+            ${dayNames[d.getDay()]}
+            <div class="weekly-header-date">${d.getDate()}</div>
+        </div>`;
+    });
+
+    // Time rows
+    hours.forEach(h => {
+        const label = h < 12 ? `${h} AM` : h === 12 ? '12 PM' : `${h-12} PM`;
+        html += `<div class="weekly-time-label">${label}</div>`;
+
+        weekDates.forEach(d => {
+            const dateStr = d.toISOString().slice(0, 10);
+            const isToday = dateStr === today;
+
+            // Tasks due on this date
+            const dayTasks = DATA.filter(t => t.due_date === dateStr && !t.parent_task_id);
+            // Google Calendar events
+            const dayGcal = _calEvents.filter(e => e.date === dateStr && !e.task_id);
+
+            let eventsHtml = '';
+            // Show tasks in the 9 AM row
+            if (h === 9) {
+                dayTasks.forEach(t => {
+                    const color = CATEGORY_COLORS[t.category] || '#818cf8';
+                    eventsHtml += `<div class="weekly-event" style="background:${color}20;color:${color};border-left:2px solid ${color}" onclick="event.stopPropagation(); openDetail('${esc(t.task_id)}')">${esc(t.title)}</div>`;
+                });
+            }
+            // Show gcal events at their actual hour
+            dayGcal.forEach(e => {
+                const eventHour = e.start_time ? parseInt(e.start_time.split(':')[0]) : 9;
+                if (eventHour === h) {
+                    eventsHtml += `<div class="weekly-event" style="background:rgba(74,222,128,0.12);color:#4ade80;border-left:2px solid #4ade80">${e.start_time ? e.start_time + ' ' : ''}${esc(e.title)}</div>`;
+                }
+            });
+
+            html += `<div class="weekly-cell ${isToday ? 'today-col' : ''}" onclick="calClickDay('${dateStr}')">${eventsHtml}</div>`;
+        });
+    });
+
+    grid.innerHTML = html;
+}
+
 function calClickDay(dateStr) {
     openNewTaskModal('To Do');
     setTimeout(() => {
@@ -3627,6 +3800,87 @@ function addManualTime(taskId) {
     addActivity(`logged ${mins}m on`, task.title);
     renderDetail(taskId);
     showToast(`Added ${mins} minutes`, 'success');
+}
+
+/* ════════════════════════════════════════════════════════════════
+   INVOICES
+   ════════════════════════════════════════════════════════════════ */
+let _invoices = JSON.parse(localStorage.getItem('stlla_invoices') || '[]');
+let _invoiceFilter = 'all';
+
+function saveInvoices() { localStorage.setItem('stlla_invoices', JSON.stringify(_invoices)); }
+
+function setInvoiceFilter(status, btn) {
+    _invoiceFilter = status;
+    btn.closest('.seg-tabs').querySelectorAll('.seg-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    renderInvoices();
+}
+
+function renderInvoices() {
+    const today = new Date().toISOString().slice(0, 10);
+    // Auto-mark overdue
+    _invoices.forEach(inv => {
+        if (inv.status === 'Sent' && inv.due_date && inv.due_date < today) inv.status = 'Overdue';
+    });
+    saveInvoices();
+
+    let filtered = _invoiceFilter === 'all' ? _invoices : _invoices.filter(i => i.status === _invoiceFilter);
+    const empty = document.getElementById('invoiceEmpty');
+    const tbody = document.getElementById('invoiceBody');
+
+    // Summary cards
+    const total = _invoices.reduce((s, i) => s + (parseFloat(i.amount) || 0), 0);
+    const paid = _invoices.filter(i => i.status === 'Paid').reduce((s, i) => s + (parseFloat(i.amount) || 0), 0);
+    const outstanding = total - paid;
+    const overdueAmt = _invoices.filter(i => i.status === 'Overdue').reduce((s, i) => s + (parseFloat(i.amount) || 0), 0);
+
+    document.getElementById('invoiceSummary').innerHTML = `
+        <div class="stat-card"><div class="stat-header"><span class="stat-label">Total</span></div><div class="stat-value" style="font-size:1.4rem">£${total.toLocaleString()}</div></div>
+        <div class="stat-card"><div class="stat-header"><span class="stat-label">Paid</span></div><div class="stat-value" style="font-size:1.4rem;color:#4ade80">£${paid.toLocaleString()}</div></div>
+        <div class="stat-card"><div class="stat-header"><span class="stat-label">Outstanding</span></div><div class="stat-value" style="font-size:1.4rem;color:#fbbf24">£${outstanding.toLocaleString()}</div></div>
+        <div class="stat-card" ${overdueAmt > 0 ? 'style="border-color:rgba(239,68,68,0.2)"' : ''}><div class="stat-header"><span class="stat-label">Overdue</span></div><div class="stat-value" style="font-size:1.4rem;color:#f87171">£${overdueAmt.toLocaleString()}</div></div>
+    `;
+
+    if (filtered.length === 0) {
+        tbody.innerHTML = '';
+        empty.classList.remove('hidden');
+        return;
+    }
+    empty.classList.add('hidden');
+
+    const statusColors = { Draft: '#71717a', Sent: '#818cf8', Paid: '#4ade80', Overdue: '#f87171' };
+    tbody.innerHTML = filtered.map(inv => {
+        const color = statusColors[inv.status] || '#71717a';
+        return `<tr>
+            <td><span class="list-row-title" style="cursor:default">${esc(inv.title)}</span></td>
+            <td style="color:#a1a1aa">${esc(inv.client)}</td>
+            <td style="font-weight:600;color:#fafafa">£${parseFloat(inv.amount || 0).toLocaleString()}</td>
+            <td><span style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:0.72rem;font-weight:600;background:${color}15;color:${color}">${esc(inv.status)}</span></td>
+            <td>${categoryBadge(inv.category)}</td>
+            <td style="text-align:right;color:#52525b">${esc(inv.due_date)}</td>
+        </tr>`;
+    }).join('');
+}
+
+function openNewInvoiceModal() {
+    const title = prompt('Invoice title (e.g. "Marco — Combimaster"):');
+    if (!title) return;
+    const client = prompt('Client name:') || '';
+    const amount = prompt('Amount (£):') || '0';
+    const due = prompt('Due date (YYYY-MM-DD):') || '';
+    const cat = prompt('Category (Recast / Shadow Operating / Mulligan\'s Marketplace / Agency):') || '';
+
+    _invoices.push({
+        id: 'inv_' + Date.now(),
+        title, client, amount, due_date: due,
+        status: 'Draft', category: cat,
+        created: new Date().toISOString(),
+    });
+    saveInvoices();
+    addActivity('created invoice', title);
+    renderInvoices();
+    showToast('Invoice created', 'success');
 }
 
 /* ════════════════════════════════════════════════════════════════
